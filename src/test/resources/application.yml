@@ -1,0 +1,19 @@
+server:
+  port: 8080
+pitchfork:
+  forwarders:
+    haystack:
+      enabled: false
+      kafka:
+        broker-url: kafka-service:9092
+        topic: proto-spans
+    logging:
+      enabled: true
+      log-full-span: true
+    zipkin:
+      enabled: false
+      host: zipkin
+      port: 123
+      max-inflight-requests: 128
+      write-timeout-millis: 10000
+      compression-enabled: true

@@ -1,0 +1,20 @@
+server:
+  port: 8080
+logging.pattern.console: "%d{&quot;yyyy-MM-dd'T'HH:mm:ss.SSSZ&quot;} %highlight(%-5level) [%thread] rid=[%X{rid}] %logger{36} - %msg %rEx{30}%n"
+pitchfork:
+  forwarders:
+    haystack:
+      enabled: true
+      kafka:
+        broker-url: kafka-service:9092
+        topic: proto-spans
+    logging:
+      enabled: false
+      log-full-span: false
+    zipkin:
+      enabled: false
+      host: localhost
+      port: 9411
+      max-inflight-requests: 256
+      write-timeout-millis: 10000
+      compression-enabled: true
