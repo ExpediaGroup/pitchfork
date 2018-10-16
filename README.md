@@ -30,7 +30,7 @@ To package as a docker image:
     
 #### Run
 
-The preferred way to run Pitchfork is via Docker.
+The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/hotelsdotcom/pitchfork/).
 
     docker run -p 8080:8080 hotelsdotcom/pitchfork:latest
     
@@ -88,6 +88,7 @@ None of these are essential for a pull request to be approved but they all help.
 * Try to have a clean git history. Use git rebase when pulling changes from master and, if you have multiple (related) commits do try and squash them into a single one.
 
 ## References
+* [Pitchfork at Docker Hub](https://hub.docker.com/r/hotelsdotcom/pitchfork/)
 * [Haystack](https://github.com/ExpediaDotCom/haystack)
 * [Zipkin](https://github.com/openzipkin/zipkin)
 
