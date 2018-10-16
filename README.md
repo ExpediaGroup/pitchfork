@@ -32,11 +32,11 @@ To package as a docker image:
 
 The preferred way to run Pitchfork is via Docker.
 
-    docker run -p 8080:8080 FIXME.docker.com/hotels/pitchfork:latest
+    docker run -p 8080:8080 hotelsdotcom/pitchfork:latest
     
 You can override the default properties by with environment variables (macro case or screaming upper case), for example:
 
-    docker run -p 8080:8080 -e PITCHFORK_FORWARDERS_HAYSTACK_ENABLED=false FIXME.docker.com/hotels/pitchfork:latest
+    docker run -p 8080:8080 -e PITCHFORK_FORWARDERS_HAYSTACK_ENABLED=false hotelsdotcom/pitchfork:latest
 
 Or you can run it as a normal Java application:
 
