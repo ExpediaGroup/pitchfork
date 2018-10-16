@@ -1,0 +1,7 @@
+language: java
+sudo: required
+services:
+- docker
+script: ./mvnw verify
+jdk:
+- openjdk11
