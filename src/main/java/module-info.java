@@ -1,7 +1,9 @@
 open module haystack.proxy {
     requires spring.web;
     requires kafka.clients;
+    requires kafka.streams;
     requires javax.inject;
+    requires java.annotation;
     requires spring.context;
     requires spring.beans;
     requires spring.core;
