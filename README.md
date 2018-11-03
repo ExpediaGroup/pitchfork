@@ -84,7 +84,7 @@ These different forwarders can be enabled/disabled separately. Please see the ap
 None of these are essential for a pull request to be approved but they all help.
 
 * We don't formalize coding standards for this project other than using spaces and not tabs (we're not animals). Please try to use the existing code as a convention guide.
-* Make sure you test your code before opening a new pr. You will need Java 10+ and Docker to run the integration tests. Note that some classes in this project do not have unit tests: this is because either they are not trivial to test or having test coverage at this level would not add much.
+* Make sure you test your code before opening a new pr. You will need Java 11+ and Docker to run the integration tests. Note that some classes in this project do not have unit tests: this is because either they are not trivial to test or having test coverage at this level would not add much.
 * Try to have a clean git history. Use git rebase when pulling changes from master and, if you have multiple (related) commits do try and squash them into a single one.
 
 ## References

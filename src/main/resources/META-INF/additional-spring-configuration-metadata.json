@@ -1,0 +1,60 @@
+{
+  "properties": [
+    {
+      "name": "pitchfork.forwarders.haystack.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, creates a forwarder to a Haystack Kafka topic."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kafka.broker-url",
+      "type": "java.lang.String",
+      "description": "Url for the Kafka broker for Haystack, for example 'kafka-service:9092'."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kafka.topic",
+      "type": "java.lang.String",
+      "description": "Name of the Haystack's Kafka topic."
+    },
+    {
+      "name": "pitchfork.forwarders.logging.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, creates a forwarder that simply logs incoming spans."
+    },
+    {
+      "name": "pitchfork.forwarders.logging.log-full-span",
+      "type": "java.lang.Boolean",
+      "description": "When true, logs the entire content of the span received. When false only the id is logged."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, creates a forwarder that publishes spans into a Zipkin collector."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.host",
+      "type": "java.lang.String",
+      "description": "Host for the remote Zipkin collector, for example 'localhost'."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.port",
+      "type": "java.lang.Integer",
+      "description": "Port used by the remote Zipkin collector'."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.max-inflight-requests",
+      "type": "java.lang.Integer",
+      "description": "Maximum in flight requests for Zipkin http client."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.write-timeout-millis",
+      "type": "java.lang.Integer",
+      "description": "Write timeout for Zipkin http client, in milliseconds."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.compression-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Compresses spans before sending to remote Zipkin collector."
+    }
+  ]
+}
+
