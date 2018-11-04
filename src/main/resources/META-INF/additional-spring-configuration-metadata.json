@@ -6,9 +6,9 @@
       "description": "When true, creates a forwarder to a Haystack Kafka topic."
     },
     {
-      "name": "pitchfork.forwarders.haystack.kafka.broker-url",
+      "name": "pitchfork.forwarders.haystack.kafka.bootstrap-servers",
       "type": "java.lang.String",
-      "description": "Url for the Kafka broker for Haystack, for example 'kafka-service:9092'."
+      "description": "Comma separated list of Kafka bootstrap servers, for example 'kafka-service-1:9092,kafka-service-2:9092'."
     },
     {
       "name": "pitchfork.forwarders.haystack.kafka.topic",
@@ -31,14 +31,9 @@
       "description": "When true, creates a forwarder that publishes spans into a Zipkin collector."
     },
     {
-      "name": "pitchfork.forwarders.zipkin.host",
+      "name": "pitchfork.forwarders.zipkin.endpoint",
       "type": "java.lang.String",
-      "description": "Host for the remote Zipkin collector, for example 'localhost'."
-    },
-    {
-      "name": "pitchfork.forwarders.zipkin.port",
-      "type": "java.lang.Integer",
-      "description": "Port used by the remote Zipkin collector'."
+      "description": "Endpoint for the remote Zipkin collector, for example 'http://zipkinhost:9411/api/v2/spans'."
     },
     {
       "name": "pitchfork.forwarders.zipkin.max-inflight-requests",

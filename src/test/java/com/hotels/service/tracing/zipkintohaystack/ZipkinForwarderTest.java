@@ -50,8 +50,7 @@ public class ZipkinForwarderTest {
         ZIPKIN_PORT = zipkinContainer.getMappedPort(9411);
 
         System.setProperty("pitchfork.forwarders.zipkin.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.forwarders.zipkin.host", "localhost");
-        System.setProperty("pitchfork.forwarders.zipkin.port", String.valueOf(ZIPKIN_PORT));
+        System.setProperty("pitchfork.forwarders.zipkin.endpoint", "http://localhost:" + ZIPKIN_PORT + "/api/v2/spans");
     }
 
     @Test

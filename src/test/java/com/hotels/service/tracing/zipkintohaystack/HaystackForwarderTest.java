@@ -63,7 +63,7 @@ public class HaystackForwarderTest {
         kafkaContainer.start();
 
         System.setProperty("pitchfork.forwarders.haystack.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.forwarders.haystack.kafka.broker-url", kafkaContainer.getBootstrapServers());
+        System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
     }
 
     @Test
