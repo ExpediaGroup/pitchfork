@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -29,7 +29,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@ConditionalOnProperty(name = "pitchfork.forwarders.haystack.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "pitchfork.forwarders.haystack.kafka.enabled", havingValue = "true")
 @Configuration
 public class HaystackForwarderConfig {
 

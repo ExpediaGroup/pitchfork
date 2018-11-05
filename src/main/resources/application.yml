@@ -4,8 +4,14 @@ logging.pattern.console: "%d{&quot;yyyy-MM-dd'T'HH:mm:ss.SSSZ&quot;} %highlight(
 pitchfork:
   forwarders:
     haystack:
-      enabled: true
+      kinesis:
+        enabled: false
+        region-name: "us-west-1"
+        stream-name: "proto-spans"
+        endpoint-config-type: REGION
+        authentication-type: DEFAULT
       kafka:
+        enabled: true
         bootstrap-servers: kafka-service:9092
         topic: proto-spans
     logging:

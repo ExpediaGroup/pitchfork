@@ -2,6 +2,7 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
 import com.expedia.open.tracing.Span;
 import com.expedia.open.tracing.Tag;
+
 import org.junit.Test;
 
 import java.util.Map;

@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka;
 
 import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
 
@@ -28,7 +28,7 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 /**
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format, converts to Haystack domain and pushes a {@code Kafka} stream.
  */
-public class HaystackKafkaSpanForwarder implements SpanForwarder {
+public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -45,12 +45,18 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder {
         logger.debug("operation=process, span={}", input);
 
         com.expedia.open.tracing.Span span = fromZipkinV2(input);
-
         byte[] value = span.toByteArray();
 
         final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getTraceId(), value);
 
         // FIXME send() should return a future but it's blocking when kafka servers are unavailable
+        // TODO: metrics with success/failures
         producer.send(record);
+    }
+
+    @Override
+    public void close() {
+        producer.flush();
+        producer.close();
     }
 }

@@ -2,7 +2,7 @@ package com.hotels.service.tracing.zipkintohaystack;
 
 import static org.junit.Assert.assertEquals;
 
-import static com.hotels.service.tracing.zipkintohaystack.TestHelpers.retryUntilSuccess;
+import static com.hotels.service.tracing.zipkintohaystack.utils.TestHelpers.retryUntilSuccess;
 import static zipkin2.codec.SpanBytesEncoder.JSON_V1;
 import static zipkin2.codec.SpanBytesEncoder.JSON_V2;
 
@@ -78,7 +78,7 @@ public class ZipkinForwarderTest {
         HttpEntity<String> request = new HttpEntity<>(new String(bytes), headers);
 
         ResponseEntity<String> responseFromVictim = this.restTemplate.postForEntity("/api/v2/spans", request, String.class);
-        assertEquals(HttpStatus.OK, responseFromVictim.getStatusCode());
+        assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
         retryUntilSuccess(Duration.ofSeconds(30), () -> {
@@ -117,7 +117,7 @@ public class ZipkinForwarderTest {
         HttpEntity<String> request = new HttpEntity<>(new String(bytes), headers);
 
         ResponseEntity<String> responseFromVictim = this.restTemplate.postForEntity("/api/v1/spans", request, String.class);
-        assertEquals(HttpStatus.OK, responseFromVictim.getStatusCode());
+        assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
         retryUntilSuccess(Duration.ofSeconds(30), () -> {

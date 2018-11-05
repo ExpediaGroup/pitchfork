@@ -1,4 +1,4 @@
-package com.hotels.service.tracing.zipkintohaystack;
+package com.hotels.service.tracing.zipkintohaystack.utils;
 
 import static java.time.LocalTime.now;
 import static java.util.concurrent.TimeUnit.SECONDS;
