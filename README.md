@@ -53,7 +53,7 @@ pitchfork.forwarders.haystack.kafka.topic             | proto-spans
 pitchfork.forwarders.logging.enabled                  | false
 pitchfork.forwarders.logging.log-full-span            | false
 pitchfork.forwarders.zipkin.enabled                   | false
-pitchfork.forwarders.zipkin.endpoint                  | http://localhost::9411/api/v2/spans
+pitchfork.forwarders.zipkin.endpoint                  | http://localhost:9411/api/v2/spans
 pitchfork.forwarders.zipkin.max-inflight-requests     | 256
 pitchfork.forwarders.zipkin.write-timeout-millis      | 10000
 pitchfork.forwarders.zipkin.compression-enabled       | true
