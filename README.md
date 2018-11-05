@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/HotelsDotCom/pitchfork.svg?branch=master)](https://travis-ci.org/HotelsDotCom/pitchfork) [![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://stash.hcom/projects/SHP/repos/haystack-zipkin-proxy/raw/LICENSE)
+[![Build Status](https://travis-ci.org/HotelsDotCom/pitchfork.svg?branch=master)](https://travis-ci.org/HotelsDotCom/pitchfork) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Pitchfork
 
@@ -6,7 +6,7 @@ Pitchfork lifts Zipkin tracing data into Haystack.
 
 ## Overview
 
-[Haystack](https://github.com/ExpediaDotCom/haystack) is an [Expedia](https://www.expedia.com/)-backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like [Zipkin](https://github.com/openzipkin/zipkin), it's primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
+[Haystack](https://github.com/ExpediaDotCom/haystack) is an [Expedia](https://www.expedia.com/)-backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like [Zipkin](https://github.com/openzipkin/zipkin), its primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
 
 [Zipkin](https://github.com/openzipkin/zipkin) is the de facto standard for distributed tracing. We understand that migrating to a new system can be difficult and you may want to go back. Pitchfork can help you with this.
 
@@ -30,13 +30,13 @@ To package as a docker image:
     
 #### Run
 
-The preferred way to run Pitchfork is via Docker.
+The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/hotelsdotcom/pitchfork/).
 
-    docker run -p 8080:8080 FIXME.docker.com/hotels/pitchfork:latest
+    docker run -p 8080:8080 hotelsdotcom/pitchfork:latest
     
 You can override the default properties by with environment variables (macro case or screaming upper case), for example:
 
-    docker run -p 8080:8080 -e PITCHFORK_FORWARDERS_HAYSTACK_ENABLED=false FIXME.docker.com/hotels/pitchfork:latest
+    docker run -p 8080:8080 -e PITCHFORK_FORWARDERS_HAYSTACK_ENABLED=false hotelsdotcom/pitchfork:latest
 
 Or you can run it as a normal Java application:
 
@@ -87,6 +87,7 @@ None of these are essential for a pull request to be approved but they all help.
 * Try to have a clean git history. Use git rebase when pulling changes from master and, if you have multiple (related) commits do try and squash them into a single one.
 
 ## References
+* [Pitchfork at Docker Hub](https://hub.docker.com/r/hotelsdotcom/pitchfork/)
 * [Haystack](https://github.com/ExpediaDotCom/haystack)
 * [Zipkin](https://github.com/openzipkin/zipkin)
 
