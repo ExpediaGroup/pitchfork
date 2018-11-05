@@ -45,19 +45,18 @@ Or you can run it as a normal Java application:
 ##### Properties
 
 Description | Default
---------------------------------------------------|-------------------
-server.port                                       | 8080
-pitchfork.forwarders.haystack.enabled             | true
-pitchfork.forwarders.haystack.kafka.broker-url    | kafka-service:9092
-pitchfork.forwarders.haystack.kafka.topic         | proto-spans
-pitchfork.forwarders.logging.enabled              | false
-pitchfork.forwarders.logging.log-full-span        | false
-pitchfork.forwarders.zipkin.enabled               | false
-pitchfork.forwarders.zipkin.host                  | localhost
-pitchfork.forwarders.zipkin.port                  | 9411
-pitchfork.forwarders.zipkin.max-inflight-requests | 256
-pitchfork.forwarders.zipkin.write-timeout-millis  | 10000
-pitchfork.forwarders.zipkin.compression-enabled   | true
+------------------------------------------------------|-------------------
+server.port                                           | 8080
+pitchfork.forwarders.haystack.enabled                 | true
+pitchfork.forwarders.haystack.kafka.bootstrap-servers | kafka-service:9092
+pitchfork.forwarders.haystack.kafka.topic             | proto-spans
+pitchfork.forwarders.logging.enabled                  | false
+pitchfork.forwarders.logging.log-full-span            | false
+pitchfork.forwarders.zipkin.enabled                   | false
+pitchfork.forwarders.zipkin.endpoint                  | http://localhost:9411/api/v2/spans
+pitchfork.forwarders.zipkin.max-inflight-requests     | 256
+pitchfork.forwarders.zipkin.write-timeout-millis      | 10000
+pitchfork.forwarders.zipkin.compression-enabled       | true
 
 ## Architecture
 
@@ -84,7 +83,7 @@ These different forwarders can be enabled/disabled separately. Please see the ap
 None of these are essential for a pull request to be approved but they all help.
 
 * We don't formalize coding standards for this project other than using spaces and not tabs (we're not animals). Please try to use the existing code as a convention guide.
-* Make sure you test your code before opening a new pr. You will need Java 10+ and Docker to run the integration tests. Note that some classes in this project do not have unit tests: this is because either they are not trivial to test or having test coverage at this level would not add much.
+* Make sure you test your code before opening a new pr. You will need Java 11+ and Docker to run the integration tests. Note that some classes in this project do not have unit tests: this is because either they are not trivial to test or having test coverage at this level would not add much.
 * Try to have a clean git history. Use git rebase when pulling changes from master and, if you have multiple (related) commits do try and squash them into a single one.
 
 ## References

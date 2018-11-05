@@ -26,11 +26,10 @@ import org.springframework.context.annotation.Configuration;
 public class ZipkinForwarderConfig {
 
     @Bean
-    public ZipkinForwarder createProducer(@Value("${pitchfork.forwarders.zipkin.host}") String host,
-                                          @Value("${pitchfork.forwarders.zipkin.port}") int port,
+    public ZipkinForwarder createProducer(@Value("${pitchfork.forwarders.zipkin.endpoint}") String endpoint,
                                           @Value("${pitchfork.forwarders.zipkin.max-inflight-requests}") int maxInFlightRequests,
                                           @Value("${pitchfork.forwarders.zipkin.write-timeout-millis}") int writeTimeoutMillis,
                                           @Value("${pitchfork.forwarders.zipkin.compression-enabled}") boolean compressionEnabled) {
-        return new ZipkinForwarder(host, port, maxInFlightRequests, writeTimeoutMillis, compressionEnabled);
+        return new ZipkinForwarder(endpoint, maxInFlightRequests, writeTimeoutMillis, compressionEnabled);
     }
 }

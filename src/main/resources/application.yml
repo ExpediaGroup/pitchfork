@@ -6,15 +6,14 @@ pitchfork:
     haystack:
       enabled: true
       kafka:
-        broker-url: kafka-service:9092
+        bootstrap-servers: kafka-service:9092
         topic: proto-spans
     logging:
       enabled: false
       log-full-span: false
     zipkin:
       enabled: false
-      host: localhost
-      port: 9411
+      endpoint: http://localhost:9411/api/v2/spans
       max-inflight-requests: 256
       write-timeout-millis: 10000
       compression-enabled: true
