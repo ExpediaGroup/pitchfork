@@ -45,25 +45,34 @@ Or you can run it as a normal Java application:
 ##### Properties
 
 Description | Default
-------------------------------------------------------|-------------------
-server.port                                           | 8080
-pitchfork.forwarders.haystack.enabled                 | true
-pitchfork.forwarders.haystack.kafka.bootstrap-servers | kafka-service:9092
-pitchfork.forwarders.haystack.kafka.topic             | proto-spans
-pitchfork.forwarders.logging.enabled                  | false
-pitchfork.forwarders.logging.log-full-span            | false
-pitchfork.forwarders.zipkin.enabled                   | false
-pitchfork.forwarders.zipkin.endpoint                  | http://localhost:9411/api/v2/spans
-pitchfork.forwarders.zipkin.max-inflight-requests     | 256
-pitchfork.forwarders.zipkin.write-timeout-millis      | 10000
-pitchfork.forwarders.zipkin.compression-enabled       | true
+---------------------------------------------------------------|-------------------
+server.port                                                    | 8080
+pitchfork.forwarders.haystack.kafka.enabled                    | true
+pitchfork.forwarders.haystack.kafka.bootstrap-servers          | kafka-service:9092
+pitchfork.forwarders.haystack.kafka.topic                      | proto-spans
+pitchfork.forwarders.haystack.kinesis.enabled                  | false
+pitchfork.forwarders.haystack.kinesis.endpoint-config-type     | REGION
+pitchfork.forwarders.haystack.kinesis.region-name              | us-west-1
+pitchfork.forwarders.haystack.kinesis.signing-region-name      |
+pitchfork.forwarders.haystack.kinesis.service-endpoint         |
+pitchfork.forwarders.haystack.kinesis.stream-name              | proto-spans
+pitchfork.forwarders.haystack.kinesis.aws-access-key           | 
+pitchfork.forwarders.haystack.kinesis.aws-secret-key           | 
+pitchfork.forwarders.haystack.kinesis.authentication-type      | DEFAULT
+pitchfork.forwarders.logging.enabled                           | false
+pitchfork.forwarders.logging.log-full-span                     | false
+pitchfork.forwarders.zipkin.enabled                            | false
+pitchfork.forwarders.zipkin.endpoint                           | http://localhost:9411/api/v2/spans
+pitchfork.forwarders.zipkin.max-inflight-requests              | 256
+pitchfork.forwarders.zipkin.write-timeout-millis               | 10000
+pitchfork.forwarders.zipkin.compression-enabled                | true
 
 ## Architecture
 
 Pitchfork acts as a collector and forwarder of tracing data.
 If you are currently using Zipkin you don't need to do code changes to your service. You can simply change your exporter to use a new endpoint and report the traces to Pitchfork instead of Zipkin.
 
-Pitchfork can be configured to forward incoming spans to: a Zipkin collector; Haystack (using Kafka as a message bus); a logger that just prints the traces as they are received.
+Pitchfork can be configured to forward incoming spans to: a Zipkin collector; Haystack (using Kafka or Kinesis as a message bus); a logger that just prints the traces as they are received.
 
 
     [ Service A ] ------                               ------> [ Haystack / Kafka ]

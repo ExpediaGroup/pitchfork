@@ -79,6 +79,7 @@ public class ZipkinController {
         return serverRequest
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
+                .filter(span -> span.traceId() != null) // TODO: add logging here? or metric with discarded/invalid spans
                 .map(processSpans())
                 .doOnNext(futures -> futures.forEach(this::waitForFuture))
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))

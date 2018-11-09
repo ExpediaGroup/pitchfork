@@ -8,14 +8,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import static com.hotels.service.tracing.zipkintohaystack.TestHelpers.retryUntilSuccess;
+import static com.hotels.service.tracing.zipkintohaystack.utils.TestHelpers.retryUntilSuccess;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -44,7 +43,7 @@ import zipkin2.Endpoint;
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class HaystackForwarderTest {
+public class HaystackKafkaForwarderTest {
 
     private static KafkaContainer kafkaContainer;
 
@@ -62,7 +61,7 @@ public class HaystackForwarderTest {
         kafkaContainer = new KafkaContainer();
         kafkaContainer.start();
 
-        System.setProperty("pitchfork.forwarders.haystack.enabled", String.valueOf(true));
+        System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
     }
 
@@ -89,9 +88,9 @@ public class HaystackForwarderTest {
         HttpEntity<String> request = new HttpEntity<>(OBJECT_MAPPER.writeValueAsString(List.of(zipkinSpan)), headers);
 
         ResponseEntity<String> responseFromVictim = this.restTemplate.postForEntity("/api/v2/spans", request, String.class);
-        assertEquals(HttpStatus.OK, responseFromVictim.getStatusCode());
+        assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
 
-        // proxy is async, and kafka is async too, so we wait
+        // proxy is async, and kafka is async too, so we retry our assertions until they are true
         KafkaConsumer<String, byte[]> consumer = setupConsumer();
 
         retryUntilSuccess(Duration.ofSeconds(10), () -> {
@@ -99,16 +98,14 @@ public class HaystackForwarderTest {
 
             assertTrue(!records.isEmpty());
 
-            for (ConsumerRecord<String, byte[]> record : records) {
-                Optional<Span> span = deserialize(record.value());
+            Optional<Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
 
-                assertTrue(span.isPresent());
-                assertEquals(span.get().getTraceId(), traceId);
-                assertEquals(span.get().getSpanId(), spanId);
-                assertEquals(span.get().getParentSpanId(), parentId);
-                assertEquals(span.get().getStartTime(), timestamp);
-                assertEquals(span.get().getDuration(), duration);
-            }
+            assertTrue(span.isPresent());
+            assertEquals(span.get().getTraceId(), traceId);
+            assertEquals(span.get().getSpanId(), spanId);
+            assertEquals(span.get().getParentSpanId(), parentId);
+            assertEquals(span.get().getStartTime(), timestamp);
+            assertEquals(span.get().getDuration(), duration);
         });
     }
 
