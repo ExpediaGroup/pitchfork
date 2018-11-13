@@ -11,7 +11,7 @@ pitchfork:
         endpoint-config-type: REGION
         authentication-type: DEFAULT
       kafka:
-        enabled: true
+        enabled: false
         bootstrap-servers: kafka-service:9092
         topic: proto-spans
     logging:
