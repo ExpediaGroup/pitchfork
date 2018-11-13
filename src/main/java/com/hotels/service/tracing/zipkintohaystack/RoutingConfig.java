@@ -50,11 +50,11 @@ public class RoutingConfig {
     @Bean
     public RouterFunction<ServerResponse> myRoutes(ZipkinController zipkinController) {
         return nest(method(HttpMethod.POST),
-                nest(contentType(APPLICATION_JSON),
-                        route(path("/api/v1/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V1))
-                                .andRoute(path("/api/v2/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V2)))
-                .andRoute(contentType(APPLICATION_THRIFT), request -> zipkinController.addSpans(request, SpanBytesDecoder.THRIFT))
-                .andRoute(contentType(APPLICATION_PROTOBUF), request -> zipkinController.addSpans(request, SpanBytesDecoder.PROTO3)))
+                    nest(contentType(APPLICATION_JSON),
+                            route(path("/api/v1/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V1))
+                        .andRoute(path("/api/v2/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V2)))
+                    .andRoute(contentType(APPLICATION_THRIFT), request -> zipkinController.addSpans(request, SpanBytesDecoder.THRIFT))
+                    .andRoute(contentType(APPLICATION_PROTOBUF), request -> zipkinController.addSpans(request, SpanBytesDecoder.PROTO3)))
                 .andRoute(RequestPredicates.all(), zipkinController::unmatched);
     }
 
