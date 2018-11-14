@@ -20,8 +20,9 @@ pitchfork:
       enabled: true
       log-full-span: true
     zipkin:
-      enabled: false
-      endpoint: zipkin
-      max-inflight-requests: 128
-      write-timeout-millis: 10000
-      compression-enabled: true
+      http:
+        enabled: false
+        endpoint: zipkin
+        max-inflight-requests: 128
+        write-timeout-millis: 10000
+        compression-enabled: true

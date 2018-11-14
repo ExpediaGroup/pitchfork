@@ -18,8 +18,9 @@ pitchfork:
       enabled: false
       log-full-span: false
     zipkin:
-      enabled: false
-      endpoint: http://localhost:9411/api/v2/spans
-      max-inflight-requests: 256
-      write-timeout-millis: 10000
-      compression-enabled: true
+      http:
+        enabled: false
+        endpoint: http://localhost:9411/api/v2/spans
+        max-inflight-requests: 256
+        write-timeout-millis: 10000
+        compression-enabled: true
