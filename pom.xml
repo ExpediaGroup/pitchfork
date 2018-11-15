@@ -113,6 +113,11 @@
       <groupId>io.zipkin.reporter2</groupId>
       <artifactId>zipkin-sender-okhttp3</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.zipkin.proto3</groupId>
+      <artifactId>zipkin-proto3</artifactId>
+      <version>0.1.0</version>
+    </dependency>
 
     <!-- Compile time dependencies -->
     <dependency>
@@ -179,6 +184,25 @@
         </executions>
       </plugin>
 
+      <!-- Unpack proto definitions -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-proto</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeArtifactIds>zipkin-proto3</includeArtifactIds>
+              <includes>**/*.proto</includes>
+              <outputDirectory>${project.build.directory}/zipkin-proto</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -210,9 +234,11 @@
             <configuration>
               <includeDirectories>
                 <include>proto</include>
+                <include>${project.build.directory}/zipkin-proto</include>
               </includeDirectories>
               <inputDirectories>
                 <include>proto</include>
+                <include>${project.build.directory}/zipkin-proto</include>
               </inputDirectories>
               <outputDirectory>${project.build.directory}/generated-sources/proto</outputDirectory>
             </configuration>
