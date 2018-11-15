@@ -47,7 +47,7 @@ Or you can run it as a normal Java application:
 Description | Default
 ---------------------------------------------------------------|-------------------
 server.port                                                    | 8080
-pitchfork.forwarders.haystack.kafka.enabled                    | true
+pitchfork.forwarders.haystack.kafka.enabled                    | false
 pitchfork.forwarders.haystack.kafka.bootstrap-servers          | kafka-service:9092
 pitchfork.forwarders.haystack.kafka.topic                      | proto-spans
 pitchfork.forwarders.haystack.kinesis.enabled                  | false
@@ -61,11 +61,11 @@ pitchfork.forwarders.haystack.kinesis.aws-secret-key           |
 pitchfork.forwarders.haystack.kinesis.authentication-type      | DEFAULT
 pitchfork.forwarders.logging.enabled                           | false
 pitchfork.forwarders.logging.log-full-span                     | false
-pitchfork.forwarders.zipkin.enabled                            | false
-pitchfork.forwarders.zipkin.endpoint                           | http://localhost:9411/api/v2/spans
-pitchfork.forwarders.zipkin.max-inflight-requests              | 256
-pitchfork.forwarders.zipkin.write-timeout-millis               | 10000
-pitchfork.forwarders.zipkin.compression-enabled                | true
+pitchfork.forwarders.zipkin.http.enabled                       | false
+pitchfork.forwarders.zipkin.http.endpoint                      | http://localhost:9411/api/v2/spans
+pitchfork.forwarders.zipkin.http.max-inflight-requests         | 256
+pitchfork.forwarders.zipkin.http.write-timeout-millis          | 10000
+pitchfork.forwarders.zipkin.http.compression-enabled           | true
 
 ## Architecture
 

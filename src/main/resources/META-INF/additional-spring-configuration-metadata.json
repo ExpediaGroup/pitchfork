@@ -71,27 +71,27 @@
       "description": "When true, logs the entire content of the span received. When false only the id is logged."
     },
     {
-      "name": "pitchfork.forwarders.zipkin.enabled",
+      "name": "pitchfork.forwarders.zipkin.http.enabled",
       "type": "java.lang.Boolean",
       "description": "When true, creates a forwarder that publishes spans into a Zipkin collector."
     },
     {
-      "name": "pitchfork.forwarders.zipkin.endpoint",
+      "name": "pitchfork.forwarders.zipkin.http.endpoint",
       "type": "java.lang.String",
       "description": "Endpoint for the remote Zipkin collector, for example 'http://zipkinhost:9411/api/v2/spans'."
     },
     {
-      "name": "pitchfork.forwarders.zipkin.max-inflight-requests",
+      "name": "pitchfork.forwarders.zipkin.http.max-inflight-requests",
       "type": "java.lang.Integer",
       "description": "Maximum in flight requests for Zipkin http client."
     },
     {
-      "name": "pitchfork.forwarders.zipkin.write-timeout-millis",
+      "name": "pitchfork.forwarders.zipkin.http.write-timeout-millis",
       "type": "java.lang.Integer",
       "description": "Write timeout for Zipkin http client, in milliseconds."
     },
     {
-      "name": "pitchfork.forwarders.zipkin.compression-enabled",
+      "name": "pitchfork.forwarders.zipkin.http.compression-enabled",
       "type": "java.lang.Boolean",
       "description": "Compresses spans before sending to remote Zipkin collector."
     }

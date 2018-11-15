@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
 import static java.util.Collections.singletonList;
 
