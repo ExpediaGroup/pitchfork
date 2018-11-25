@@ -1,14 +1,14 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
 
-import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
-
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter;
 import zipkin2.Span;
 
 /**
@@ -19,10 +19,12 @@ public class KinesisForwarder implements SpanForwarder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final HaystackDomainConverter domainConverter;
     private final AmazonKinesis producer;
     private final String streamName;
 
-    public KinesisForwarder(AmazonKinesis producer, String streamName) {
+    public KinesisForwarder(HaystackDomainConverter domainConverter, AmazonKinesis producer, String streamName) {
+        this.domainConverter = domainConverter;
         this.producer = producer;
         this.streamName = streamName;
     }
@@ -31,10 +33,14 @@ public class KinesisForwarder implements SpanForwarder {
     public void process(Span input) {
         logger.debug("operation=process, span={}", input);
 
-        com.expedia.open.tracing.Span span = fromZipkinV2(input);
-        byte[] value = span.toByteArray();
+        Optional<com.expedia.open.tracing.Span> span = domainConverter.fromZipkinV2(input);
 
-        // TODO: metrics with success/failures
-        producer.putRecord(streamName, ByteBuffer.wrap(value), input.traceId());
+        span.ifPresent(it -> {
+            byte[] value = it.toByteArray();
+
+            // TODO: metrics with success/failures
+            producer.putRecord(streamName, ByteBuffer.wrap(value), input.traceId());
+        });
+
     }
 }

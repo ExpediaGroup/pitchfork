@@ -16,14 +16,16 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka;
 
-import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
+import java.util.Optional;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.expedia.open.tracing.Span;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter;
 
 /**
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format, converts to Haystack domain and pushes a {@code Kafka} stream.
@@ -32,10 +34,12 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final HaystackDomainConverter domainConverter;
     private final String topic;
     private final Producer<String, byte[]> producer;
 
-    public HaystackKafkaSpanForwarder(Producer<String, byte[]> producer, String topic) {
+    public HaystackKafkaSpanForwarder(HaystackDomainConverter domainConverter, Producer<String, byte[]> producer, String topic) {
+        this.domainConverter = domainConverter;
         this.topic = topic;
         this.producer = producer;
     }
@@ -44,14 +48,16 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
     public void process(zipkin2.Span input) {
         logger.debug("operation=process, span={}", input);
 
-        com.expedia.open.tracing.Span span = fromZipkinV2(input);
-        byte[] value = span.toByteArray();
+        Optional<Span> span = domainConverter.fromZipkinV2(input);
+        span.ifPresent(it -> {
+            byte[] value = it.toByteArray();
 
-        final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getTraceId(), value);
+            final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, it.getTraceId(), value);
 
-        // FIXME send() should return a future but it's blocking when kafka servers are unavailable
-        // TODO: metrics with success/failures
-        producer.send(record);
+            // FIXME send() should return a future but it's blocking when kafka servers are unavailable
+            // TODO: metrics with success/failures
+            producer.send(record);
+        });
     }
 
     @Override

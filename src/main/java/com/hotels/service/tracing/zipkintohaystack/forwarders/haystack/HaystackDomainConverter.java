@@ -24,23 +24,62 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.expedia.open.tracing.Span;
 import com.expedia.open.tracing.Tag;
 
 /**
  * Converter between {@code Zipkin} and {@code Haystack} domains.
  */
+@Component
 public class HaystackDomainConverter {
 
     private static final String HAYSTACK_TAG_KEY_FOR_DATACENTER = "X-HAYSTACK-INFRASTRUCTURE-PROVIDER";
 
-    private HaystackDomainConverter() {
+    private final Logger logger = LoggerFactory.getLogger(HaystackDomainConverter.class);
+    private final boolean acceptNullTimestamps;
+    private final int maxTimestampDriftSeconds;
+
+    public HaystackDomainConverter(@Value("${pitchfork.validators.accept-null-timestamps}") boolean acceptNullTimestamps,
+                                   @Value("${pitchfork.validators.max-timestamp-drift-seconds}") int maxTimestampDriftSeconds) {
+        this.acceptNullTimestamps = acceptNullTimestamps;
+        this.maxTimestampDriftSeconds = maxTimestampDriftSeconds;
     }
 
     /**
      * Accepts a span in {@code Zipkin V2} format and returns a span in {@code Haystack} format.
+     * Returns {@link Optional#empty()} if the span is null.
      */
-    public static Span fromZipkinV2(zipkin2.Span zipkin) {
+    public Optional<Span> fromZipkinV2(zipkin2.Span zipkin) {
+        // TODO: move this outside of the converter and into the ZipkinController.addSpans chain
+        if (zipkin.timestamp() == null && !acceptNullTimestamps) {
+            logger.error("operation=fromZipkinV2, error='null timestamp', service={}, traceId={}, spanId={}",
+                    zipkin.localServiceName(),
+                    zipkin.traceId(),
+                    zipkin.id());
+
+            return empty();
+        }
+
+        if (maxTimestampDriftSeconds != -1) {
+            long lowerBounds = System.currentTimeMillis() - (maxTimestampDriftSeconds * 1000) * 1000;
+            long upperBounds = System.currentTimeMillis() + (maxTimestampDriftSeconds * 1000) * 1000;
+
+            if (zipkin.timestamp() > upperBounds || zipkin.timestamp() < lowerBounds) {
+                logger.error("operation=fromZipkinV2, error='invalid timestamp', timestamp={}, service={}, traceId={}, spanId={}",
+                        zipkin.timestamp(),
+                        zipkin.localServiceName(),
+                        zipkin.traceId(),
+                        zipkin.id());
+
+                return empty();
+            }
+        }
+
         Span.Builder builder = Span.newBuilder()
                 .setTraceId(zipkin.traceId())
                 .setSpanId(zipkin.id());
@@ -53,23 +92,23 @@ public class HaystackDomainConverter {
 
         if (!isEmpty(zipkin.tags())) {
             zipkin.tags().forEach((key, value) -> {
-                List<Tag> tagStream = HaystackDomainConverter.fromZipkinTag(key, value);
+                List<Tag> tagStream = fromZipkinTag(key, value);
                 builder.addAllTags(tagStream);
             });
         }
 
         getTagForKind(zipkin.kind()).ifPresent(builder::addTags);
 
-        return builder.build();
+        return Optional.of(builder.build());
     }
 
-    private static <T> void doIfNotNull(T nullable, Consumer<T> runnable) {
+    private <T> void doIfNotNull(T nullable, Consumer<T> runnable) {
         if (nullable != null) {
             runnable.accept(nullable);
         }
     }
 
-    private static Optional<Tag> getTagForKind(zipkin2.Span.Kind kind) {
+    private Optional<Tag> getTagForKind(zipkin2.Span.Kind kind) {
         String value = null;
 
         if (kind != null) {
@@ -98,7 +137,7 @@ public class HaystackDomainConverter {
         }
     }
 
-    private static List<Tag> fromZipkinTag(String key, String value) {
+    private List<Tag> fromZipkinTag(String key, String value) {
         switch (key) {
         case "error":
             // Zipkin error tags are Strings where as in Haystack they're Booleans
