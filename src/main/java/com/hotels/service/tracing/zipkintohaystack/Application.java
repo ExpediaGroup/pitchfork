@@ -28,7 +28,7 @@ public class Application {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
-        if (ctx.containsBean("noopForwarder")) {
+        if (ctx.containsBean("fallbackForwarder")) {
             ctx.close();
             logger.error("No span forwarders configured. See README.md for a list of available span forwarders.");
         }
