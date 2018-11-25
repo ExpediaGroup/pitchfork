@@ -1,13 +1,14 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import static org.awaitility.Awaitility.await;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
 import static org.junit.Assert.assertEquals;
 
-import static com.hotels.service.tracing.zipkintohaystack.utils.TestHelpers.retryUntilSuccess;
 import static zipkin2.codec.SpanBytesEncoder.JSON_V1;
 import static zipkin2.codec.SpanBytesEncoder.JSON_V2;
 
-import java.time.Duration;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -67,7 +68,7 @@ public class ZipkinForwarderTest {
     }
 
     @Test
-    public void shouldAcceptJsonV2AndForwardToZipkin() throws Exception {
+    public void shouldAcceptJsonV2AndForwardToZipkin() {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -94,7 +95,7 @@ public class ZipkinForwarderTest {
         assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
-        retryUntilSuccess(Duration.ofSeconds(30), () -> {
+        await().atMost(30, SECONDS).untilAsserted(() -> {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
@@ -106,7 +107,7 @@ public class ZipkinForwarderTest {
     }
 
     @Test
-    public void shouldAcceptJsonV1AndForwardToZipkin() throws Exception {
+    public void shouldAcceptJsonV1AndForwardToZipkin() {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -133,7 +134,7 @@ public class ZipkinForwarderTest {
         assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
-        retryUntilSuccess(Duration.ofSeconds(30), () -> {
+        await().atMost(30, SECONDS).untilAsserted(() -> {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
@@ -174,7 +175,7 @@ public class ZipkinForwarderTest {
         assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
-        retryUntilSuccess(Duration.ofSeconds(30), () -> {
+        await().atMost(30, SECONDS).untilAsserted(() -> {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate

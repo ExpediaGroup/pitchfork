@@ -1,16 +1,16 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import static com.hotels.service.tracing.zipkintohaystack.utils.TestHelpers.retryUntilSuccess;
-
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,10 +93,10 @@ public class HaystackKafkaForwarderTest {
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
         KafkaConsumer<String, byte[]> consumer = setupConsumer();
 
-        retryUntilSuccess(Duration.ofSeconds(10), () -> {
+        await().atMost(10, SECONDS).untilAsserted(() -> {
             ConsumerRecords<String, byte[]> records = consumer.poll(100);
 
-            assertTrue(!records.isEmpty());
+            assertFalse(records.isEmpty());
 
             Optional<Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
 
