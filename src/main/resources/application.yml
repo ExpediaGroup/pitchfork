@@ -15,7 +15,7 @@ pitchfork:
         bootstrap-servers: kafka-service:9092
         topic: proto-spans
     logging:
-      enabled: false
+      enabled: true
       log-full-span: false
     zipkin:
       http:
@@ -24,3 +24,15 @@ pitchfork:
         max-inflight-requests: 256
         write-timeout-millis: 10000
         compression-enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /
+info:
+  app:
+    name: Pitchfork
+    description: Pitchfork lifts Zipkin tracing data into Haystack.
+    readme: https://github.com/HotelsDotCom/pitchfork/blob/master/README.md
