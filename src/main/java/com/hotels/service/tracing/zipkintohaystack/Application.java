@@ -16,13 +16,21 @@
  */
 package com.hotels.service.tracing.zipkintohaystack;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class Application {
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
+        if (ctx.containsBean("noopForwarder")) {
+            ctx.close();
+            logger.error("No span forwarders configured. See README.md for a list of available span forwarders.");
+        }
     }
 }
