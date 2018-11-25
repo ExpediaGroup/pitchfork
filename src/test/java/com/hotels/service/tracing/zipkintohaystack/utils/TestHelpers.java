@@ -3,8 +3,11 @@ package com.hotels.service.tracing.zipkintohaystack.utils;
 import static java.time.LocalTime.now;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.zip.GZIPOutputStream;
 
 import org.junit.Assert;
 
@@ -38,6 +41,15 @@ public class TestHelpers {
             SECONDS.sleep(1);
         } catch (Exception e) {
             // ignored
+        }
+    }
+
+    public static byte[] compress(byte[] body) throws IOException {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+            try (GZIPOutputStream zipStream = new GZIPOutputStream(byteStream)) {
+                zipStream.write(body);
+            }
+            return byteStream.toByteArray();
         }
     }
 }
