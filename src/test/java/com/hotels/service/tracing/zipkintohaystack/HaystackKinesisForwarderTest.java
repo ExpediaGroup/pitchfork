@@ -1,17 +1,18 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.KINESIS;
 
 import static com.amazonaws.services.kinesis.model.ShardIteratorType.TRIM_HORIZON;
-import static com.hotels.service.tracing.zipkintohaystack.utils.TestHelpers.retryUntilSuccess;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -120,10 +121,10 @@ public class HaystackKinesisForwarderTest {
         GetRecordsRequest getRecordsRequest = new GetRecordsRequest().withShardIterator(shardIterator.getShardIterator());
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
-        retryUntilSuccess(Duration.ofSeconds(10), () -> {
+        await().atMost(10, SECONDS).untilAsserted(() -> {
             GetRecordsResult records = kinesisClient.getRecords(getRecordsRequest);
 
-            assertTrue(!records.getRecords().isEmpty());
+            assertFalse(records.getRecords().isEmpty());
 
             Record record = records.getRecords().iterator().next(); // there's only one element so get first
 
