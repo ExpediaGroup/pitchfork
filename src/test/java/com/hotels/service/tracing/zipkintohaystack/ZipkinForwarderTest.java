@@ -6,6 +6,7 @@ import static org.awaitility.Awaitility.await;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
 import static org.junit.Assert.assertEquals;
 
+import static com.hotels.service.tracing.zipkintohaystack.utils.TestHelpers.compress;
 import static zipkin2.codec.SpanBytesEncoder.JSON_V1;
 import static zipkin2.codec.SpanBytesEncoder.JSON_V2;
 
