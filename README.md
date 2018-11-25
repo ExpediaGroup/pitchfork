@@ -24,9 +24,13 @@ or (Windows):
 
     ./mvnw.cmd clean verify
 
-To package as a docker image:
+To package:
 
     ./mvnw clean install
+    
+To build a Docker image named `hotelsdotcom/pitchfork`:
+
+    docker build -t hotelsdotcom/pitchfork .
     
 #### Run
 
@@ -38,9 +42,22 @@ You can override the default properties by with environment variables (macro cas
 
     docker run -p 8080:8080 -e PITCHFORK_FORWARDERS_HAYSTACK_ENABLED=false hotelsdotcom/pitchfork:latest
 
-Or you can run it as a normal Java application:
+You can also run it as a normal Java application:
 
     java -jar pitchfork.jar
+    
+Or even as a Spring Boot application:
+
+    mvn spring-boot:run
+    
+##### Health check
+
+The service exposes the following endpoints that can be used to test the app's health and to retrieve useful info:
+
+url       | Description
+----------|------------
+`/health` | Shows application health information.
+`/info`   | Displays application info.
 
 ##### Properties
 
