@@ -8,11 +8,8 @@ import static com.hotels.service.tracing.zipkintohaystack.utils.TestHelpers.retr
 import static zipkin2.codec.SpanBytesEncoder.JSON_V1;
 import static zipkin2.codec.SpanBytesEncoder.JSON_V2;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.PostConstruct;
 
