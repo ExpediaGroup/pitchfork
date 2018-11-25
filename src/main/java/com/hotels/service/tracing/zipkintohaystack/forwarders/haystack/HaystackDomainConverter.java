@@ -66,8 +66,8 @@ public class HaystackDomainConverter {
         }
 
         if (maxTimestampDriftSeconds != -1) {
-            long lowerBounds = System.currentTimeMillis() - (maxTimestampDriftSeconds * 1000) * 1000;
-            long upperBounds = System.currentTimeMillis() + (maxTimestampDriftSeconds * 1000) * 1000;
+            long lowerBounds = (System.currentTimeMillis() - (maxTimestampDriftSeconds * 1000)) * 1000;
+            long upperBounds = (System.currentTimeMillis() + (maxTimestampDriftSeconds * 1000)) * 1000;
 
             if (zipkin.timestamp() > upperBounds || zipkin.timestamp() < lowerBounds) {
                 logger.error("operation=fromZipkinV2, error='invalid timestamp', timestamp={}, service={}, traceId={}, spanId={}",

@@ -104,7 +104,7 @@ public class HaystackDomainConverterTest {
         zipkin2.Span zipkinSpan = zipkin2.Span.newBuilder()
                 .traceId(zipkinTraceId(123L))
                 .id(zipkinSpanId(456L))
-                .timestamp(timestamp)
+                .timestamp(timestamp != null ? timestamp * 1000 : null) // millis to micros
                 .build();
 
         var victim = new HaystackDomainConverter(rejectNullTimestamps, maxDrift);
@@ -118,10 +118,10 @@ public class HaystackDomainConverterTest {
                 Arguments.of(REJECT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, null, false), // reject null timestamp
                 Arguments.of(ACCEPT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, null, true), // accept null timestamp
                 Arguments.of(REJECT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, 123L, true), // accept non null timestamp
-                Arguments.of(REJECT_NULL_TIMESTAMPS, 5, currentTimeMillis() - SECONDS.toMicros(10), false), // reject span if too old
-                Arguments.of(REJECT_NULL_TIMESTAMPS, 5, currentTimeMillis() + SECONDS.toMicros(10), false), // reject span if too recent
-                Arguments.of(REJECT_NULL_TIMESTAMPS, 10, currentTimeMillis() + SECONDS.toMicros(5), true), // accept if only 5 sec in the future
-                Arguments.of(REJECT_NULL_TIMESTAMPS, 10, currentTimeMillis() - SECONDS.toMicros(5), true) // accept if only 5 sec in the past
+                Arguments.of(REJECT_NULL_TIMESTAMPS, 5, currentTimeMillis() - SECONDS.toMillis(10), false), // reject span if too old
+                Arguments.of(REJECT_NULL_TIMESTAMPS, 5, currentTimeMillis() + SECONDS.toMillis(10), false), // reject span if too recent
+                Arguments.of(REJECT_NULL_TIMESTAMPS, 10, currentTimeMillis() + SECONDS.toMillis(5), true), // accept if only 5 sec in the future
+                Arguments.of(REJECT_NULL_TIMESTAMPS, 10, currentTimeMillis() - SECONDS.toMillis(5), true) // accept if only 5 sec in the past
         );
     }
 
