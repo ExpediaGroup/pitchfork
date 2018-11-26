@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Converter between {@code Zipkin} and {@code Haystack} domains.
+ * Validator for spans.
+ * Please note that some or all checks are optional, for example, a span with a null timestamp is still a valid span.
+ * These validations should be used if there's a need to identify or block bad actors.
  */
 @Component
 public class SpanValidator {
