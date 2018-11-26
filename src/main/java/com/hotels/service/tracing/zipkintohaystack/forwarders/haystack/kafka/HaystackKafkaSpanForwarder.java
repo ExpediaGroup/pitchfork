@@ -16,8 +16,6 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka;
 
-import java.util.Optional;
-
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -48,16 +46,14 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
     public void process(zipkin2.Span input) {
         logger.debug("operation=process, span={}", input);
 
-        Optional<Span> span = domainConverter.fromZipkinV2(input);
-        span.ifPresent(it -> {
-            byte[] value = it.toByteArray();
+        Span span = domainConverter.fromZipkinV2(input);
+        byte[] value = span.toByteArray();
 
-            final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, it.getTraceId(), value);
+        final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getTraceId(), value);
 
-            // FIXME send() should return a future but it's blocking when kafka servers are unavailable
-            // TODO: metrics with success/failures
-            producer.send(record);
-        });
+        // FIXME send() should return a future but it's blocking when kafka servers are unavailable
+        // TODO: metrics with success/failures
+        producer.send(record);
     }
 
     @Override

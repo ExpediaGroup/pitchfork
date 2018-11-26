@@ -1,7 +1,6 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
 
 import java.nio.ByteBuffer;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +32,11 @@ public class KinesisForwarder implements SpanForwarder {
     public void process(Span input) {
         logger.debug("operation=process, span={}", input);
 
-        Optional<com.expedia.open.tracing.Span> span = domainConverter.fromZipkinV2(input);
+        com.expedia.open.tracing.Span span = domainConverter.fromZipkinV2(input);
 
-        span.ifPresent(it -> {
-            byte[] value = it.toByteArray();
+        byte[] value = span.toByteArray();
 
-            // TODO: metrics with success/failures
-            producer.putRecord(streamName, ByteBuffer.wrap(value), input.traceId());
-        });
-
+        // TODO: metrics with success/failures
+        producer.putRecord(streamName, ByteBuffer.wrap(value), input.traceId());
     }
 }

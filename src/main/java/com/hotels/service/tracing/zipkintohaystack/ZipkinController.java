@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
@@ -41,6 +42,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 import reactor.core.publisher.Mono;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
@@ -52,10 +54,12 @@ public class ZipkinController {
 
     private final SpanForwarder[] spanForwarders;
     private final ExecutorService threadPool;
+    private final SpanValidator spanValidator;
 
     @Inject
-    public ZipkinController(SpanForwarder... spanForwarders) {
+    public ZipkinController(SpanValidator spanValidator, SpanForwarder... spanForwarders) {
         this.spanForwarders = spanForwarders;
+        this.spanValidator = spanValidator;
         this.threadPool = Executors.newCachedThreadPool();
     }
 
@@ -79,7 +83,7 @@ public class ZipkinController {
         return serverRequest
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
-                .filter(span -> span.traceId() != null) // TODO: add logging here? or metric with discarded/invalid spans
+                .filter(spanValidator::isSpanValid)
                 .map(processSpans())
                 .doOnNext(futures -> futures.forEach(this::waitForFuture))
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))

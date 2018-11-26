@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.expedia.open.tracing.Span;
@@ -41,45 +40,11 @@ public class HaystackDomainConverter {
     private static final String HAYSTACK_TAG_KEY_FOR_DATACENTER = "X-HAYSTACK-INFRASTRUCTURE-PROVIDER";
 
     private final Logger logger = LoggerFactory.getLogger(HaystackDomainConverter.class);
-    private final boolean acceptNullTimestamps;
-    private final int maxTimestampDriftSeconds;
-
-    public HaystackDomainConverter(@Value("${pitchfork.validators.accept-null-timestamps}") boolean acceptNullTimestamps,
-                                   @Value("${pitchfork.validators.max-timestamp-drift-seconds}") int maxTimestampDriftSeconds) {
-        this.acceptNullTimestamps = acceptNullTimestamps;
-        this.maxTimestampDriftSeconds = maxTimestampDriftSeconds;
-    }
 
     /**
      * Accepts a span in {@code Zipkin V2} format and returns a span in {@code Haystack} format.
-     * Returns {@link Optional#empty()} if the span is null.
      */
-    public Optional<Span> fromZipkinV2(zipkin2.Span zipkin) {
-        // TODO: move this outside of the converter and into the ZipkinController.addSpans chain
-        if (zipkin.timestamp() == null && !acceptNullTimestamps) {
-            logger.error("operation=fromZipkinV2, error='null timestamp', service={}, traceId={}, spanId={}",
-                    zipkin.localServiceName(),
-                    zipkin.traceId(),
-                    zipkin.id());
-
-            return empty();
-        }
-
-        if (zipkin.timestamp() != null && maxTimestampDriftSeconds != -1) {
-            long lowerBounds = (System.currentTimeMillis() - (maxTimestampDriftSeconds * 1000)) * 1000;
-            long upperBounds = (System.currentTimeMillis() + (maxTimestampDriftSeconds * 1000)) * 1000;
-
-            if (zipkin.timestamp() > upperBounds || zipkin.timestamp() < lowerBounds) {
-                logger.error("operation=fromZipkinV2, error='invalid timestamp', timestamp={}, service={}, traceId={}, spanId={}",
-                        zipkin.timestamp(),
-                        zipkin.localServiceName(),
-                        zipkin.traceId(),
-                        zipkin.id());
-
-                return empty();
-            }
-        }
-
+    public Span fromZipkinV2(zipkin2.Span zipkin) {
         Span.Builder builder = Span.newBuilder()
                 .setTraceId(zipkin.traceId())
                 .setSpanId(zipkin.id());
@@ -99,7 +64,7 @@ public class HaystackDomainConverter {
 
         getTagForKind(zipkin.kind()).ifPresent(builder::addTags);
 
-        return Optional.of(builder.build());
+        return builder.build();
     }
 
     private <T> void doIfNotNull(T nullable, Consumer<T> runnable) {
