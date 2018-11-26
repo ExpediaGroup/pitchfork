@@ -24,27 +24,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import com.expedia.open.tracing.Span;
 import com.expedia.open.tracing.Tag;
 
 /**
  * Converter between {@code Zipkin} and {@code Haystack} domains.
  */
-@Component
 public class HaystackDomainConverter {
 
     private static final String HAYSTACK_TAG_KEY_FOR_DATACENTER = "X-HAYSTACK-INFRASTRUCTURE-PROVIDER";
 
-    private final Logger logger = LoggerFactory.getLogger(HaystackDomainConverter.class);
-
     /**
      * Accepts a span in {@code Zipkin V2} format and returns a span in {@code Haystack} format.
      */
-    public Span fromZipkinV2(zipkin2.Span zipkin) {
+    public static Span fromZipkinV2(zipkin2.Span zipkin) {
         Span.Builder builder = Span.newBuilder()
                 .setTraceId(zipkin.traceId())
                 .setSpanId(zipkin.id());
@@ -67,13 +60,13 @@ public class HaystackDomainConverter {
         return builder.build();
     }
 
-    private <T> void doIfNotNull(T nullable, Consumer<T> runnable) {
+    private static <T> void doIfNotNull(T nullable, Consumer<T> runnable) {
         if (nullable != null) {
             runnable.accept(nullable);
         }
     }
 
-    private Optional<Tag> getTagForKind(zipkin2.Span.Kind kind) {
+    private static Optional<Tag> getTagForKind(zipkin2.Span.Kind kind) {
         String value = null;
 
         if (kind != null) {
@@ -102,7 +95,7 @@ public class HaystackDomainConverter {
         }
     }
 
-    private List<Tag> fromZipkinTag(String key, String value) {
+    private static List<Tag> fromZipkinTag(String key, String value) {
         switch (key) {
         case "error":
             // Zipkin error tags are Strings where as in Haystack they're Booleans

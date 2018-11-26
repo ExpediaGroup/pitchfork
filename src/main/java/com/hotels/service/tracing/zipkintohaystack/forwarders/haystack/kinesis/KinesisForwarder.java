@@ -1,4 +1,22 @@
+/*
+ * Copyright 2018 Expedia, Inc.
+ *
+ *       Licensed under the Apache License, Version 2.0 (the "License");
+ *       you may not use this file except in compliance with the License.
+ *       You may obtain a copy of the License at
+ *
+ *           http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *       Unless required by applicable law or agreed to in writing, software
+ *       distributed under the License is distributed on an "AS IS" BASIS,
+ *       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *       See the License for the specific language governing permissions and
+ *       limitations under the License.
+ *
+ */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
+
+import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
 
 import java.nio.ByteBuffer;
 
@@ -7,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter;
 import zipkin2.Span;
 
 /**
@@ -18,12 +35,10 @@ public class KinesisForwarder implements SpanForwarder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final HaystackDomainConverter domainConverter;
     private final AmazonKinesis producer;
     private final String streamName;
 
-    public KinesisForwarder(HaystackDomainConverter domainConverter, AmazonKinesis producer, String streamName) {
-        this.domainConverter = domainConverter;
+    public KinesisForwarder(AmazonKinesis producer, String streamName) {
         this.producer = producer;
         this.streamName = streamName;
     }
@@ -32,7 +47,7 @@ public class KinesisForwarder implements SpanForwarder {
     public void process(Span input) {
         logger.debug("operation=process, span={}", input);
 
-        com.expedia.open.tracing.Span span = domainConverter.fromZipkinV2(input);
+        com.expedia.open.tracing.Span span = fromZipkinV2(input);
 
         byte[] value = span.toByteArray();
 

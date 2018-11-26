@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpanValidator {
 
+    private static final int VALIDATION_DISABLED = -1;
+
     private final Logger logger = LoggerFactory.getLogger(SpanValidator.class);
     private final boolean acceptNullTimestamps;
     private final int maxTimestampDriftSeconds;
@@ -56,15 +58,18 @@ public class SpanValidator {
             return false;
         }
 
-        if (span.timestamp() != null && maxTimestampDriftSeconds != -1) {
-            long now = System.currentTimeMillis() * 1000;
+        if (span.timestamp() != null && maxTimestampDriftSeconds != VALIDATION_DISABLED) {
+            long currentTimeInMicros = System.currentTimeMillis() * 1000;
 
-            long drift = span.timestamp() > now ? span.timestamp() - now : now - span.timestamp();
-            long driftInSeconds = drift / 1000 / 1000;
+            long driftInMicros = span.timestamp() > currentTimeInMicros
+                    ? span.timestamp() - currentTimeInMicros
+                    : currentTimeInMicros - span.timestamp();
+
+            long driftInSeconds = driftInMicros / 1000 / 1000;
 
             if (driftInSeconds > maxTimestampDriftSeconds) {
-                logger.error("operation=isSpanValid, error='invalid timestamp', driftMinutes={} timestamp={}, service={}, traceId={}, spanId={}",
-                        drift / 1000 / 60,
+                logger.error("operation=isSpanValid, error='invalid timestamp', driftInSeconds={} timestamp={}, service={}, traceId={}, spanId={}",
+                        driftInSeconds,
                         span.timestamp(),
                         span.localServiceName(),
                         span.traceId(),

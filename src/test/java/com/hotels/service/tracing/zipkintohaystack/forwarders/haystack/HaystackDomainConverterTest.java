@@ -8,20 +8,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.expedia.open.tracing.Span;
 import com.expedia.open.tracing.Tag;
 
 public class HaystackDomainConverterTest {
-
-    private static HaystackDomainConverter victim;
-
-    @BeforeAll
-    public static void setup() {
-        victim = new HaystackDomainConverter();
-    }
 
     @Test
     public void shouldCreateHaystackSpanFromZipkinSpan() {
@@ -49,7 +41,7 @@ public class HaystackDomainConverterTest {
                 .putTag("tag2", "value2")
                 .build();
 
-        Span haystackSpan = victim.fromZipkinV2(zipkinSpan);
+        Span haystackSpan = HaystackDomainConverter.fromZipkinV2(zipkinSpan);
 
         assertEquals(traceId, haystackSpan.getTraceId());
         assertEquals(spanId, haystackSpan.getSpanId());
@@ -70,7 +62,7 @@ public class HaystackDomainConverterTest {
                 .putTag("error", errorMessage)
                 .build();
 
-        Span haystackSpan = victim.fromZipkinV2(zipkinSpan);
+        Span haystackSpan = HaystackDomainConverter.fromZipkinV2(zipkinSpan);
 
         assertTrue(haystackSpan.getTagsList().stream()
                 .filter(tag -> "error".equals(tag.getKey()))

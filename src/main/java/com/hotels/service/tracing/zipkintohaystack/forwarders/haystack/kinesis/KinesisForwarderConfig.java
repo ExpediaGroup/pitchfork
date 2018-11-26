@@ -28,26 +28,24 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter;
 
 @ConditionalOnProperty(name = "pitchfork.forwarders.haystack.kinesis.enabled", havingValue = "true")
 @Configuration
 public class KinesisForwarderConfig {
 
     @Bean
-    public KinesisForwarder createProducer(HaystackDomainConverter domainConverter,
-            @Value("${pitchfork.forwarders.haystack.kinesis.region-name}") String regionName,
-            @Value("${pitchfork.forwarders.haystack.kinesis.signing-region-name}") String signingRegionName,
-            @Value("${pitchfork.forwarders.haystack.kinesis.stream-name}") String streamName,
-            @Value("${pitchfork.forwarders.haystack.kinesis.service-endpoint}") String serviceEndpoint,
-            @Value("${pitchfork.forwarders.haystack.kinesis.authentication-type}") AwsAuthenticationTypeEnum authenticationType,
-            @Value("${pitchfork.forwarders.haystack.kinesis.endpoint-config-type}") KinesisEndpointConfigurationEnum endpointConfiguration,
-            @Value("${pitchfork.forwarders.haystack.kinesis.aws-access-key}") String awsAccessKey,
-            @Value("${pitchfork.forwarders.haystack.kinesis.aws-secret-key}") String awsSecretKey) {
+    public KinesisForwarder createProducer(@Value("${pitchfork.forwarders.haystack.kinesis.region-name}") String regionName,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.signing-region-name}") String signingRegionName,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.stream-name}") String streamName,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.service-endpoint}") String serviceEndpoint,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.authentication-type}") AwsAuthenticationTypeEnum authenticationType,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.endpoint-config-type}") KinesisEndpointConfigurationEnum endpointConfiguration,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.aws-access-key}") String awsAccessKey,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.aws-secret-key}") String awsSecretKey) {
         var amazonKinesis = getProducerConfiguration(regionName, endpointConfiguration, authenticationType, awsAccessKey, awsSecretKey,
                 serviceEndpoint, signingRegionName);
 
-        return new KinesisForwarder(domainConverter, amazonKinesis, streamName);
+        return new KinesisForwarder(amazonKinesis, streamName);
     }
 
     private AmazonKinesis getProducerConfiguration(String regionName,

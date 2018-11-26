@@ -4,7 +4,7 @@ logging.pattern.console: "%d{&quot;yyyy-MM-dd'T'HH:mm:ss.SSSZ&quot;} %highlight(
 pitchfork:
   validators:
     accept-null-timestamps: true
-    max-timestamp-drift-seconds: 3600
+    max-timestamp-drift-seconds: -1
   forwarders:
     haystack:
       kinesis:

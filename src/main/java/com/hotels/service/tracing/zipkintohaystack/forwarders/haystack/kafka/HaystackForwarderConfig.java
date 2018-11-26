@@ -29,15 +29,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter;
-
 @ConditionalOnProperty(name = "pitchfork.forwarders.haystack.kafka.enabled", havingValue = "true")
 @Configuration
 public class HaystackForwarderConfig {
 
     @Bean
-    public HaystackKafkaSpanForwarder haystackForwarder(HaystackDomainConverter domainConverter,
-                                                        @Value("${pitchfork.forwarders.haystack.kafka.bootstrap-servers}") String bootstrapServers,
+    public HaystackKafkaSpanForwarder haystackForwarder(@Value("${pitchfork.forwarders.haystack.kafka.bootstrap-servers}") String bootstrapServers,
                                                         @Value("${pitchfork.forwarders.haystack.kafka.topic}") String topic) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -49,6 +46,6 @@ public class HaystackForwarderConfig {
 
         KafkaProducer<String, byte[]> kafkaProducer = new KafkaProducer<>(props);
 
-        return new HaystackKafkaSpanForwarder(domainConverter, kafkaProducer, topic);
+        return new HaystackKafkaSpanForwarder(kafkaProducer, topic);
     }
 }
