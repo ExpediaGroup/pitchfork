@@ -65,7 +65,7 @@ public class HaystackDomainConverter {
             return empty();
         }
 
-        if (maxTimestampDriftSeconds != -1) {
+        if (zipkin.timestamp() != null && maxTimestampDriftSeconds != -1) {
             long lowerBounds = (System.currentTimeMillis() - (maxTimestampDriftSeconds * 1000)) * 1000;
             long upperBounds = (System.currentTimeMillis() + (maxTimestampDriftSeconds * 1000)) * 1000;
 
