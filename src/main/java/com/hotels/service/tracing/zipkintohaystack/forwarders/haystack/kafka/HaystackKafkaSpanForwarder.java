@@ -23,6 +23,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.expedia.open.tracing.Span;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 
 /**
@@ -44,7 +45,7 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
     public void process(zipkin2.Span input) {
         logger.debug("operation=process, span={}", input);
 
-        com.expedia.open.tracing.Span span = fromZipkinV2(input);
+        Span span = fromZipkinV2(input);
         byte[] value = span.toByteArray();
 
         final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getTraceId(), value);

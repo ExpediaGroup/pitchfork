@@ -64,6 +64,8 @@ url       | Description
 Description | Default
 ---------------------------------------------------------------|-------------------
 server.port                                                    | 8080
+pitchfork.validators.accept-null-timestamps                    | true
+pitchfork.validators.max-timestamp-drift-seconds               | 3600
 pitchfork.forwarders.haystack.kafka.enabled                    | false
 pitchfork.forwarders.haystack.kafka.bootstrap-servers          | kafka-service:9092
 pitchfork.forwarders.haystack.kafka.topic                      | proto-spans

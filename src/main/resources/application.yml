@@ -2,6 +2,9 @@ server:
   port: 8080
 logging.pattern.console: "%d{&quot;yyyy-MM-dd'T'HH:mm:ss.SSSZ&quot;} %highlight(%-5level) [%thread] rid=[%X{rid}] %logger{36} - %msg %rEx{30}%n"
 pitchfork:
+  validators:
+    accept-null-timestamps: true
+    max-timestamp-drift-seconds: -1
   forwarders:
     haystack:
       kinesis:

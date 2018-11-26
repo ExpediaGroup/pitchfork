@@ -35,13 +35,13 @@ public class KinesisForwarderConfig {
 
     @Bean
     public KinesisForwarder createProducer(@Value("${pitchfork.forwarders.haystack.kinesis.region-name}") String regionName,
-            @Value("${pitchfork.forwarders.haystack.kinesis.signing-region-name}") String signingRegionName,
-            @Value("${pitchfork.forwarders.haystack.kinesis.stream-name}") String streamName,
-            @Value("${pitchfork.forwarders.haystack.kinesis.service-endpoint}") String serviceEndpoint,
-            @Value("${pitchfork.forwarders.haystack.kinesis.authentication-type}") AwsAuthenticationTypeEnum authenticationType,
-            @Value("${pitchfork.forwarders.haystack.kinesis.endpoint-config-type}") KinesisEndpointConfigurationEnum endpointConfiguration,
-            @Value("${pitchfork.forwarders.haystack.kinesis.aws-access-key}") String awsAccessKey,
-            @Value("${pitchfork.forwarders.haystack.kinesis.aws-secret-key}") String awsSecretKey) {
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.signing-region-name}") String signingRegionName,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.stream-name}") String streamName,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.service-endpoint}") String serviceEndpoint,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.authentication-type}") AwsAuthenticationTypeEnum authenticationType,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.endpoint-config-type}") KinesisEndpointConfigurationEnum endpointConfiguration,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.aws-access-key}") String awsAccessKey,
+                                           @Value("${pitchfork.forwarders.haystack.kinesis.aws-secret-key}") String awsSecretKey) {
         var amazonKinesis = getProducerConfiguration(regionName, endpointConfiguration, authenticationType, awsAccessKey, awsSecretKey,
                 serviceEndpoint, signingRegionName);
 

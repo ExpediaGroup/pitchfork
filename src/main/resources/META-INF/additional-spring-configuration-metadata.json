@@ -1,6 +1,16 @@
 {
   "properties": [
     {
+      "name": "pitchfork.validators.accept-null-timestamps",
+      "type": "java.lang.Boolean",
+      "description": "Use to accept or discard spans where the timestamp is null."
+    },
+    {
+      "name": "pitchfork.validators.max-timestamp-drift-seconds",
+      "type": "java.lang.Integer",
+      "description": "Max allowed difference between now and the timestamp of a given span. If a span has a timestamp outside of this range it will be discarded. Use -1 to disable this validation"
+    },
+    {
       "name": "pitchfork.forwarders.haystack.kinesis.enabled",
       "type": "java.lang.Boolean",
       "description": "When true, creates a forwarder to Haystack Kinesis."

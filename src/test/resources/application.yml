@@ -1,6 +1,9 @@
 server:
   port: 8080
 pitchfork:
+  validators:
+    accept-null-timestamps: true
+    max-timestamp-drift-seconds: -1
   forwarders:
     haystack:
       kinesis:
