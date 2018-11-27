@@ -18,12 +18,11 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders.logging;
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import com.hotels.service.tracing.zipkintohaystack.LogFormatEnforcer;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import zipkin2.Span;
 
@@ -31,7 +30,7 @@ import zipkin2.Span;
 @Component
 public class LoggingForwarder implements SpanForwarder {
 
-    private final Logger logger = LoggerFactory.getLogger(LoggingForwarder.class);
+    private final LogFormatEnforcer logger = LogFormatEnforcer.loggerFor(LoggingForwarder.class);
     private boolean logFullSpan;
 
     @Inject
@@ -42,9 +41,9 @@ public class LoggingForwarder implements SpanForwarder {
     @Override
     public void process(Span span) {
         if (logFullSpan) {
-            logger.info("operation=process, span={}", span);
+            logger.info(message -> message.operation("process").span(span));
         } else {
-            logger.info("operation=process, spanId={}", span.id());
+            logger.info(message -> message.operation("process").spanId(span::id));
         }
     }
 }

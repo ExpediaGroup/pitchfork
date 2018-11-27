@@ -288,6 +288,31 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>com.leandronunes85.lfe</groupId>
+        <artifactId>log-format-enforcer-maven-plugin</artifactId>
+        <version>1.3</version>
+        <configuration>
+          <packageName>com.hotels.service.tracing.zipkintohaystack</packageName>
+          <mandatoryFields>
+            <operation />
+          </mandatoryFields>
+          <optionalFields>
+            <msg />
+            <path />
+            <headers />
+            <spanId />
+            <span />
+          </optionalFields>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

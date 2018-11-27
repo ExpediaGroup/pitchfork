@@ -20,10 +20,8 @@ import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.Ha
 
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.services.kinesis.AmazonKinesis;
+import com.hotels.service.tracing.zipkintohaystack.LogFormatEnforcer;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import zipkin2.Span;
 
@@ -33,7 +31,7 @@ import zipkin2.Span;
  */
 public class KinesisForwarder implements SpanForwarder {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final LogFormatEnforcer logger = LogFormatEnforcer.loggerFor(this.getClass());
 
     private final AmazonKinesis producer;
     private final String streamName;
@@ -45,7 +43,7 @@ public class KinesisForwarder implements SpanForwarder {
 
     @Override
     public void process(Span input) {
-        logger.debug("operation=process, span={}", input);
+        logger.debug(message -> message.operation("process").span(input));
 
         com.expedia.open.tracing.Span span = fromZipkinV2(input);
 

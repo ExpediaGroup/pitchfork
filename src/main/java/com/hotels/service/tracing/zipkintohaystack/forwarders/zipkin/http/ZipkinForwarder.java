@@ -20,9 +20,7 @@ import static java.util.Collections.singletonList;
 
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.hotels.service.tracing.zipkintohaystack.LogFormatEnforcer;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import okhttp3.ConnectionPool;
 import zipkin2.Callback;
@@ -33,7 +31,7 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format re-encodes it in {@code Zipkin V2} format and pushes it to a {@code Zipkin} server.
  */
 public class ZipkinForwarder implements SpanForwarder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZipkinForwarder.class);
+    private static final LogFormatEnforcer LOGGER = LogFormatEnforcer.loggerFor(ZipkinForwarder.class);
 
     private final OkHttpSender sender;
 
@@ -57,11 +55,11 @@ public class ZipkinForwarder implements SpanForwarder {
     @Override
     public void process(zipkin2.Span span) {
         try {
-            LOGGER.debug("operation=process, spanId={}", span);
+            LOGGER.debug(message -> message.operation("process").span(span));
             byte[] bytes = SpanBytesEncoder.JSON_V2.encode(span);
             sender.sendSpans(singletonList(bytes)).enqueue(new ZipkinCallback(span));
         } catch (Exception e) {
-            LOGGER.error("Unable to serialise span with span id {}", span.id());
+            LOGGER.error(message -> message.operation("process").msg("Unable to serialise span").spanId(span::id));
         }
     }
 
@@ -74,12 +72,12 @@ public class ZipkinForwarder implements SpanForwarder {
 
         @Override
         public void onSuccess(Void value) {
-            LOGGER.debug("Successfully wrote span {}", span.id());
+            LOGGER.debug(message -> message.operation("onSuccess").msg("Successfully wrote span").spanId(span::id));
         }
 
         @Override
         public void onError(Throwable t) {
-            LOGGER.error("Unable to write span {}", span.id(), t);
+            LOGGER.error(message -> message.operation("onSuccess").msg("Unable to write span").spanId(span::id).exception(t));
         }
     }
 }

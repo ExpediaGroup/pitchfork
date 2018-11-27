@@ -20,10 +20,9 @@ import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.Ha
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.expedia.open.tracing.Span;
+import com.hotels.service.tracing.zipkintohaystack.LogFormatEnforcer;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 
 /**
@@ -31,7 +30,7 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
  */
 public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final LogFormatEnforcer logger = LogFormatEnforcer.loggerFor(this.getClass());
 
     private final String topic;
     private final Producer<String, byte[]> producer;
@@ -43,7 +42,7 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
 
     @Override
     public void process(zipkin2.Span input) {
-        logger.debug("operation=process, span={}", input);
+        logger.debug(message -> message.operation("process").span(input));
 
         Span span = fromZipkinV2(input);
         byte[] value = span.toByteArray();

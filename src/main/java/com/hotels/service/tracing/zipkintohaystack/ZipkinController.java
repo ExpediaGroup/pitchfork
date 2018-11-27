@@ -18,8 +18,6 @@ package com.hotels.service.tracing.zipkintohaystack;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,7 +45,7 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @RestController
 public class ZipkinController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final LogFormatEnforcer logger = LogFormatEnforcer.loggerFor(this.getClass());
 
     private final SpanForwarder[] spanForwarders;
     private final ExecutorService threadPool;
@@ -73,8 +71,8 @@ public class ZipkinController {
     public Mono<ServerResponse> unmatched(ServerRequest serverRequest) {
         return serverRequest
                 .bodyToMono(String.class)
-                .doOnError(throwable -> logger.warn("operation=unmatched", throwable))
-                .doOnNext(body -> logger.info("operation=log, path={}, headers={}", serverRequest.path(), serverRequest.headers()))
+                .doOnError(throwable -> logger.warn(message -> message.operation("unmatched").exception(throwable)))
+                .doOnNext(body -> logger.info(message -> message.operation("log").path(serverRequest::path).headers(serverRequest::headers)))
                 .then(notFound().build());
     }
 
@@ -89,7 +87,7 @@ public class ZipkinController {
                 .filter(spanValidator::isSpanValid)
                 .map(processSpans())
                 .doOnNext(futures -> futures.forEach(this::waitForFuture))
-                .doOnError(throwable -> logger.warn("operation=addSpans", throwable))
+                .doOnError(throwable -> logger.warn(message -> message.operation("addSpans").exception(throwable)))
                 .then(ok().body(BodyInserters.empty()));
     }
 
