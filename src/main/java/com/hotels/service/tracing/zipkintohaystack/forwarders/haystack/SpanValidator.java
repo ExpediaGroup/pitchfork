@@ -16,8 +16,7 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hotels.service.tracing.zipkintohaystack.LogFormatEnforcer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -29,9 +28,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpanValidator {
 
+    private static final LogFormatEnforcer LOGGER = LogFormatEnforcer.loggerFor(SpanValidator.class);
     private static final int VALIDATION_DISABLED = -1;
 
-    private final Logger logger = LoggerFactory.getLogger(SpanValidator.class);
     private final boolean acceptNullTimestamps;
     private final int maxTimestampDriftSeconds;
 
@@ -44,19 +43,14 @@ public class SpanValidator {
     // TODO: add metrics with discarded/invalid spans
     public boolean isSpanValid(zipkin2.Span span) {
         if (span.traceId() == null) {
-            logger.error("operation=isSpanValid, error='null traceId', service={}, spanId={}",
-                    span.localServiceName(),
-                    span.id());
-
+            LOGGER.error(message -> message.operation("isSpanValid").msg("null traceId")
+                    .spanId(span::id).and("service", span::localServiceName));
             return false;
         }
 
         if (span.timestamp() == null && !acceptNullTimestamps) {
-            logger.error("operation=isSpanValid, error='null timestamp', service={}, traceId={}, spanId={}",
-                    span.localServiceName(),
-                    span.traceId(),
-                    span.id());
-
+            LOGGER.error(message -> message.operation("isSpanValid").msg("null timestamp")
+                    .spanId(span::id).and("traceId", span::traceId).and("service", span::localServiceName));
             return false;
         }
 
@@ -70,13 +64,9 @@ public class SpanValidator {
             long driftInSeconds = driftInMicros / 1000 / 1000;
 
             if (driftInSeconds > maxTimestampDriftSeconds) {
-                logger.error("operation=isSpanValid, error='invalid timestamp', driftInSeconds={} timestamp={}, service={}, traceId={}, spanId={}",
-                        driftInSeconds,
-                        span.timestamp(),
-                        span.localServiceName(),
-                        span.traceId(),
-                        span.id());
-
+                LOGGER.error(message -> message.operation("isSpanValid").msg("invalid timestamp")
+                        .spanId(span::id).and("traceId", span::traceId).and("service", span::localServiceName)
+                        .and("timestamp", span::timestamp).and("driftInSeconds", driftInSeconds));
                 return false;
             }
         }

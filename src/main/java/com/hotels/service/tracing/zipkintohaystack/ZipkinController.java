@@ -45,7 +45,7 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @RestController
 public class ZipkinController {
 
-    private final LogFormatEnforcer logger = LogFormatEnforcer.loggerFor(this.getClass());
+    private static final LogFormatEnforcer LOGGER = LogFormatEnforcer.loggerFor(ZipkinController.class);
 
     private final SpanForwarder[] spanForwarders;
     private final ExecutorService threadPool;
@@ -71,8 +71,8 @@ public class ZipkinController {
     public Mono<ServerResponse> unmatched(ServerRequest serverRequest) {
         return serverRequest
                 .bodyToMono(String.class)
-                .doOnError(throwable -> logger.warn(message -> message.operation("unmatched").exception(throwable)))
-                .doOnNext(body -> logger.info(message -> message.operation("log").path(serverRequest::path).headers(serverRequest::headers)))
+                .doOnError(throwable -> LOGGER.warn(message -> message.operation("unmatched").exception(throwable)))
+                .doOnNext(body -> LOGGER.info(message -> message.operation("log").path(serverRequest::path).headers(serverRequest::headers)))
                 .then(notFound().build());
     }
 
@@ -87,7 +87,7 @@ public class ZipkinController {
                 .filter(spanValidator::isSpanValid)
                 .map(processSpans())
                 .doOnNext(futures -> futures.forEach(this::waitForFuture))
-                .doOnError(throwable -> logger.warn(message -> message.operation("addSpans").exception(throwable)))
+                .doOnError(throwable -> LOGGER.warn(message -> message.operation("addSpans").exception(throwable)))
                 .then(ok().body(BodyInserters.empty()));
     }
 

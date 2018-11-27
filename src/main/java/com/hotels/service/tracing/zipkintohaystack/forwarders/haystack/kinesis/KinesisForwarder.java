@@ -31,7 +31,7 @@ import zipkin2.Span;
  */
 public class KinesisForwarder implements SpanForwarder {
 
-    private final LogFormatEnforcer logger = LogFormatEnforcer.loggerFor(this.getClass());
+    private static final LogFormatEnforcer LOGGER = LogFormatEnforcer.loggerFor(KinesisForwarder.class);
 
     private final AmazonKinesis producer;
     private final String streamName;
@@ -43,7 +43,7 @@ public class KinesisForwarder implements SpanForwarder {
 
     @Override
     public void process(Span input) {
-        logger.debug(message -> message.operation("process").span(input));
+        LOGGER.debug(message -> message.operation("process").span(input));
 
         com.expedia.open.tracing.Span span = fromZipkinV2(input);
 

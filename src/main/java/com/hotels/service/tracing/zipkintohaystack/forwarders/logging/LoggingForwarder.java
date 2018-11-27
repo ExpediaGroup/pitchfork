@@ -30,7 +30,8 @@ import zipkin2.Span;
 @Component
 public class LoggingForwarder implements SpanForwarder {
 
-    private final LogFormatEnforcer logger = LogFormatEnforcer.loggerFor(LoggingForwarder.class);
+    private static final LogFormatEnforcer LOGGER = LogFormatEnforcer.loggerFor(LoggingForwarder.class);
+
     private boolean logFullSpan;
 
     @Inject
@@ -41,9 +42,9 @@ public class LoggingForwarder implements SpanForwarder {
     @Override
     public void process(Span span) {
         if (logFullSpan) {
-            logger.info(message -> message.operation("process").span(span));
+            LOGGER.info(message -> message.operation("process").span(span));
         } else {
-            logger.info(message -> message.operation("process").spanId(span::id));
+            LOGGER.info(message -> message.operation("process").spanId(span::id));
         }
     }
 }
