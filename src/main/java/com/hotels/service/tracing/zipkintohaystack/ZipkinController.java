@@ -62,7 +62,7 @@ public class ZipkinController {
     @PostConstruct
     public void init() {
         if (spanForwarders.length == 0) {
-            logger.warn("No span forwarders configured. See README.md for a list of available forwarders.");
+            throw new IllegalStateException("No span forwarders configured. See README.md for a list of available forwarders.");
         }
     }
 
