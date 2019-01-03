@@ -36,11 +36,11 @@ To build a Docker image named `hotelsdotcom/pitchfork`:
 
 The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/hotelsdotcom/pitchfork/).
 
-    docker run -p 8080:8080 hotelsdotcom/pitchfork:latest
+    docker run -p 9411:9411 hotelsdotcom/pitchfork:latest
     
 You can override the default properties by with environment variables (macro case or screaming upper case), for example:
 
-    docker run -p 8080:8080 -e PITCHFORK_FORWARDERS_HAYSTACK_ENABLED=false hotelsdotcom/pitchfork:latest
+    docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_HAYSTACK_ENABLED=false hotelsdotcom/pitchfork:latest
 
 You can also run it as a normal Java application:
 
@@ -63,7 +63,7 @@ url       | Description
 
 Description | Default
 ---------------------------------------------------------------|-------------------
-server.port                                                    | 8080
+server.port                                                    | 9411
 pitchfork.validators.accept-null-timestamps                    | true
 pitchfork.validators.max-timestamp-drift-seconds               | 3600
 pitchfork.forwarders.haystack.kafka.enabled                    | false
