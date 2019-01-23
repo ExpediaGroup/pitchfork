@@ -36,7 +36,7 @@ To build a Docker image named `hotelsdotcom/pitchfork`:
 
     docker build -t hotelsdotcom/pitchfork .
     
-#### Run
+#### Running Pitchfork
 
 The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/hotelsdotcom/pitchfork/).
 
@@ -50,9 +50,36 @@ You can also run it as a normal Java application:
 
     java -jar pitchfork.jar
     
-Or even as a Spring Boot application:
+Or as a Spring Boot application:
 
     mvn spring-boot:run
+
+###### Testing with Docker Compose
+
+For convenience, you can use the following yaml to start pitchfork with docker-compose which starts both Pitchfork and Zipkin.
+Pitchfork is configured to log the spans received and to forward them to Zipkin.
+You can submit your spans to Pitchfork running on port 9411, and see them using Zipkin's web UI on port 9412.   
+
+```yaml
+version: "3"
+
+services:
+
+  pitchfork:
+    image: hotelsdotcom/pitchfork:latest
+    ports:
+      - "9411:9411"
+    environment:
+      PITCHFORK_FORWARDERS_LOGGING_ENABLED: "true"
+      PITCHFORK_FORWARDERS_LOGGING_LOG_FULL_SPAN: "true"
+      PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENABLED: "true"
+      PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENDPOINT: "http://zipkin:9411/api/v2/spans"
+      
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9412:9411"
+```
     
 ##### Health check
 
@@ -65,30 +92,30 @@ url       | Description
 
 ##### Properties
 
-Description | Default
+Description                                                    | Default
 ---------------------------------------------------------------|-------------------
-server.port                                                    | 9411
-pitchfork.validators.accept-null-timestamps                    | true
-pitchfork.validators.max-timestamp-drift-seconds               | 3600
-pitchfork.forwarders.haystack.kafka.enabled                    | false
-pitchfork.forwarders.haystack.kafka.bootstrap-servers          | kafka-service:9092
-pitchfork.forwarders.haystack.kafka.topic                      | proto-spans
-pitchfork.forwarders.haystack.kinesis.enabled                  | false
-pitchfork.forwarders.haystack.kinesis.endpoint-config-type     | REGION
-pitchfork.forwarders.haystack.kinesis.region-name              | us-west-1
-pitchfork.forwarders.haystack.kinesis.signing-region-name      |
-pitchfork.forwarders.haystack.kinesis.service-endpoint         |
-pitchfork.forwarders.haystack.kinesis.stream-name              | proto-spans
-pitchfork.forwarders.haystack.kinesis.aws-access-key           | 
-pitchfork.forwarders.haystack.kinesis.aws-secret-key           | 
-pitchfork.forwarders.haystack.kinesis.authentication-type      | DEFAULT
-pitchfork.forwarders.logging.enabled                           | false
-pitchfork.forwarders.logging.log-full-span                     | false
-pitchfork.forwarders.zipkin.http.enabled                       | false
-pitchfork.forwarders.zipkin.http.endpoint                      | http://localhost:9411/api/v2/spans
-pitchfork.forwarders.zipkin.http.max-inflight-requests         | 256
-pitchfork.forwarders.zipkin.http.write-timeout-millis          | 10000
-pitchfork.forwarders.zipkin.http.compression-enabled           | true
+SERVER_PORT                                                    | 9411
+PITCHFORK_VALIDATORS_ACCEPT_NULL_TIMESTAMPS                    | true
+PITCHFORK_VALIDATORS_MAX_TIMESTAMP_DRIFT_SECONDS               | 3600
+PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED                    | false
+PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS          | kafka-service:9092
+PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_TOPIC                      | proto-spans
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_ENABLED                  | false
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_ENDPOINT_CONFIG_TYPE     | REGION
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_REGION_NAME              | us-west-1
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_SIGNING_REGION_NAME      |
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_SERVICE_ENDPOINT         |
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_STREAM_NAME              | proto-spans
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AWS_ACCESS_KEY           | 
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AWS_SECRET_KEY           | 
+PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTHENTICATION_TYPE      | DEFAULT
+PITCHFORK_FORWARDERS_LOGGING_ENABLED                           | false
+PITCHFORK_FORWARDERS_LOGGING_LOG_FULL_SPAN                     | false
+PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENABLED                       | false
+PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENDPOINT                      | http://localhost:9411/api/v2/spans
+PITCHFORK_FORWARDERS_ZIPKIN_HTTP_MAX_INFLIGHT_REQUESTS         | 256
+PITCHFORK_FORWARDERS_ZIPKIN_HTTP_WRITE_TIMEOUT_MILLIS          | 10000
+PITCHFORK_FORWARDERS_ZIPKIN_HTTP_COMPRESSION_ENABLED           | true
 
 ## Architecture
 
@@ -104,7 +131,7 @@ Pitchfork can be configured to forward incoming spans to: a Zipkin collector; Ha
                          /                            \
     [ Service B ] ------                               ------> [ Zipkin ]
 
-These different forwarders can be enabled/disabled separately. Please see the application.yml file for a list of the different configurations available for each. 
+These different forwarders can be enabled/disabled separately. Please see the application.yml file for a list of the different configurations available for each, or refer to the table above with the list of properties you can configure. 
 
 ## Use Cases
 
