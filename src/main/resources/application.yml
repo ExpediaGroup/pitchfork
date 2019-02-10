@@ -5,14 +5,14 @@ pitchfork:
   validators:
     accept-null-timestamps: true
     max-timestamp-drift-seconds: -1
-  kafka:
-    bootstrap.servers: kafka-service:9092
-    kakfaBridge:
+  ingress:
+    kafka:
       enabled: true
-      sourceTopics:
-        - zipkinSpans
-      sourceFormat: JSON_V2
-      haystackTopic: proto-spans
+      bootstrap-servers: kafka-service:9092
+      source-topics:
+        - zipkin
+      source-format: JSON_V2
+      haystack-topic: proto-spans
   forwarders:
     haystack:
       kinesis:

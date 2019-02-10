@@ -11,6 +11,31 @@
       "description": "Max allowed difference between now and the timestamp of a given span. If a span has a timestamp outside of this range it will be discarded. Use -1 to disable this validation"
     },
     {
+      "name": "pitchfork.ingress.kafka.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, uses Kafka as a source for Zipkin spans."
+    },
+    {
+      "name": "pitchfork.ingress.kafka.bootstrap-servers",
+      "type": "java.lang.String",
+      "description": "Comma separated list of Kafka bootstrap servers, for example 'kafka-service-1:9092,kafka-service-2:9092'."
+    },
+    {
+      "name": "pitchfork.ingress.kafka.source-topics",
+      "type": "java.util.List",
+      "description": "List with the names of all the topics where we source Zipkin spans from."
+    },
+    {
+      "name": "pitchfork.ingress.kafka.source-format",
+      "type": "java.lang.String",
+      "description": "Encoding used for the spans in the Kafka topics."
+    },
+    {
+      "name": "pitchfork.ingress.kafka.haystack-topic",
+      "type": "java.lang.String",
+      "description": "Name of Haystack's kafka topic."
+    },
+    {
       "name": "pitchfork.forwarders.haystack.kinesis.enabled",
       "type": "java.lang.Boolean",
       "description": "When true, creates a forwarder to Haystack Kinesis."

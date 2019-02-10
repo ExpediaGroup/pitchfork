@@ -11,24 +11,28 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import static zipkin2.codec.SpanBytesEncoder.JSON_V2;
+
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
@@ -61,6 +65,12 @@ public class KafkaIngressTest {
         kafkaContainer = new KafkaContainer();
         kafkaContainer.start();
 
+        AdminClient adminClient = setupKafkaAdminClient();
+        adminClient.createTopics(List.of(new NewTopic("zipkin", 1, (short) 1)));
+        adminClient.close();
+
+        System.setProperty("pitchfork.ingress.kafka.enabled", String.valueOf(true));
+        System.setProperty("pitchfork.ingress.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
         System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
     }
@@ -83,12 +93,12 @@ public class KafkaIngressTest {
                 .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        HttpEntity<String> request = new HttpEntity<>(OBJECT_MAPPER.writeValueAsString(List.of(zipkinSpan)), headers);
+        var producer = setupProducer();
 
-        ResponseEntity<String> responseFromVictim = this.restTemplate.postForEntity("/api/v2/spans", request, String.class);
-        assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
+        byte[] bytes = JSON_V2.encodeList(List.of(zipkinSpan));
+
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>("zipkin", spanId, bytes);
+        producer.send(record).get();
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
         KafkaConsumer<String, byte[]> consumer = setupConsumer();
@@ -110,6 +120,22 @@ public class KafkaIngressTest {
     }
 
     /**
+     * Create Kafka producer.
+     */
+    private static KafkaProducer<String, byte[]> setupProducer() {
+        KafkaProducer<String, byte[]> producer = new KafkaProducer<>(
+                ImmutableMap.of(
+                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
+                        ConsumerConfig.GROUP_ID_CONFIG, "test-group",
+                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
+                ),
+                new StringSerializer(),
+                new ByteArraySerializer());
+
+        return producer;
+    }
+
+    /**
      * Create consumer and subscribe to spans topic.
      */
     private KafkaConsumer<String, byte[]> setupConsumer() {
@@ -125,6 +151,17 @@ public class KafkaIngressTest {
         consumer.subscribe(singletonList("proto-spans"));
 
         return consumer;
+    }
+
+    /**
+     * Create an admin client for Kafka.
+     */
+    private static AdminClient setupKafkaAdminClient() {
+        return AdminClient.create(ImmutableMap.of(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
+                ConsumerConfig.GROUP_ID_CONFIG, "test-group",
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
+        ));
     }
 
     public static Optional<Span> deserialize(byte[] data) {
