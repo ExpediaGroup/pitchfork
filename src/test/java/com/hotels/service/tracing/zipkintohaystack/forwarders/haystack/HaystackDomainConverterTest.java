@@ -1,14 +1,17 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
-import com.expedia.open.tracing.Span;
-import com.expedia.open.tracing.Tag;
-import org.junit.Test;
+import static java.lang.System.currentTimeMillis;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import com.expedia.open.tracing.Span;
+import com.expedia.open.tracing.Tag;
 
 public class HaystackDomainConverterTest {
 
@@ -18,7 +21,7 @@ public class HaystackDomainConverterTest {
         String traceId = zipkinTraceId(123L);
         String parentId = zipkinSpanId(456L);
         String spanId = zipkinSpanId(789L);
-        long timestamp = System.currentTimeMillis();
+        long timestamp = currentTimeMillis();
         long duration = 100L;
         Map<String, String> tags = Map.of(
                 "span.kind", "client",

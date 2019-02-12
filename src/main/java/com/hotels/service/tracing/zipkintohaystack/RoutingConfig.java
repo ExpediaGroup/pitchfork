@@ -40,6 +40,9 @@ import zipkin2.codec.SpanBytesDecoder;
 @Configuration
 public class RoutingConfig {
 
+    private static final MediaType APPLICATION_THRIFT = MediaType.valueOf("application/x-thrift");
+    private static final MediaType APPLICATION_PROTOBUF = MediaType.valueOf("application/x-protobuf");
+
     /**
      * This service does not support any of the read operations.
      * At this moment we support {@code POST}s for the v1 api encoded in Json or Thrift, or for the v2 api in Json.
@@ -47,10 +50,11 @@ public class RoutingConfig {
     @Bean
     public RouterFunction<ServerResponse> myRoutes(ZipkinController zipkinController) {
         return nest(method(HttpMethod.POST),
-                nest(contentType(APPLICATION_JSON),
-                        route(path("/api/v1/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V1))
-                                .andRoute(path("/api/v2/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V2)))
-                        .andRoute(contentType(MediaType.valueOf("application/x-thrift")), request -> zipkinController.addSpans(request, SpanBytesDecoder.THRIFT)))
+                    nest(contentType(APPLICATION_JSON),
+                            route(path("/api/v1/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V1))
+                        .andRoute(path("/api/v2/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V2)))
+                    .andRoute(contentType(APPLICATION_THRIFT), request -> zipkinController.addSpans(request, SpanBytesDecoder.THRIFT))
+                    .andRoute(contentType(APPLICATION_PROTOBUF), request -> zipkinController.addSpans(request, SpanBytesDecoder.PROTO3)))
                 .andRoute(RequestPredicates.all(), zipkinController::unmatched);
     }
 

@@ -14,16 +14,9 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-
-@EnableConfigurationProperties(PitchForkConfig.class)
-@SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
+public enum AwsAuthenticationTypeEnum {
+    DEFAULT,
+    BASIC
 }

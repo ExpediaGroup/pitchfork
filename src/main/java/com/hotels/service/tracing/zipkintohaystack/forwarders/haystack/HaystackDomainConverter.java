@@ -34,9 +34,6 @@ public class HaystackDomainConverter {
 
     private static final String HAYSTACK_TAG_KEY_FOR_DATACENTER = "X-HAYSTACK-INFRASTRUCTURE-PROVIDER";
 
-    private HaystackDomainConverter() {
-    }
-
     /**
      * Accepts a span in {@code Zipkin V2} format and returns a span in {@code Haystack} format.
      */
@@ -53,7 +50,7 @@ public class HaystackDomainConverter {
 
         if (!isEmpty(zipkin.tags())) {
             zipkin.tags().forEach((key, value) -> {
-                List<Tag> tagStream = HaystackDomainConverter.fromZipkinTag(key, value);
+                List<Tag> tagStream = fromZipkinTag(key, value);
                 builder.addAllTags(tagStream);
             });
         }

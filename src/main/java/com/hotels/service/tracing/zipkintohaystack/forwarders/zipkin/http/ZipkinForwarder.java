@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
 import static java.util.Collections.singletonList;
 
@@ -22,11 +22,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
 import zipkin2.Callback;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.okhttp3.OkHttpSender;
@@ -39,9 +37,7 @@ public class ZipkinForwarder implements SpanForwarder {
 
     private final OkHttpSender sender;
 
-    public ZipkinForwarder(String host, int port, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled) {
-        var endpoint = UriComponentsBuilder.newInstance().scheme("http").host(host).port(port).path("/api/v2/spans").toUriString();
-
+    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled) {
         OkHttpSender.Builder builder = OkHttpSender.newBuilder()
                 .endpoint(endpoint)
                 .maxRequests(maxInFlightRequests)

@@ -16,12 +16,21 @@
  */
 package com.hotels.service.tracing.zipkintohaystack;
 
-import static java.util.concurrent.CompletableFuture.runAsync;
-import static java.util.stream.Collectors.toList;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
+import zipkin2.Span;
+import zipkin2.codec.SpanBytesDecoder;
 
-import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
-
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -30,20 +39,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
-
-import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
-import reactor.core.publisher.Mono;
-import zipkin2.Span;
-import zipkin2.codec.SpanBytesDecoder;
+import static java.util.concurrent.CompletableFuture.runAsync;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @RestController
 public class ZipkinController {
@@ -52,11 +51,19 @@ public class ZipkinController {
 
     private final SpanForwarder[] spanForwarders;
     private final ExecutorService threadPool;
+    private final SpanValidator spanValidator;
 
-    @Inject
-    public ZipkinController(SpanForwarder... spanForwarders) {
-        this.spanForwarders = spanForwarders;
+    public ZipkinController(@Autowired SpanValidator spanValidator, @Autowired(required = false) SpanForwarder... spanForwarders) {
+        this.spanForwarders = spanForwarders == null ? new SpanForwarder[0] : spanForwarders;
+        this.spanValidator = spanValidator;
         this.threadPool = Executors.newCachedThreadPool();
+    }
+
+    @PostConstruct
+    public void init() {
+        if (spanForwarders.length == 0) {
+            throw new IllegalStateException("No span forwarders configured. See README.md for a list of available forwarders.");
+        }
     }
 
     /**
@@ -79,6 +86,7 @@ public class ZipkinController {
         return serverRequest
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
+                .filter(spanValidator::isSpanValid)
                 .map(processSpans())
                 .doOnNext(futures -> futures.forEach(this::waitForFuture))
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))

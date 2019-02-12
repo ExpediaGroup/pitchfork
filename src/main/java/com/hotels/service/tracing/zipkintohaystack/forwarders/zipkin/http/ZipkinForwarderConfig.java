@@ -14,23 +14,22 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@ConditionalOnProperty(name = "pitchfork.forwarders.zipkin.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "pitchfork.forwarders.zipkin.http.enabled", havingValue = "true")
 @Configuration
 public class ZipkinForwarderConfig {
 
     @Bean
-    public ZipkinForwarder createProducer(@Value("${pitchfork.forwarders.zipkin.host}") String host,
-                                          @Value("${pitchfork.forwarders.zipkin.port}") int port,
-                                          @Value("${pitchfork.forwarders.zipkin.max-inflight-requests}") int maxInFlightRequests,
-                                          @Value("${pitchfork.forwarders.zipkin.write-timeout-millis}") int writeTimeoutMillis,
-                                          @Value("${pitchfork.forwarders.zipkin.compression-enabled}") boolean compressionEnabled) {
-        return new ZipkinForwarder(host, port, maxInFlightRequests, writeTimeoutMillis, compressionEnabled);
+    public ZipkinForwarder createProducer(@Value("${pitchfork.forwarders.zipkin.http.endpoint}") String endpoint,
+                                          @Value("${pitchfork.forwarders.zipkin.http.max-inflight-requests}") int maxInFlightRequests,
+                                          @Value("${pitchfork.forwarders.zipkin.http.write-timeout-millis}") int writeTimeoutMillis,
+                                          @Value("${pitchfork.forwarders.zipkin.http.compression-enabled}") boolean compressionEnabled) {
+        return new ZipkinForwarder(endpoint, maxInFlightRequests, writeTimeoutMillis, compressionEnabled);
     }
 }

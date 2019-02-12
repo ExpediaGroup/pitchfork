@@ -1,0 +1,135 @@
+{
+  "properties": [
+    {
+      "name": "pitchfork.validators.accept-null-timestamps",
+      "type": "java.lang.Boolean",
+      "description": "Use to accept or discard spans where the timestamp is null."
+    },
+    {
+      "name": "pitchfork.validators.max-timestamp-drift-seconds",
+      "type": "java.lang.Integer",
+      "description": "Max allowed difference between now and the timestamp of a given span. If a span has a timestamp outside of this range it will be discarded. Use -1 to disable this validation"
+    },
+    {
+      "name": "pitchfork.ingress.kafka.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, uses Kafka as a source for Zipkin spans."
+    },
+    {
+      "name": "pitchfork.ingress.kafka.bootstrap-servers",
+      "type": "java.lang.String",
+      "description": "Comma separated list of Kafka bootstrap servers, for example 'kafka-service-1:9092,kafka-service-2:9092'."
+    },
+    {
+      "name": "pitchfork.ingress.kafka.source-topics",
+      "type": "java.util.List",
+      "description": "List with the names of all the topics where we source Zipkin spans from."
+    },
+    {
+      "name": "pitchfork.ingress.kafka.source-format",
+      "type": "java.lang.String",
+      "description": "Encoding used for the spans in the Kafka topics."
+    },
+    {
+      "name": "pitchfork.ingress.kafka.haystack-topic",
+      "type": "java.lang.String",
+      "description": "Name of Haystack's kafka topic."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, creates a forwarder to Haystack Kinesis."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.endpoint-config-type",
+      "type": "com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.KinesisEndpointConfigurationEnum",
+      "description": "Configuration type to be used for the Kinesis endpoint. Possible values are REGION (requires region-name) or CONFIGURATION (requires service-endpoint and signing-region-name)."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.region-name",
+      "type": "java.lang.String",
+      "description": "Which region to send records to. If you do not specify the region and are running in EC2, the library will use the region the instance is in. Used when endpoint-config-type equals REGION."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.service-endpoint",
+      "type": "java.lang.String",
+      "description": "The service endpoint for AWS Kinesis. Requires signing-region-name to also be set. Used when endpoint-config-type equals CONFIGURATION."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.signing-region-name",
+      "type": "java.lang.String",
+      "description": "The region used for signing of requests for AWS Kinesis. Requires service-endpoint to also be set. Used when endpoint-config-type equals CONFIGURATION."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.stream-name",
+      "type": "java.lang.String",
+      "description": "Name of Haystack's Kinesis topic."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.aws-access-key",
+      "type": "java.lang.String",
+      "description": "AWS access key. Only required when authentication type is BASIC."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.aws-secret-key",
+      "type": "java.lang.String",
+      "description": "AWS secret key. Only required when authentication type is BASIC."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kinesis.authentication-type",
+      "type": "com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.AwsAuthenticationTypeEnum",
+      "description": "Authentication method for AWS. Possible values are DEFAULT or BASIC."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kafka.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, creates a forwarder to Haystack Kafka."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kafka.bootstrap-servers",
+      "type": "java.lang.String",
+      "description": "Comma separated list of Kafka bootstrap servers, for example 'kafka-service-1:9092,kafka-service-2:9092'."
+    },
+    {
+      "name": "pitchfork.forwarders.haystack.kafka.topic",
+      "type": "java.lang.String",
+      "description": "Name of the Haystack's Kafka topic."
+    },
+    {
+      "name": "pitchfork.forwarders.logging.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, creates a forwarder that simply logs incoming spans."
+    },
+    {
+      "name": "pitchfork.forwarders.logging.log-full-span",
+      "type": "java.lang.Boolean",
+      "description": "When true, logs the entire content of the span received. When false only the id is logged."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.http.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, creates a forwarder that publishes spans into a Zipkin collector."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.http.endpoint",
+      "type": "java.lang.String",
+      "description": "Endpoint for the remote Zipkin collector, for example 'http://zipkinhost:9411/api/v2/spans'."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.http.max-inflight-requests",
+      "type": "java.lang.Integer",
+      "description": "Maximum in flight requests for Zipkin http client."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.http.write-timeout-millis",
+      "type": "java.lang.Integer",
+      "description": "Write timeout for Zipkin http client, in milliseconds."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.http.compression-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Compresses spans before sending to remote Zipkin collector."
+    }
+  ]
+}
+

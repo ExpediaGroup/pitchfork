@@ -1,5 +1,6 @@
 package com.hotels.service.tracing.zipkintohaystack.kbridge;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.common.serialization.Deserializer;
@@ -7,31 +8,32 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serializer;
 
-
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
+import zipkin2.codec.SpanBytesEncoder;
 
-public enum ZipkinSerDes{
+public enum ZipkinSerDes {
 
     JSON_V1(SpanBytesDecoder.JSON_V1),
     JSON_V2(SpanBytesDecoder.JSON_V2),
     THRIFT(SpanBytesDecoder.THRIFT),
     PROTO3(SpanBytesDecoder.PROTO3);
 
-    public Serde<Span> serde;
+    public Serde<List<Span>> serde;
 
-    ZipkinSerDes(SpanBytesDecoder decoder){
-        ZipkinKafkaAdapter adapter = new ZipkinKafkaAdapter(decoder);
+    ZipkinSerDes(SpanBytesDecoder decoder) {
+        ZipkinKafkaAdapter adapter = new ZipkinKafkaAdapter(decoder, SpanBytesEncoder.JSON_V2);
         serde = Serdes.serdeFrom(adapter, adapter);
     }
 
-    private static class ZipkinKafkaAdapter implements Deserializer<Span>, Serializer<Span>{
+    private static class ZipkinKafkaAdapter implements Deserializer<List<Span>>, Serializer<List<Span>> {
         private SpanBytesDecoder decoder;
+        private SpanBytesEncoder encoder;
 
-        public ZipkinKafkaAdapter(SpanBytesDecoder decoder){
+        public ZipkinKafkaAdapter(SpanBytesDecoder decoder, SpanBytesEncoder encoder) {
             this.decoder = decoder;
+            this.encoder = encoder;
         }
-
 
         @Override
         public void configure(Map<String, ?> map, boolean b) {
@@ -39,13 +41,13 @@ public enum ZipkinSerDes{
         }
 
         @Override
-        public Span deserialize(String s, byte[] bytes) {
-            return decoder.decodeOne(bytes);
+        public List<Span> deserialize(String s, byte[] bytes) {
+            return decoder.decodeList(bytes);
         }
 
         @Override
-        public byte[] serialize(String topic, Span span) {
-            return span.toString().getBytes();
+        public byte[] serialize(String topic, List<Span> span) {
+            return encoder.encodeList(span);
         }
 
         @Override

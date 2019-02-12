@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -29,15 +29,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@ConditionalOnProperty(name = "pitchfork.forwarders.haystack.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "pitchfork.forwarders.haystack.kafka.enabled", havingValue = "true")
 @Configuration
 public class HaystackForwarderConfig {
 
     @Bean
-    public HaystackKafkaSpanForwarder haystackForwarder(@Value("${pitchfork.forwarders.haystack.kafka.broker-url}") String broker,
+    public HaystackKafkaSpanForwarder haystackForwarder(@Value("${pitchfork.forwarders.haystack.kafka.bootstrap-servers}") String bootstrapServers,
                                                         @Value("${pitchfork.forwarders.haystack.kafka.topic}") String topic) {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, broker);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.RETRIES_CONFIG, 2);
         props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, SECONDS.toMillis(1));
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "haystack-proxy");

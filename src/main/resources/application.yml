@@ -1,28 +1,49 @@
 server:
-  port: 8080
+  port: 9411
 logging.pattern.console: "%d{&quot;yyyy-MM-dd'T'HH:mm:ss.SSSZ&quot;} %highlight(%-5level) [%thread] rid=[%X{rid}] %logger{36} - %msg %rEx{30}%n"
 pitchfork:
-  kafka:
-    bootstrap.servers: kafka-service:9092
-  kakfaBridge:
-    enabled: true
-    sourceTopics:
-        - zipkinSpans
-    sourceFormat: JSON_V2
-    haystackTopic: proto-spans
+  validators:
+    accept-null-timestamps: true
+    max-timestamp-drift-seconds: -1
+  ingress:
+    kafka:
+      enabled: true
+      bootstrap-servers: kafka-service:9092
+      source-topics:
+        - zipkin
+      source-format: JSON_V2
+      haystack-topic: proto-spans
   forwarders:
     haystack:
-      enabled: true
+      kinesis:
+        enabled: false
+        region-name: "us-west-1"
+        stream-name: "proto-spans"
+        endpoint-config-type: REGION
+        authentication-type: DEFAULT
       kafka:
-        broker-url: kafka-service:9092
+        enabled: false
+        bootstrap-servers: kafka-service:9092
         topic: proto-spans
     logging:
-      enabled: false
+      enabled: true
       log-full-span: false
     zipkin:
-      enabled: false
-      host: localhost
-      port: 9411
-      max-inflight-requests: 256
-      write-timeout-millis: 10000
-      compression-enabled: true
+      http:
+        enabled: false
+        endpoint: http://localhost:9411/api/v2/spans
+        max-inflight-requests: 256
+        write-timeout-millis: 10000
+        compression-enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /
+info:
+  app:
+    name: Pitchfork
+    description: Pitchfork lifts Zipkin tracing data into Haystack.
+    readme: https://github.com/HotelsDotCom/pitchfork/blob/master/README.md
