@@ -12,8 +12,9 @@ pitchfork:
       source-topics:
         - zipkin
       source-format: JSON_V2
-      haystack-topic: proto-spans
   forwarders:
+    threadpool:
+      size: 50
     haystack:
       kinesis:
         enabled: false

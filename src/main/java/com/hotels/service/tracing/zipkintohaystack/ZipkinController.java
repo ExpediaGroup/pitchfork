@@ -16,8 +16,15 @@
  */
 package com.hotels.service.tracing.zipkintohaystack;
 
-import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+
+import java.util.Collection;
+import java.util.concurrent.Future;
+import java.util.function.Function;
+
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +33,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+
+import com.hotels.service.tracing.zipkintohaystack.forwarders.ForwarderDelegator;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 import reactor.core.publisher.Mono;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
-
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.Function;
-
-import static java.util.concurrent.CompletableFuture.runAsync;
-import static java.util.stream.Collectors.toList;
-import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @RestController
 public class ZipkinController {
@@ -50,13 +47,15 @@ public class ZipkinController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final SpanForwarder[] spanForwarders;
-    private final ExecutorService threadPool;
     private final SpanValidator spanValidator;
+    private final ForwarderDelegator forwarderDelegator;
 
-    public ZipkinController(@Autowired SpanValidator spanValidator, @Autowired(required = false) SpanForwarder... spanForwarders) {
+    public ZipkinController(@Autowired SpanValidator spanValidator,
+            ForwarderDelegator forwarderDelegator,
+            @Autowired(required = false) SpanForwarder... spanForwarders) {
         this.spanForwarders = spanForwarders == null ? new SpanForwarder[0] : spanForwarders;
         this.spanValidator = spanValidator;
-        this.threadPool = Executors.newCachedThreadPool();
+        this.forwarderDelegator = forwarderDelegator;
     }
 
     @PostConstruct
@@ -87,7 +86,7 @@ public class ZipkinController {
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
                 .filter(spanValidator::isSpanValid)
-                .map(processSpans())
+                .map(forwarderDelegator.processSpans())
                 .doOnNext(futures -> futures.forEach(this::waitForFuture))
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))
                 .then(ok().body(BodyInserters.empty()));
@@ -95,12 +94,6 @@ public class ZipkinController {
 
     private Function<byte[], Iterable<Span>> decodeList(SpanBytesDecoder decoder) {
         return bytes -> (Collection<Span>) decoder.decodeList(bytes);
-    }
-
-    private Function<Span, List<Future<Void>>> processSpans() {
-        return span -> Arrays.stream(spanForwarders)
-                .map(producer -> runAsync(() -> producer.process(span), threadPool))
-                .collect(toList());
     }
 
     private void waitForFuture(Future<Void> voidFuture) {
