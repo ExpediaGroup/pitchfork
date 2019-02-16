@@ -38,7 +38,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import com.hotels.service.tracing.zipkintohaystack.PitchForkConfig;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.ForwarderDelegator;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 
 @ConditionalOnProperty(name = "pitchfork.ingress.kafka.enabled", havingValue = "true")
@@ -50,13 +50,13 @@ public class KafkaBridge {
     private KafkaStreams stream;
 
     private final PitchForkConfig pitchForkConfig;
-    private final ForwarderDelegator forwarderDelegator;
+    private final Fork fork;
     private final SpanValidator spanValidator;
 
     @Inject
-    public KafkaBridge(PitchForkConfig pitchForkConfig, ForwarderDelegator forwarderDelegator, SpanValidator spanValidator) {
+    public KafkaBridge(PitchForkConfig pitchForkConfig, Fork fork, SpanValidator spanValidator) {
         this.pitchForkConfig = pitchForkConfig;
-        this.forwarderDelegator = forwarderDelegator;
+        this.fork = fork;
         this.spanValidator = spanValidator;
     }
 
@@ -67,8 +67,8 @@ public class KafkaBridge {
         StreamsBuilder builder = new StreamsBuilder();
         builder.stream(pitchForkConfig.getSourceTopics(), Consumed.with(Serdes.ByteArray(), serde))
                 .flatMapValues((ValueMapper<List<zipkin2.Span>, Iterable<zipkin2.Span>>) value -> value)
-                .filter((key, value) -> spanValidator.isSpanValid(value))
-                .foreach((key, value) -> forwarderDelegator.processSpans().apply(value)); // TODO: error handling
+                .filter((key, span) -> spanValidator.isSpanValid(span))
+                .foreach((key, span) -> fork.processSpan(span)); // TODO: error handling
 
         Properties properties = new Properties();
         properties.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, pitchForkConfig.getBootstrapServers());

@@ -34,7 +34,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import com.hotels.service.tracing.zipkintohaystack.forwarders.ForwarderDelegator;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 import reactor.core.publisher.Mono;
@@ -48,14 +48,12 @@ public class ZipkinController {
 
     private final SpanForwarder[] spanForwarders;
     private final SpanValidator spanValidator;
-    private final ForwarderDelegator forwarderDelegator;
+    private final Fork fork;
 
-    public ZipkinController(@Autowired SpanValidator spanValidator,
-            ForwarderDelegator forwarderDelegator,
-            @Autowired(required = false) SpanForwarder... spanForwarders) {
+    public ZipkinController(@Autowired SpanValidator spanValidator, Fork fork, @Autowired(required = false) SpanForwarder... spanForwarders) {
         this.spanForwarders = spanForwarders == null ? new SpanForwarder[0] : spanForwarders;
         this.spanValidator = spanValidator;
-        this.forwarderDelegator = forwarderDelegator;
+        this.fork = fork;
     }
 
     @PostConstruct
@@ -86,7 +84,7 @@ public class ZipkinController {
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
                 .filter(spanValidator::isSpanValid)
-                .map(forwarderDelegator.processSpans())
+                .map(fork::processSpan)
                 .doOnNext(futures -> futures.forEach(this::waitForFuture))
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))
                 .then(ok().body(BodyInserters.empty()));

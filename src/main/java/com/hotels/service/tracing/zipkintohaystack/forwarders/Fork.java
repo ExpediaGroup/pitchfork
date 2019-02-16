@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
@@ -35,12 +34,12 @@ import org.springframework.stereotype.Component;
 import zipkin2.Span;
 
 @Component
-public class ForwarderDelegator {
+public class Fork {
 
     private final SpanForwarder[] spanForwarders;
     private final ExecutorService threadPool;
 
-    public ForwarderDelegator(@Value ("${pitchfork.forwarders.threadpool.size}") int forwardersThreadpoolSize,
+    public Fork(@Value ("${pitchfork.forwarders.threadpool.size}") int forwardersThreadpoolSize,
                               @Autowired(required = false) SpanForwarder... spanForwarders) {
         this.spanForwarders = spanForwarders == null ? new SpanForwarder[0] : spanForwarders;
         this.threadPool = Executors.newFixedThreadPool(forwardersThreadpoolSize);
@@ -53,8 +52,8 @@ public class ForwarderDelegator {
         }
     }
 
-    public Function<Span, List<Future<Void>>> processSpans() {
-        return span -> Arrays.stream(spanForwarders)
+    public List<Future<Void>> processSpan(Span span) {
+        return Arrays.stream(spanForwarders)
                 .map(producer -> runAsync(() -> producer.process(span), threadPool))
                 .collect(toList());
     }
