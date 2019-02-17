@@ -1,5 +1,6 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
+import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -11,8 +12,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import static zipkin2.codec.SpanBytesEncoder.JSON_V2;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -21,28 +20,22 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 import com.expedia.open.tracing.Span;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import zipkin2.Endpoint;
+import zipkin2.codec.Encoding;
+import zipkin2.reporter.AsyncReporter;
+import zipkin2.reporter.kafka11.KafkaSender;
 
 @DirtiesContext
 @RunWith(SpringRunner.class)
@@ -50,11 +43,6 @@ import zipkin2.Endpoint;
 public class KafkaIngressTest {
 
     private static KafkaContainer kafkaContainer;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
     @BeforeClass
     public static void setup() {
@@ -71,6 +59,7 @@ public class KafkaIngressTest {
 
         System.setProperty("pitchfork.ingress.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.ingress.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
+        System.setProperty("pitchfork.ingress.kafka.source-format", "proto3");
         System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
     }
@@ -93,18 +82,14 @@ public class KafkaIngressTest {
                 .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
                 .build();
 
-        var producer = setupProducer();
-
-        byte[] bytes = JSON_V2.encodeList(List.of(zipkinSpan));
-
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("zipkin", spanId, bytes);
-        producer.send(record).get();
+        var reporter = setupReporter();
+        reporter.report(zipkinSpan);
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
         KafkaConsumer<String, byte[]> consumer = setupConsumer();
 
         await().atMost(10, SECONDS).untilAsserted(() -> {
-            ConsumerRecords<String, byte[]> records = consumer.poll(100);
+            ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(1));
 
             assertFalse(records.isEmpty());
 
@@ -120,19 +105,14 @@ public class KafkaIngressTest {
     }
 
     /**
-     * Create Kafka producer.
+     * Create reporter.
      */
-    private static KafkaProducer<String, byte[]> setupProducer() {
-        KafkaProducer<String, byte[]> producer = new KafkaProducer<>(
-                ImmutableMap.of(
-                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
-                        ConsumerConfig.GROUP_ID_CONFIG, "test-group",
-                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
-                ),
-                new StringSerializer(),
-                new ByteArraySerializer());
-
-        return producer;
+    private static AsyncReporter<zipkin2.Span> setupReporter() {
+        var sender = KafkaSender.newBuilder()
+                .encoding(Encoding.PROTO3)
+                .bootstrapServers(kafkaContainer.getBootstrapServers())
+                .build();
+        return AsyncReporter.create(sender);
     }
 
     /**

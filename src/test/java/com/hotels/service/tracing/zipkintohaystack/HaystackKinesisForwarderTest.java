@@ -1,8 +1,8 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
@@ -13,19 +13,13 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 import static com.amazonaws.services.kinesis.model.ShardIteratorType.TRIM_HORIZON;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.localstack.LocalStackContainer;
@@ -40,10 +34,10 @@ import com.amazonaws.services.kinesis.model.GetShardIteratorRequest;
 import com.amazonaws.services.kinesis.model.GetShardIteratorResult;
 import com.amazonaws.services.kinesis.model.Record;
 import com.expedia.open.tracing.Span;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import zipkin2.Endpoint;
+import zipkin2.codec.Encoding;
+import zipkin2.reporter.AsyncReporter;
+import zipkin2.reporter.okhttp3.OkHttpSender;
 
 @DirtiesContext
 @RunWith(SpringRunner.class)
@@ -53,22 +47,17 @@ public class HaystackKinesisForwarderTest {
     private static LocalStackContainer kinesisContainer;
     private static AmazonKinesis kinesisClient;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+    @LocalServerPort
+    private int localServerPort;
 
     @BeforeClass
-    public static void setup() throws InterruptedException {
+    public static void setup() {
         startKinesisContainer();
 
         kinesisClient = setupKinesisClient();
 
         // create
         kinesisClient.createStream("proto-spans", 1);
-
-        // FIXME: find out whay this is needed: docker container startup? stream creation (async) taking too long?
-        Thread.sleep(5000);
     }
 
     private static void startKinesisContainer() {
@@ -104,12 +93,8 @@ public class HaystackKinesisForwarderTest {
                 .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        HttpEntity<String> request = new HttpEntity<>(OBJECT_MAPPER.writeValueAsString(List.of(zipkinSpan)), headers);
-
-        ResponseEntity<String> responseFromVictim = this.restTemplate.postForEntity("/api/v2/spans", request, String.class);
-        assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
+        var reporter = setupReporter();
+        reporter.report(zipkinSpan);
 
         DescribeStreamResult streamResult = kinesisClient.describeStream("proto-spans");
         GetShardIteratorRequest shardIteratorRequest = new GetShardIteratorRequest()
@@ -159,5 +144,16 @@ public class HaystackKinesisForwarderTest {
             fail("Failed to deserialise span from data");
             return empty();
         }
+    }
+
+    /**
+     * Create reporter.
+     */
+    private AsyncReporter<zipkin2.Span> setupReporter() {
+        var sender = OkHttpSender.newBuilder()
+                .encoding(Encoding.PROTO3)
+                .endpoint("http://localhost:" + localServerPort + "/api/v2/spans")
+                .build();
+        return AsyncReporter.create(sender);
     }
 }
