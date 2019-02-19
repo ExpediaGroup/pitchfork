@@ -12,8 +12,6 @@ pitchfork:
         - zipkin
       source-format: JSON_V2
   forwarders:
-    threadpool:
-      size: 50
     haystack:
       kinesis:
         enabled: false

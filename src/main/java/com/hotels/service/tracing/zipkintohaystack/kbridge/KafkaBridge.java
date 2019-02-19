@@ -68,7 +68,7 @@ public class KafkaBridge {
         builder.stream(pitchForkConfig.getSourceTopics(), Consumed.with(Serdes.ByteArray(), serde))
                 .flatMapValues((ValueMapper<List<zipkin2.Span>, Iterable<zipkin2.Span>>) value -> value)
                 .filter((key, span) -> spanValidator.isSpanValid(span))
-                .foreach((key, span) -> fork.processSpan(span)); // TODO: error handling
+                .foreach((key, span) -> fork.processSpan(span).subscribe()); // TODO: error handling
 
         Properties properties = new Properties();
         properties.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, pitchForkConfig.getBootstrapServers());

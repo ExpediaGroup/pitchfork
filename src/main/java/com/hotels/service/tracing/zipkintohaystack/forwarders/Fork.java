@@ -16,33 +16,23 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders;
 
-import static java.util.concurrent.CompletableFuture.runAsync;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import zipkin2.Span;
 
 @Component
 public class Fork {
 
     private final SpanForwarder[] spanForwarders;
-    private final ExecutorService threadPool;
 
-    public Fork(@Value ("${pitchfork.forwarders.threadpool.size}") int forwardersThreadpoolSize,
-                              @Autowired(required = false) SpanForwarder... spanForwarders) {
+    public Fork(@Autowired(required = false) SpanForwarder... spanForwarders) {
         this.spanForwarders = spanForwarders == null ? new SpanForwarder[0] : spanForwarders;
-        this.threadPool = Executors.newFixedThreadPool(forwardersThreadpoolSize);
     }
 
     @PostConstruct
@@ -52,9 +42,9 @@ public class Fork {
         }
     }
 
-    public List<Future<Void>> processSpan(Span span) {
-        return Arrays.stream(spanForwarders)
-                .map(producer -> runAsync(() -> producer.process(span), threadPool))
-                .collect(toList());
+    public Flux<Object> processSpan(Span span) {
+        return Flux.fromArray(spanForwarders)
+                .flatMap(forwarder -> Mono.fromRunnable(() -> forwarder.process(span))
+                        .subscribeOn(Schedulers.elastic()));
     }
 }
