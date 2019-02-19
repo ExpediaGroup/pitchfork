@@ -101,7 +101,6 @@ PITCHFORK_INGRESS_KAFKA_ENABLED                                | false
 PITCHFORK_INGRESS_BOOTSTRAP_SERVERS                            | kafka-service:9092
 PITCHFORK_INGRESS_SOURCE_TOPICS                                | zipkin
 PITCHFORK_INGRESS_SOURCE_FORMAT                                | JSON_V2
-PITCHFORK_FORWARDERS_THREADPOOL_SIZE                           | 50
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED                    | false
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS          | kafka-service:9092
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_TOPIC                      | proto-spans
