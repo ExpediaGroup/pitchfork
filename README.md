@@ -97,6 +97,10 @@ Description                                                    | Default
 SERVER_PORT                                                    | 9411
 PITCHFORK_VALIDATORS_ACCEPT_NULL_TIMESTAMPS                    | true
 PITCHFORK_VALIDATORS_MAX_TIMESTAMP_DRIFT_SECONDS               | 3600
+PITCHFORK_INGRESS_KAFKA_ENABLED                                | false
+PITCHFORK_INGRESS_KAFKA_BOOTSTRAP_SERVERS                      | kafka-service:9092
+PITCHFORK_INGRESS_KAFKA_SOURCE_TOPICS                          | zipkin
+PITCHFORK_INGRESS_KAFKA_SOURCE_FORMAT                          | JSON_V2
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED                    | false
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS          | kafka-service:9092
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_TOPIC                      | proto-spans

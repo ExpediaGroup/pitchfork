@@ -21,7 +21,6 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 
 import java.util.Collection;
 import java.util.function.Function;
-import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,33 +30,25 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-import zipkin2.Span;
-import zipkin2.codec.SpanBytesDecoder;
 
+import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import reactor.core.publisher.Mono;
+import zipkin2.Span;
+import zipkin2.codec.SpanBytesDecoder;
 
 @RestController
 public class ZipkinController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final SpanForwarder[] spanForwarders;
     private final SpanValidator spanValidator;
+    private final Fork fork;
 
-    public ZipkinController(@Autowired SpanValidator spanValidator, @Autowired(required = false) SpanForwarder... spanForwarders) {
-        this.spanForwarders = spanForwarders == null ? new SpanForwarder[0] : spanForwarders;
+    public ZipkinController(@Autowired SpanValidator spanValidator, Fork fork) {
         this.spanValidator = spanValidator;
-    }
-
-    @PostConstruct
-    public void init() {
-        if (spanForwarders.length == 0) {
-            throw new IllegalStateException("No span forwarders configured. See README.md for a list of available forwarders.");
-        }
+        this.fork = fork;
     }
 
     /**
@@ -81,11 +72,7 @@ public class ZipkinController {
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
                 .filter(spanValidator::isSpanValid)
-                .flatMap(span -> Flux.fromArray(spanForwarders)
-                    .flatMap(spanForwarder -> Mono.fromRunnable(() -> spanForwarder.process(span))
-                        .subscribeOn(Schedulers.elastic())
-                    )
-                )
+                .flatMap(fork::processSpan)
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))
                 .then(ok().body(BodyInserters.empty()));
     }

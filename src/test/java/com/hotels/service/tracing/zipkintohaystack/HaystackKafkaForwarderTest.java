@@ -1,9 +1,10 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
@@ -11,7 +12,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -22,23 +22,18 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 import com.expedia.open.tracing.Span;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import zipkin2.Endpoint;
+import zipkin2.codec.Encoding;
+import zipkin2.reporter.AsyncReporter;
+import zipkin2.reporter.okhttp3.OkHttpSender;
 
 @DirtiesContext
 @RunWith(SpringRunner.class)
@@ -47,10 +42,8 @@ public class HaystackKafkaForwarderTest {
 
     private static KafkaContainer kafkaContainer;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+    @LocalServerPort
+    private int localServerPort;
 
     @BeforeClass
     public static void setup() {
@@ -83,18 +76,14 @@ public class HaystackKafkaForwarderTest {
                 .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        HttpEntity<String> request = new HttpEntity<>(OBJECT_MAPPER.writeValueAsString(List.of(zipkinSpan)), headers);
-
-        ResponseEntity<String> responseFromVictim = this.restTemplate.postForEntity("/api/v2/spans", request, String.class);
-        assertEquals("Expected a 200 status from pitchfork", HttpStatus.OK, responseFromVictim.getStatusCode());
+        var reporter = setupReporter();
+        reporter.report(zipkinSpan);
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
         KafkaConsumer<String, byte[]> consumer = setupConsumer();
 
         await().atMost(10, SECONDS).untilAsserted(() -> {
-            ConsumerRecords<String, byte[]> records = consumer.poll(100);
+            ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(1));
 
             assertFalse(records.isEmpty());
 
@@ -125,6 +114,17 @@ public class HaystackKafkaForwarderTest {
         consumer.subscribe(singletonList("proto-spans"));
 
         return consumer;
+    }
+
+    /**
+     * Create reporter.
+     */
+    private AsyncReporter<zipkin2.Span> setupReporter() {
+        var sender = OkHttpSender.newBuilder()
+                .encoding(Encoding.PROTO3)
+                .endpoint("http://localhost:" + localServerPort + "/api/v2/spans")
+                .build();
+        return AsyncReporter.create(sender);
     }
 
     public static Optional<Span> deserialize(byte[] data) {

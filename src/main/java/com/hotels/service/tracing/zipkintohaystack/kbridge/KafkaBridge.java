@@ -1,6 +1,20 @@
+/*
+ * Copyright 2018 Expedia, Inc.
+ *
+ *       Licensed under the Apache License, Version 2.0 (the "License");
+ *       you may not use this file except in compliance with the License.
+ *       You may obtain a copy of the License at
+ *
+ *           http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *       Unless required by applicable law or agreed to in writing, software
+ *       distributed under the License is distributed on an "AS IS" BASIS,
+ *       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *       See the License for the specific language governing permissions and
+ *       limitations under the License.
+ *
+ */
 package com.hotels.service.tracing.zipkintohaystack.kbridge;
-
-import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
 
 import java.util.List;
 import java.util.Properties;
@@ -9,24 +23,23 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
 import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KeyValueMapper;
-import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.ValueMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import com.expedia.open.tracing.Span;
 import com.hotels.service.tracing.zipkintohaystack.PitchForkConfig;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 
 @ConditionalOnProperty(name = "pitchfork.ingress.kafka.enabled", havingValue = "true")
 @Component
@@ -36,35 +49,34 @@ public class KafkaBridge {
 
     private KafkaStreams stream;
 
+    private final PitchForkConfig pitchForkConfig;
+    private final Fork fork;
+    private final SpanValidator spanValidator;
+
     @Inject
-    PitchForkConfig pitchForkConfig;
+    public KafkaBridge(PitchForkConfig pitchForkConfig, Fork fork, SpanValidator spanValidator) {
+        this.pitchForkConfig = pitchForkConfig;
+        this.fork = fork;
+        this.spanValidator = spanValidator;
+    }
 
     @PostConstruct
-    public void KafkaBridge() {
+    public void initialize() {
         Serde<List<zipkin2.Span>> serde = buildSerde(pitchForkConfig.getSourceFormat());
-        Properties kafkaproperties = new Properties();
-        kafkaproperties.put("bootstrap.servers", pitchForkConfig.getBootstrapServers());
-
-        if (!kafkaproperties.containsKey(StreamsConfig.APPLICATION_ID_CONFIG)) {
-            kafkaproperties.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "pitchfork");
-        }
-        if (!kafkaproperties.containsKey(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG)) {
-            kafkaproperties.setProperty(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
-                    LogAndContinueExceptionHandler.class.getName());
-        }
 
         StreamsBuilder builder = new StreamsBuilder();
         builder.stream(pitchForkConfig.getSourceTopics(), Consumed.with(Serdes.ByteArray(), serde))
-                //avoid null messages
-                .filter((k, v) -> v != null)
                 .flatMapValues((ValueMapper<List<zipkin2.Span>, Iterable<zipkin2.Span>>) value -> value)
-                //no empty traceids
-                .filter((k, v) -> v.traceId() != null && !v.traceId().isEmpty())
-                .map((k, v) -> traceidKeyMapper.apply(k, v))
-                .mapValues(value -> value.toByteArray())
-                .to(pitchForkConfig.getHaystackTopic(), Produced.with(Serdes.String(), Serdes.ByteArray()));
+                .filter((key, span) -> spanValidator.isSpanValid(span))
+                .foreach((key, span) -> fork.processSpan(span).subscribe()); // TODO: error handling
 
-        stream = new KafkaStreams(builder.build(), kafkaproperties);
+        Properties properties = new Properties();
+        properties.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, pitchForkConfig.getBootstrapServers());
+        properties.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "pitchfork");
+        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        properties.setProperty(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class.getName());
+
+        stream = new KafkaStreams(builder.build(), properties);
         stream.setUncaughtExceptionHandler((t, e) -> logger.error("Stream has been shut down!!", e));
         stream.start();
         logger.info("Stream processor for bridge has started");
@@ -87,13 +99,4 @@ public class KafkaBridge {
         }
         return serde;
     }
-
-    private KeyValueMapper<byte[], zipkin2.Span, KeyValue<String, Span>> traceidKeyMapper =
-            (key, value) -> {
-                //since we cannot trust the key to be the traceid, just map the key to the traceid
-                //from the span
-                Span hsSpan = fromZipkinV2(value);
-                return new KeyValue<>(hsSpan.getTraceId(), hsSpan);
-            };
-
 }

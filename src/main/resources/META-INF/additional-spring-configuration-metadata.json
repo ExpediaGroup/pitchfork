@@ -31,11 +31,6 @@
       "description": "Encoding used for the spans in the Kafka topics."
     },
     {
-      "name": "pitchfork.ingress.kafka.haystack-topic",
-      "type": "java.lang.String",
-      "description": "Name of Haystack's kafka topic."
-    },
-    {
       "name": "pitchfork.forwarders.haystack.kinesis.enabled",
       "type": "java.lang.Boolean",
       "description": "When true, creates a forwarder to Haystack Kinesis."
