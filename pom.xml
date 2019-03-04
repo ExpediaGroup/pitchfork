@@ -10,7 +10,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <zipkin-reporter.version>2.7.10</zipkin-reporter.version>
+    <zipkin-reporter.version>2.8.0</zipkin-reporter.version>
     <spring.version>2.0.5.RELEASE</spring.version>
   </properties>
 
