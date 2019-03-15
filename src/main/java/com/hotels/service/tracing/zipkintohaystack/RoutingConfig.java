@@ -34,7 +34,6 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import io.netty.handler.codec.http.HttpContentDecompressor;
-import reactor.ipc.netty.resources.LoopResources;
 import zipkin2.codec.SpanBytesDecoder;
 
 @Configuration
@@ -67,8 +66,9 @@ public class RoutingConfig {
         NettyReactiveWebServerFactory factory = new NettyReactiveWebServerFactory();
 
         factory.addServerCustomizers(builder -> builder
-                .afterChannelInit(channel -> channel.pipeline().addBefore("reactor.left.httpServerHandler", "decompressor", new HttpContentDecompressor()))
-                .loopResources(LoopResources.create("netty-loop", 4, true)));
+                .tcpConfiguration(tcpServer -> {
+                    return tcpServer.doOnConnection(connection -> connection.addHandler("decompressor", new HttpContentDecompressor()));
+                }));
 
         return factory;
     }
