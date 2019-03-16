@@ -84,32 +84,6 @@ public class KafkaIngressTest {
 
         var reporter = setupReporter();
         reporter.report(zipkinSpan);
-        reporter.report(zipkin2.Span.newBuilder()
-                .id("2696599e12b2a266")
-                .traceId(traceId)
-                .parentId(parentId)
-                .timestamp(timestamp)
-                .duration(duration)
-                .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
-                .build());
-
-        reporter.report(zipkin2.Span.newBuilder()
-                .id("2696599e12b2a267")
-                .traceId(traceId)
-                .parentId(parentId)
-                .timestamp(timestamp)
-                .duration(duration)
-                .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
-                .build());
-
-        reporter.report(zipkin2.Span.newBuilder()
-                .id("2696599e12b2a268")
-                .traceId(traceId)
-                .parentId(parentId)
-                .timestamp(timestamp)
-                .duration(duration)
-                .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
-                .build());
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
         KafkaConsumer<String, byte[]> consumer = setupConsumer();
