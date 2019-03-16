@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.kbridge;
+package com.hotels.service.tracing.zipkintohaystack.ingresses.kbridge;
 
 import java.util.List;
 import java.util.Properties;

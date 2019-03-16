@@ -34,7 +34,7 @@ import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 public class KinesisForwarderConfig {
 
     @Bean
-    public KinesisForwarder createProducer(@Value("${pitchfork.forwarders.haystack.kinesis.region-name}") String regionName,
+    public KinesisForwarder createKinesisProducer(@Value("${pitchfork.forwarders.haystack.kinesis.region-name}") String regionName,
                                            @Value("${pitchfork.forwarders.haystack.kinesis.signing-region-name}") String signingRegionName,
                                            @Value("${pitchfork.forwarders.haystack.kinesis.stream-name}") String streamName,
                                            @Value("${pitchfork.forwarders.haystack.kinesis.service-endpoint}") String serviceEndpoint,
