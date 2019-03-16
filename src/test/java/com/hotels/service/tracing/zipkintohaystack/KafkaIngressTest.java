@@ -59,7 +59,7 @@ public class KafkaIngressTest {
 
         System.setProperty("pitchfork.ingress.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.ingress.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
-        System.setProperty("pitchfork.ingress.kafka.source-format", "proto3");
+        System.setProperty("pitchfork.ingress.kafka.source-format", "PROTO3");
         System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
     }
@@ -84,6 +84,32 @@ public class KafkaIngressTest {
 
         var reporter = setupReporter();
         reporter.report(zipkinSpan);
+        reporter.report(zipkin2.Span.newBuilder()
+                .id("2696599e12b2a266")
+                .traceId(traceId)
+                .parentId(parentId)
+                .timestamp(timestamp)
+                .duration(duration)
+                .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
+                .build());
+
+        reporter.report(zipkin2.Span.newBuilder()
+                .id("2696599e12b2a267")
+                .traceId(traceId)
+                .parentId(parentId)
+                .timestamp(timestamp)
+                .duration(duration)
+                .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
+                .build());
+
+        reporter.report(zipkin2.Span.newBuilder()
+                .id("2696599e12b2a268")
+                .traceId(traceId)
+                .parentId(parentId)
+                .timestamp(timestamp)
+                .duration(duration)
+                .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
+                .build());
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
         KafkaConsumer<String, byte[]> consumer = setupConsumer();
