@@ -35,18 +35,22 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValid
 public class KafkaConsumerConfig {
 
     @Bean
-    public KafkaConsumer<String, byte[]> kafkaConsumer(KafkaIngressConfig pitchForkConfig) {
-        String kafkaBrokers = pitchForkConfig.getBootstrapServers();
-        List<String> sourceTopics = pitchForkConfig.getSourceTopics();
+    public KafkaConsumer<String, byte[]> kafkaConsumer(KafkaIngressConfig config) {
+        String kafkaBrokers = config.getBootstrapServers();
+        List<String> sourceTopics = config.getSourceTopics();
+        int autoCommitIntervalMs = config.getAutoCommitIntervalMs();
+        boolean enableAutoCommit = config.isEnableAutoCommit();
+        int sessionTimeoutMs = config.getSessionTimeoutMs();
+        String autoOffsetReset = config.getAutoOffsetReset();
 
         KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers,
                         ConsumerConfig.GROUP_ID_CONFIG, "pitchfork",
-                        ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000",
-                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true",
-                        ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "60000",
-                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
+                        ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, autoCommitIntervalMs,
+                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit,
+                        ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeoutMs,
+                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset
                 ),
                 new StringDeserializer(),
                 new ByteArrayDeserializer()

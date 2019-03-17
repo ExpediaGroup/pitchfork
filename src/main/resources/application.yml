@@ -8,6 +8,10 @@ pitchfork:
   ingress:
     kafka:
       enabled: false
+      auto-commit-internal-ms: 1000
+      enable-auto-commit: true
+      auto-offset-reset: "earliest"
+      session-timeout-ms: 60000
       bootstrap-servers: kafka-service:9092
       source-topics:
         - zipkin

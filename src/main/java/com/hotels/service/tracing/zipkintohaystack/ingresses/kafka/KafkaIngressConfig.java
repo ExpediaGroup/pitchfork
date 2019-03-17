@@ -27,6 +27,10 @@ public class KafkaIngressConfig {
     private String bootstrapServers;
     private String sourceFormat;
     private String haystackTopic;
+    private int autoCommitIntervalMs;
+    private boolean enableAutoCommit;
+    private int sessionTimeoutMs;
+    private String autoOffsetReset;
 
     public boolean isEnabled() {
         return enabled;
@@ -34,6 +38,14 @@ public class KafkaIngressConfig {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public int getAutoCommitIntervalMs() {
+        return autoCommitIntervalMs;
+    }
+
+    public void setAutoCommitIntervalMs(int autoCommitIntervalMs) {
+        this.autoCommitIntervalMs = autoCommitIntervalMs;
     }
 
     public List<String> getSourceTopics() {
@@ -66,5 +78,29 @@ public class KafkaIngressConfig {
 
     public void setBootstrapServers(String bootstrapServers) {
         this.bootstrapServers = bootstrapServers;
+    }
+
+    public boolean isEnableAutoCommit() {
+        return enableAutoCommit;
+    }
+
+    public void setEnableAutoCommit(boolean enableAutoCommit) {
+        this.enableAutoCommit = enableAutoCommit;
+    }
+
+    public int getSessionTimeoutMs() {
+        return sessionTimeoutMs;
+    }
+
+    public void setSessionTimeoutMs(int sessionTimeoutMs) {
+        this.sessionTimeoutMs = sessionTimeoutMs;
+    }
+
+    public String getAutoOffsetReset() {
+        return autoOffsetReset;
+    }
+
+    public void setAutoOffsetReset(String autoOffsetReset) {
+        this.autoOffsetReset = autoOffsetReset;
     }
 }
