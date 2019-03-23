@@ -59,7 +59,7 @@ public class KafkaIngressTest {
 
         System.setProperty("pitchfork.ingress.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.ingress.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
-        System.setProperty("pitchfork.ingress.kafka.source-format", "proto3");
+        System.setProperty("pitchfork.ingress.kafka.source-format", "PROTO3");
         System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
     }
