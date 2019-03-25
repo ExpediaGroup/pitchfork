@@ -85,10 +85,12 @@ services:
 
 The service exposes the following endpoints that can be used to test the app's health and to retrieve useful info:
 
-url       | Description
-----------|------------
-`/health` | Shows application health information.
-`/info`   | Displays application info.
+Endpoint      | Description
+--------------|------------
+`/health`     | Shows application health information.
+`/info`       | Displays application info.
+`/metrics`    | Metrics endpoint that can be used to examine metrics collected by the application.
+`/prometheus` | Endpoint that presents metrics in a format that can be scraped by Prometheus.
 
 ##### Properties
 
@@ -100,6 +102,7 @@ PITCHFORK_VALIDATORS_MAX_TIMESTAMP_DRIFT_SECONDS               | 3600
 PITCHFORK_INGRESS_KAFKA_ENABLED                                | false
 PITCHFORK_INGRESS_KAFKA_BOOTSTRAP_SERVERS                      | kafka-service:9092
 PITCHFORK_INGRESS_KAFKA_AUTO_COMMIT_INTERVAL_MS                | 1000
+PITCHFORK_INGRESS_KAFKA_POLL_DURATION_MS                       | 1000
 PITCHFORK_INGRESS_KAFKA_ENABLE_AUTO_COMMIT                     | true
 PITCHFORK_INGRESS_KAFKA_AUTO_OFFSET_RESET                      | earliest
 PITCHFORK_INGRESS_KAFKA_SESSION_TIMEOUT_MS                     | 60000
@@ -129,6 +132,7 @@ PITCHFORK_FORWARDERS_ZIPKIN_HTTP_COMPRESSION_ENABLED           | true
 
 Pitchfork acts as a collector and forwarder of tracing data.
 If you are currently using Zipkin you don't need to do code changes to your service. You can simply change your exporter to use a new endpoint and report the traces to Pitchfork instead of Zipkin.
+Pitchfork accepts Zipkin spans in json v1 and v2, thrift and protobuf. You can also configure this application to consume Zipkin spans from a Kafka broker.
 
 Pitchfork can be configured to forward incoming spans to: a Zipkin collector; Haystack (using Kafka or Kinesis as a message bus); a logger that just prints the traces as they are received.
 
