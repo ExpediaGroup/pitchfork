@@ -163,13 +163,13 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>1.10.6</version>
+      <version>1.11.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>kafka</artifactId>
-      <version>1.10.6</version>
+      <version>1.11.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -272,7 +272,7 @@
       <plugin>
         <groupId>com.github.os72</groupId>
         <artifactId>protoc-jar-maven-plugin</artifactId>
-        <version>3.3.0.1</version>
+        <version>3.7.0</version>
         <executions>
           <execution>
             <id>generate-proto-sources</id>
