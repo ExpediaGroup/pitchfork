@@ -8,6 +8,7 @@ pitchfork:
   ingress:
     kafka:
       enabled: false
+      poll-duration-ms: 1000
       auto-commit-internal-ms: 1000
       enable-auto-commit: true
       auto-offset-reset: "earliest"
@@ -40,10 +41,14 @@ pitchfork:
         compression-enabled: true
 
 management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
       base-path: /
 info:
   app:

@@ -31,6 +31,7 @@ public class KafkaIngressConfig {
     private boolean enableAutoCommit;
     private int sessionTimeoutMs;
     private String autoOffsetReset;
+    private int pollDurationMs;
 
     public boolean isEnabled() {
         return enabled;
@@ -102,5 +103,13 @@ public class KafkaIngressConfig {
 
     public void setAutoOffsetReset(String autoOffsetReset) {
         this.autoOffsetReset = autoOffsetReset;
+    }
+
+    public int getPollDurationMs() {
+        return pollDurationMs;
+    }
+
+    public void setPollDurationMs(int pollDurationMs) {
+        this.pollDurationMs = pollDurationMs;
     }
 }
