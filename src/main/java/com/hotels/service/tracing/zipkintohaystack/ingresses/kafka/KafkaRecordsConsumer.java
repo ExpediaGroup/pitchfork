@@ -16,7 +16,7 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
 
-import static java.time.Duration.ofSeconds;
+import static java.time.Duration.ofMillis;
 
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -65,7 +65,7 @@ public class KafkaRecordsConsumer {
     private void fetchRecordsFromKafka() {
         try {
             while (true) {
-                var records = kafkaConsumer.poll(ofSeconds(1)); // TODO: make poll duration configurable
+                var records = kafkaConsumer.poll(ofMillis(config.getPollDurationMs()));
 
                 if (!records.isEmpty()) {
                     StreamSupport.stream(records.spliterator(), false)
