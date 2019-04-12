@@ -150,6 +150,11 @@
       <artifactId>zipkin-proto3</artifactId>
       <version>0.2.0</version>
     </dependency>
+    <dependency>
+      <groupId>com.expedia.www</groupId>
+      <artifactId>haystack-idl-java</artifactId>
+      <version>1.0.64</version>
+    </dependency>
 
     <!-- Compile time dependencies -->
     <dependency>
@@ -284,7 +289,7 @@
       <plugin>
         <groupId>com.github.os72</groupId>
         <artifactId>protoc-jar-maven-plugin</artifactId>
-        <version>3.7.0</version>
+        <version>3.7.0.1</version>
         <executions>
           <execution>
             <id>generate-proto-sources</id>
@@ -294,11 +299,9 @@
             </goals>
             <configuration>
               <includeDirectories>
-                <include>proto</include>
                 <include>${project.build.directory}/zipkin-proto</include>
               </includeDirectories>
               <inputDirectories>
-                <include>proto</include>
                 <include>${project.build.directory}/zipkin-proto</include>
               </inputDirectories>
               <outputDirectory>${project.build.directory}/generated-sources/proto</outputDirectory>
