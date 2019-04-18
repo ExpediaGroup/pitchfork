@@ -1,22 +1,22 @@
 # Image used to create the minimal java distribution
-FROM debian:9.5-slim AS build
+FROM debian:9.8-slim AS build
 
 # Install wget to pull java binaries
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-ARG JAVA_DOWNLOAD_CHECKSUM=3784cfc4670f0d4c5482604c7c513beb1a92b005f569df9bf100e8bef6610f2e
+ARG JAVA_DOWNLOAD_CHECKSUM=4739064dc439a05487744cce0ba951cb544ed5e796f6c699646e16c09da5dd6a
 
 # Download java and unpack it
 RUN cd /opt; \
-    wget --no-check-certificate https://download.java.net/java/ga/jdk11/openjdk-11_linux-x64_bin.tar.gz \
-    && echo "${JAVA_DOWNLOAD_CHECKSUM}  openjdk-11_linux-x64_bin.tar.gz"  | sha256sum -c \
-    && tar zxf openjdk-11_linux-x64_bin.tar.gz \
-    && rm -f openjdk-11_linux-x64_bin.tar.gz
+    wget --no-check-certificate https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jdk_x64_linux_hotspot_12_33.tar.gz \
+    && echo "${JAVA_DOWNLOAD_CHECKSUM}  OpenJDK12U-jdk_x64_linux_hotspot_12_33.tar.gz"  | sha256sum -c \
+    && tar zxf OpenJDK12U-jdk_x64_linux_hotspot_12_33.tar.gz \
+    && rm -f OpenJDK12U-jdk_x64_linux_hotspot_12_33.tar.gz
 
 # Set java home and run jlink to create a minimal java distribution with modules required for Spring Boot
-ENV JAVA_HOME=/opt/jdk-11
+ENV JAVA_HOME=/opt/jdk-12+33
 ENV PATH="$PATH:$JAVA_HOME/bin"
 
 RUN jlink \
@@ -28,7 +28,7 @@ RUN jlink \
      --output /opt/jdk-mini
 
 # Start a new image and copy just the minimal java distribution from the previous one
-FROM debian:9.5-slim
+FROM debian:9.8-slim
 COPY --from=build /opt/jdk-mini /opt/jdk-mini
 
 # Set our java home and other useful envs

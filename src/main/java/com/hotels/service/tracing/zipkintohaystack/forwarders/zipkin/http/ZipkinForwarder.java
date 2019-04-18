@@ -66,7 +66,7 @@ public class ZipkinForwarder implements SpanForwarder {
     }
 
     class ZipkinCallback implements Callback<Void> {
-        zipkin2.Span span;
+        final zipkin2.Span span;
 
         ZipkinCallback(zipkin2.Span span) {
             this.span = span;

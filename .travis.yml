@@ -4,4 +4,4 @@ services:
 - docker
 script: ./mvnw verify
 jdk:
-- openjdk11
+- openjdk12

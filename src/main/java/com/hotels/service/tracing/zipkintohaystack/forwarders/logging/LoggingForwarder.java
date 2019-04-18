@@ -32,7 +32,7 @@ import zipkin2.Span;
 public class LoggingForwarder implements SpanForwarder {
 
     private final Logger logger = LoggerFactory.getLogger(LoggingForwarder.class);
-    private boolean logFullSpan;
+    private final boolean logFullSpan;
 
     @Inject
     public LoggingForwarder(@Value("${pitchfork.forwarders.logging.log-full-span}") boolean logFullSpan) {
