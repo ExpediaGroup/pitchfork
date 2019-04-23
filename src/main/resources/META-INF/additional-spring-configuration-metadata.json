@@ -8,7 +8,7 @@
     {
       "name": "pitchfork.validators.max-timestamp-drift-seconds",
       "type": "java.lang.Integer",
-      "description": "Max allowed difference between now and the timestamp of a given span. If a span has a timestamp outside of this range it will be discarded. Use -1 to disable this validation"
+      "description": "Max allowed difference between now and the timestamp of a given span. If a span has a timestamp outside of this range it will be discarded. Use -1 to disable this validation."
     },
     {
       "name": "pitchfork.ingress.kafka.enabled",
