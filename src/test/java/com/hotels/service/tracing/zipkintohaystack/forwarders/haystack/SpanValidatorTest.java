@@ -4,18 +4,34 @@ import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.Counter;
 
 public class SpanValidatorTest {
 
     private static final boolean ACCEPT_NULL_TIMESTAMPS = true;
     private static final boolean REJECT_NULL_TIMESTAMPS = false;
     private static final int MAX_DRIFT_FOR_TIMESTAMPS_DISABLED = -1;
+    private MetersProvider metersProvider = mock(MetersProvider.class);
+    private Counter mockCounter = mock(Counter.class);
+
+    @BeforeEach
+    public void setup() {
+        initMocks(this);
+
+        when(metersProvider.getInvalidSpansCounter()).thenReturn(mockCounter);
+    }
 
     @ParameterizedTest
     @MethodSource("timestamps")
@@ -26,7 +42,9 @@ public class SpanValidatorTest {
                 .timestamp(timestamp != null ? timestamp * 1000 : null) // millis to micros
                 .build();
 
-        var victim = new SpanValidator(rejectNullTimestamps, maxDrift);
+        var victim = new SpanValidator(rejectNullTimestamps, maxDrift, metersProvider);
+        victim.initialize();
+
         boolean isSpanValid = victim.isSpanValid(zipkinSpan);
 
         assertEquals(isSpanValid, spanIsKept);
