@@ -17,6 +17,15 @@ pitchfork:
       source-topics:
         - zipkin
       source-format: JSON_V2
+    rabbitmq:
+      enabled: false
+      user: guest
+      password: guest
+      virtual-host: "/"
+      host: localhost
+      port: 5672
+      queue-name: zipkin
+      source-format: JSON_V2
   forwarders:
     haystack:
       kinesis:

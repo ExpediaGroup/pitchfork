@@ -9,7 +9,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -22,51 +21,50 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
-import com.expedia.open.tracing.Span;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConnectionFactory;
 import zipkin2.Endpoint;
+import zipkin2.Span;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
-import zipkin2.reporter.kafka11.KafkaSender;
+import zipkin2.reporter.amqp.RabbitMQSender;
 
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class KafkaIngressTest {
+public class RabbitMqIngressTest {
 
+    private static Integer RABBITMQ_PORT;
     private static KafkaContainer kafkaContainer;
 
     @BeforeClass
-    public static void setup() {
+    public static void setup() throws Exception {
         startKafkaContainer();
-    }
+        startRabbitMqContainer();
+        setupRabbitMqQueue();
 
-    private static void startKafkaContainer() {
-        kafkaContainer = new KafkaContainer();
-        kafkaContainer.start();
-
-        AdminClient adminClient = setupKafkaAdminClient();
-        adminClient.createTopics(List.of(new NewTopic("zipkin", 1, (short) 1)));
-        adminClient.close();
-
-        System.setProperty("pitchfork.ingress.rabbitmq.enabled", String.valueOf(false));
-        System.setProperty("pitchfork.ingress.kafka.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.ingress.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
-        System.setProperty("pitchfork.ingress.kafka.source-format", "PROTO3");
+        System.setProperty("pitchfork.ingress.rabbitmq.enabled", String.valueOf(true));
+        System.setProperty("pitchfork.ingress.rabbitmq.port", String.valueOf(RABBITMQ_PORT));
+        System.setProperty("pitchfork.ingress.rabbitmq.queue-name", "zipkin");
+        System.setProperty("pitchfork.ingress.rabbitmq.source-format", "PROTO3");
         System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
     }
 
     @Test
-    public void shouldForwardTracesToKafka() throws Exception {
+    public void shouldForwardTracesToKafka() {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -83,7 +81,7 @@ public class KafkaIngressTest {
                 .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
                 .build();
 
-        var reporter = setupReporter();
+        var reporter = setupReporter(Encoding.PROTO3);
         reporter.report(zipkinSpan);
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
@@ -94,9 +92,9 @@ public class KafkaIngressTest {
 
             assertFalse(records.isEmpty());
 
-            Optional<Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
+            Optional<com.expedia.open.tracing.Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
 
-            assertTrue(span.isPresent());
+            Assert.assertTrue(span.isPresent());
             assertEquals(span.get().getTraceId(), traceId);
             assertEquals(span.get().getSpanId(), spanId);
             assertEquals(span.get().getParentSpanId(), parentId);
@@ -105,15 +103,80 @@ public class KafkaIngressTest {
         });
     }
 
+    private static void startKafkaContainer() {
+        kafkaContainer = new KafkaContainer();
+        kafkaContainer.start();
+
+        AdminClient adminClient = setupKafkaAdminClient();
+        adminClient.createTopics(List.of(new NewTopic("zipkin", 1, (short) 1)));
+        adminClient.close();
+    }
+
+    /**
+     * Create an admin client for Kafka.
+     */
+    private static AdminClient setupKafkaAdminClient() {
+        return AdminClient.create(ImmutableMap.of(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
+                ConsumerConfig.GROUP_ID_CONFIG, "test-group",
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
+        ));
+    }
+
+    private static void startRabbitMqContainer() {
+        GenericContainer rabbitMqContainer = new GenericContainer("rabbitmq:3.7.14-alpine")
+                .withExposedPorts(5672)
+                .withNetworkAliases("rabbitmq")
+                .waitingFor(new HostPortWaitStrategy());
+        rabbitMqContainer.start();
+
+        RABBITMQ_PORT = rabbitMqContainer.getMappedPort(5672);
+    }
+
     /**
      * Create reporter.
      */
-    private static AsyncReporter<zipkin2.Span> setupReporter() {
-        var sender = KafkaSender.newBuilder()
-                .encoding(Encoding.PROTO3)
-                .bootstrapServers(kafkaContainer.getBootstrapServers())
+    private AsyncReporter<Span> setupReporter(Encoding encoding) {
+        var sender = RabbitMQSender.newBuilder()
+                .username("guest")
+                .username("guest")
+                .virtualHost("/")
+                .encoding(encoding)
+                .queue("zipkin")
+                .addresses("localhost:" + RABBITMQ_PORT)
                 .build();
         return AsyncReporter.create(sender);
+    }
+
+    private static void setupRabbitMqQueue() throws Exception {
+        var channel = getRabbitMqChannel();
+        var exchangeName = "pitchforkExchange";
+        var routingKey = "pitchforkExchange";
+        channel.exchangeDeclare(exchangeName, "direct", true);
+        channel.queueDeclare("zipkin", true, false, true, null);
+        channel.queueBind("zipkin", exchangeName, routingKey);
+    }
+
+    public static Channel getRabbitMqChannel() throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setUsername("guest");
+        factory.setPassword("guest");
+        factory.setVirtualHost("/");
+        factory.setHost("localhost");
+        factory.setPort(RABBITMQ_PORT);
+
+        var connection = factory.newConnection();
+
+        return connection.createChannel();
+    }
+
+    public static Optional<com.expedia.open.tracing.Span> deserialize(byte[] data) {
+        try {
+            return ofNullable(com.expedia.open.tracing.Span.parseFrom(data));
+        } catch (Exception e) {
+            fail("Failed to deserialise span from data");
+            return empty();
+        }
     }
 
     /**
@@ -132,25 +195,5 @@ public class KafkaIngressTest {
         consumer.subscribe(singletonList("proto-spans"));
 
         return consumer;
-    }
-
-    /**
-     * Create an admin client for Kafka.
-     */
-    private static AdminClient setupKafkaAdminClient() {
-        return AdminClient.create(ImmutableMap.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
-                ConsumerConfig.GROUP_ID_CONFIG, "test-group",
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
-        ));
-    }
-
-    public static Optional<Span> deserialize(byte[] data) {
-        try {
-            return ofNullable(Span.parseFrom(data));
-        } catch (Exception e) {
-            fail("Failed to deserialise span from data");
-            return empty();
-        }
     }
 }

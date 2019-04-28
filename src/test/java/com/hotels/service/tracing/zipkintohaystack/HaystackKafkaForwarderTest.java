@@ -54,6 +54,7 @@ public class HaystackKafkaForwarderTest {
         kafkaContainer = new KafkaContainer();
         kafkaContainer.start();
 
+        System.setProperty("pitchfork.ingress.rabbitmq.enabled", String.valueOf(false));
         System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
         System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
     }

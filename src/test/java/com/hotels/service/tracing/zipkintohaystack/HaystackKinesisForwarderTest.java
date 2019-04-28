@@ -64,6 +64,7 @@ public class HaystackKinesisForwarderTest {
         kinesisContainer = new LocalStackContainer().withServices(KINESIS);
         kinesisContainer.start();
 
+        System.setProperty("pitchfork.ingress.rabbitmq.enabled", String.valueOf(false));
         System.setProperty("pitchfork.forwarders.haystack.kinesis.enabled", String.valueOf(true));
         System.setProperty("pitchfork.forwarders.haystack.kinesis.authentication-type", "BASIC");
 

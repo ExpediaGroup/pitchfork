@@ -42,17 +42,16 @@ public class KafkaRecordsConsumer {
     private final Fork fork;
     private final SpanValidator spanValidator;
     private final KafkaConsumer<String, byte[]> kafkaConsumer;
-    private final KafkaIngressConfig config;
+    private final KafkaIngressConfigProperties config;
     private SpanBytesDecoder decoder;
 
-    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfig config) {
+    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfigProperties config) {
         this.fork = fork;
         this.spanValidator = spanValidator;
         this.kafkaConsumer = kafkaConsumer;
         this.config = config;
     }
 
-    @PostConstruct
     public void initialize() {
         String sourceFormat = config.getSourceFormat();
         decoder = SpanBytesDecoder.valueOf(sourceFormat);

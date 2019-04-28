@@ -108,6 +108,14 @@ PITCHFORK_INGRESS_KAFKA_AUTO_OFFSET_RESET                      | earliest
 PITCHFORK_INGRESS_KAFKA_SESSION_TIMEOUT_MS                     | 60000
 PITCHFORK_INGRESS_KAFKA_SOURCE_TOPICS                          | zipkin
 PITCHFORK_INGRESS_KAFKA_SOURCE_FORMAT                          | JSON_V2
+PITCHFORK_INGRESS_RABBITMQ_ENABLED                             | false
+PITCHFORK_INGRESS_RABBITMQ_USER                                | guest
+PITCHFORK_INGRESS_RABBITMQ_PASSWORD                            | guest
+PITCHFORK_INGRESS_RABBITMQ_VIRTUAL_HOST                        | /
+PITCHFORK_INGRESS_RABBITMQ_HOST                                | localhost
+PITCHFORK_INGRESS_RABBITMQ_PORT                                | 5672
+PITCHFORK_INGRESS_RABBITMQ_QUEUE_NAME                          | zipkin
+PITCHFORK_INGRESS_RABBITMQ_SOURCE_FORMAT                       | JSON_V2
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED                    | false
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS          | kafka-service:9092
 PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_TOPIC                      | proto-spans
