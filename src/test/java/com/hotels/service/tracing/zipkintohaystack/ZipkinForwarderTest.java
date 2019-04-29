@@ -15,13 +15,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
@@ -34,6 +38,7 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {ZipkinForwarderTest.Initializer.class})
 public class ZipkinForwarderTest {
 
     private static Integer ZIPKIN_PORT;
@@ -56,10 +61,16 @@ public class ZipkinForwarderTest {
         zipkinContainer.start();
 
         ZIPKIN_PORT = zipkinContainer.getMappedPort(9411);
+    }
 
-        System.setProperty("pitchfork.ingress.rabbitmq.enabled", String.valueOf(false));
-        System.setProperty("pitchfork.forwarders.zipkin.http.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.forwarders.zipkin.http.endpoint", "http://localhost:" + ZIPKIN_PORT + "/api/v2/spans");
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext context) {
+            var values = TestPropertyValues.of(
+                    "pitchfork.forwarders.zipkin.http.enabled=true",
+                    "pitchfork.forwarders.zipkin.http.endpoint=http://localhost:" + ZIPKIN_PORT + "/api/v2/spans"
+            );
+            values.applyTo(context);
+        }
     }
 
     @Test

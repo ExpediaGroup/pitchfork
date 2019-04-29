@@ -26,7 +26,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
@@ -40,6 +44,7 @@ import zipkin2.reporter.kafka11.KafkaSender;
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {KafkaIngressTest.Initializer.class})
 public class KafkaIngressTest {
 
     private static KafkaContainer kafkaContainer;
@@ -56,13 +61,19 @@ public class KafkaIngressTest {
         AdminClient adminClient = setupKafkaAdminClient();
         adminClient.createTopics(List.of(new NewTopic("zipkin", 1, (short) 1)));
         adminClient.close();
+    }
 
-        System.setProperty("pitchfork.ingress.rabbitmq.enabled", String.valueOf(false));
-        System.setProperty("pitchfork.ingress.kafka.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.ingress.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
-        System.setProperty("pitchfork.ingress.kafka.source-format", "PROTO3");
-        System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext context) {
+            var values = TestPropertyValues.of(
+                    "pitchfork.ingress.kafka.enabled=true",
+                    "pitchfork.ingress.kafka.bootstrap-servers=" + kafkaContainer.getBootstrapServers(),
+                    "pitchfork.ingress.kafka.source-format=PROTO3",
+                    "pitchfork.forwarders.haystack.kafka.enabled=true",
+                    "pitchfork.forwarders.haystack.kafka.bootstrap-servers=" + kafkaContainer.getBootstrapServers()
+            );
+            values.applyTo(context);
+        }
     }
 
     @Test

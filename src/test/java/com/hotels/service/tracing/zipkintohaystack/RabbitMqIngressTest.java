@@ -26,7 +26,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
@@ -44,6 +48,7 @@ import zipkin2.reporter.amqp.RabbitMQSender;
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {RabbitMqIngressTest.Initializer.class})
 public class RabbitMqIngressTest {
 
     private static Integer RABBITMQ_PORT;
@@ -54,13 +59,20 @@ public class RabbitMqIngressTest {
         startKafkaContainer();
         startRabbitMqContainer();
         setupRabbitMqQueue();
+    }
 
-        System.setProperty("pitchfork.ingress.rabbitmq.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.ingress.rabbitmq.port", String.valueOf(RABBITMQ_PORT));
-        System.setProperty("pitchfork.ingress.rabbitmq.queue-name", "zipkin");
-        System.setProperty("pitchfork.ingress.rabbitmq.source-format", "PROTO3");
-        System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext context) {
+            var values = TestPropertyValues.of(
+                    "pitchfork.ingress.rabbitmq.enabled=true",
+                    "pitchfork.ingress.rabbitmq.port=" + RABBITMQ_PORT,
+                    "pitchfork.ingress.rabbitmq.queue-name=zipkin",
+                    "pitchfork.ingress.rabbitmq.source-format=PROTO3",
+                    "pitchfork.forwarders.haystack.kafka.enabled=true",
+                    "pitchfork.forwarders.haystack.kafka.bootstrap-servers=" + kafkaContainer.getBootstrapServers()
+            );
+            values.applyTo(context);
+        }
     }
 
     @Test
