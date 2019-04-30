@@ -16,10 +16,15 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.Counter;
 
 /**
  * Validator for spans.
@@ -34,16 +39,25 @@ public class SpanValidator {
     private final Logger logger = LoggerFactory.getLogger(SpanValidator.class);
     private final boolean acceptNullTimestamps;
     private final int maxTimestampDriftSeconds;
+    private final MetersProvider metersProvider;
+    private Counter invalidSpansCounter;
 
     public SpanValidator(@Value("${pitchfork.validators.accept-null-timestamps}") boolean acceptNullTimestamps,
-                         @Value("${pitchfork.validators.max-timestamp-drift-seconds}") int maxTimestampDriftSeconds) {
+            @Value("${pitchfork.validators.max-timestamp-drift-seconds}") int maxTimestampDriftSeconds,
+            MetersProvider metersProvider) {
         this.acceptNullTimestamps = acceptNullTimestamps;
         this.maxTimestampDriftSeconds = maxTimestampDriftSeconds;
+        this.metersProvider = metersProvider;
     }
 
-    // TODO: add metrics with discarded/invalid spans
+    @PostConstruct
+    public void initialize() {
+        invalidSpansCounter = metersProvider.getInvalidSpansCounter();
+    }
+
     public boolean isSpanValid(zipkin2.Span span) {
         if (span.traceId() == null) {
+            invalidSpansCounter.increment();
             logger.error("operation=isSpanValid, error='null traceId', service={}, spanId={}",
                     span.localServiceName(),
                     span.id());
@@ -52,6 +66,7 @@ public class SpanValidator {
         }
 
         if (span.timestamp() == null && !acceptNullTimestamps) {
+            invalidSpansCounter.increment();
             logger.error("operation=isSpanValid, error='null timestamp', service={}, traceId={}, spanId={}",
                     span.localServiceName(),
                     span.traceId(),
@@ -70,6 +85,7 @@ public class SpanValidator {
             long driftInSeconds = driftInMicros / 1000 / 1000;
 
             if (driftInSeconds > maxTimestampDriftSeconds) {
+                invalidSpansCounter.increment();
                 logger.error("operation=isSpanValid, error='invalid timestamp', driftInSeconds={} timestamp={}, service={}, traceId={}, spanId={}",
                         driftInSeconds,
                         span.timestamp(),

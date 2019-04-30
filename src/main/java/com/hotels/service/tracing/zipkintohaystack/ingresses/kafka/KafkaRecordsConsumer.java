@@ -18,6 +18,7 @@ package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
 
 import static java.time.Duration.ofMillis;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -31,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.Counter;
 import reactor.core.publisher.Mono;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
@@ -43,12 +46,15 @@ public class KafkaRecordsConsumer {
     private final SpanValidator spanValidator;
     private final KafkaConsumer<String, byte[]> kafkaConsumer;
     private final KafkaIngressConfig config;
+    private final MetersProvider metersProvider;
     private SpanBytesDecoder decoder;
+    private Counter spansCounter;
 
-    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfig config) {
+    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfig config, MetersProvider metersProvider) {
         this.fork = fork;
         this.spanValidator = spanValidator;
         this.kafkaConsumer = kafkaConsumer;
+        this.metersProvider = metersProvider;
         this.config = config;
     }
 
@@ -56,6 +62,7 @@ public class KafkaRecordsConsumer {
     public void initialize() {
         String sourceFormat = config.getSourceFormat();
         decoder = SpanBytesDecoder.valueOf(sourceFormat);
+        spansCounter = metersProvider.getSpansCounter("tcp", "kafka");
 
         Thread thread = new Thread(this::fetchRecordsFromKafka);
         thread.setDaemon(true);
@@ -71,6 +78,7 @@ public class KafkaRecordsConsumer {
                     StreamSupport.stream(records.spliterator(), false)
                             .flatMap((Function<ConsumerRecord<String, byte[]>, Stream<Span>>) record -> decoder.decodeList(record.value()).stream())
                             .filter(spanValidator::isSpanValid)
+                            .peek(span -> spansCounter.increment())
                             .forEach(span -> fork.processSpan(span)
                                     .doOnError(throwable -> logger.warn("operation=fetchRecordsFromKafka", throwable))
                                     .onErrorResume(e -> Mono.empty())

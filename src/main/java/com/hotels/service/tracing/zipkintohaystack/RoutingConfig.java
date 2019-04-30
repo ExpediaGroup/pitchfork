@@ -33,6 +33,8 @@ import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.Counter;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import zipkin2.codec.SpanBytesDecoder;
 
@@ -47,13 +49,18 @@ public class RoutingConfig {
      * At this moment we support {@code POST}s for the v1 api encoded in Json or Thrift, or for the v2 api in Json.
      */
     @Bean
-    public RouterFunction<ServerResponse> myRoutes(ZipkinController zipkinController) {
+    public RouterFunction<ServerResponse> myRoutes(ZipkinController zipkinController, MetersProvider metersProvider) {
+        var counterJsonV1 = metersProvider.getSpansCounter("http", "jsonv1");
+        var counterJsonV2 = metersProvider.getSpansCounter("http", "jsonv2");
+        var counterThrift = metersProvider.getSpansCounter("http", "thrift");
+        var counterProtobuf = metersProvider.getSpansCounter("http", "protobuf");
+
         return nest(method(HttpMethod.POST),
-                    nest(contentType(APPLICATION_JSON),
-                            route(path("/api/v1/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V1))
-                        .andRoute(path("/api/v2/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V2)))
-                    .andRoute(contentType(APPLICATION_THRIFT), request -> zipkinController.addSpans(request, SpanBytesDecoder.THRIFT))
-                    .andRoute(contentType(APPLICATION_PROTOBUF), request -> zipkinController.addSpans(request, SpanBytesDecoder.PROTO3)))
+                nest(contentType(APPLICATION_JSON),
+                        route(path("/api/v1/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V1, counterJsonV1))
+                                .andRoute(path("/api/v2/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V2, counterJsonV2)))
+                        .andRoute(contentType(APPLICATION_THRIFT), request -> zipkinController.addSpans(request, SpanBytesDecoder.THRIFT, counterThrift))
+                        .andRoute(contentType(APPLICATION_PROTOBUF), request -> zipkinController.addSpans(request, SpanBytesDecoder.PROTO3, counterProtobuf)))
                 .andRoute(RequestPredicates.all(), zipkinController::unmatched);
     }
 
