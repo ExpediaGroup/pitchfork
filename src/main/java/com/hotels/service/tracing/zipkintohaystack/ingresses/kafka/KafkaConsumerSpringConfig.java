@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 
 @ConditionalOnProperty(name = "pitchfork.ingress.kafka.enabled", havingValue = "true")
 @Configuration
@@ -62,7 +63,7 @@ public class KafkaConsumerSpringConfig {
     }
 
     @Bean(initMethod = "initialize")
-    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfigProperties config) {
-        return new KafkaRecordsConsumer(fork, spanValidator, kafkaConsumer, config);
+    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfig config, MetersProvider metersProvider) {
+        return new KafkaRecordsConsumer(fork, spanValidator, kafkaConsumer, config, metersProvider);
     }
 }

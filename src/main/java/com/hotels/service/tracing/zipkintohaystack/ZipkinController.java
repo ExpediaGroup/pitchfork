@@ -34,6 +34,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import io.micrometer.core.instrument.Counter;
 import reactor.core.publisher.Mono;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
@@ -67,11 +68,12 @@ public class ZipkinController {
      * Valid requests made to this service will be handled by this function.
      * It submits the reported spans to the registered {@link SpanForwarder} asynchronously and waits until they all complete.
      */
-    public Mono<ServerResponse> addSpans(ServerRequest serverRequest, SpanBytesDecoder decoder) {
+    public Mono<ServerResponse> addSpans(ServerRequest serverRequest, SpanBytesDecoder decoder, Counter counter) {
         return serverRequest
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
                 .filter(spanValidator::isSpanValid)
+                .doOnEach(spanSignal -> counter.increment())
                 .flatMap(fork::processSpan)
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))
                 .then(ok().body(BodyInserters.empty()));
