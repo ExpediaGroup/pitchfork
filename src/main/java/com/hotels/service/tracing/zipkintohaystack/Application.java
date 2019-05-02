@@ -20,9 +20,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.KafkaIngressConfig;
+import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.KafkaIngressConfigProperties;
+import com.hotels.service.tracing.zipkintohaystack.ingresses.rabbitmq.RabbitMqIngressConfigProperties;
 
-@EnableConfigurationProperties(KafkaIngressConfig.class)
+@EnableConfigurationProperties({KafkaIngressConfigProperties.class, RabbitMqIngressConfigProperties.class})
 @SpringBootApplication
 public class Application {
     public static void main(String[] args) {

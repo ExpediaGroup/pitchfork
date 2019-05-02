@@ -18,12 +18,9 @@ package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
 
 import static java.time.Duration.ofMillis;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -45,12 +42,12 @@ public class KafkaRecordsConsumer {
     private final Fork fork;
     private final SpanValidator spanValidator;
     private final KafkaConsumer<String, byte[]> kafkaConsumer;
-    private final KafkaIngressConfig config;
+    private final KafkaIngressConfigProperties config;
     private final MetersProvider metersProvider;
     private SpanBytesDecoder decoder;
     private Counter spansCounter;
 
-    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfig config, MetersProvider metersProvider) {
+    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfigProperties config, MetersProvider metersProvider) {
         this.fork = fork;
         this.spanValidator = spanValidator;
         this.kafkaConsumer = kafkaConsumer;
@@ -58,7 +55,6 @@ public class KafkaRecordsConsumer {
         this.config = config;
     }
 
-    @PostConstruct
     public void initialize() {
         String sourceFormat = config.getSourceFormat();
         decoder = SpanBytesDecoder.valueOf(sourceFormat);

@@ -21,7 +21,7 @@ import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("pitchfork.ingress.kafka")
-public class KafkaIngressConfig {
+public class KafkaIngressConfigProperties {
     private boolean enabled;
     private List<String> sourceTopics;
     private String bootstrapServers;

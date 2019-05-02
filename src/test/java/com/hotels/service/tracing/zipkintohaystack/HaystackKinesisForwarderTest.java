@@ -19,8 +19,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 
@@ -42,8 +46,10 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {HaystackKinesisForwarderTest.Initializer.class})
 public class HaystackKinesisForwarderTest {
 
+    private static String KINESIS_SERVICE_ENDPOINT;
     private static LocalStackContainer kinesisContainer;
     private static AmazonKinesis kinesisClient;
 
@@ -61,18 +67,28 @@ public class HaystackKinesisForwarderTest {
     }
 
     private static void startKinesisContainer() {
+        // https://github.com/localstack/localstack/blob/e479afa41df908305c4177276237925accc77e10/localstack/ext/java/src/test/java/cloud/localstack/BasicFunctionalityTest.java#L54
+        System.setProperty("com.amazonaws.sdk.disableCbor", "true");
+
         kinesisContainer = new LocalStackContainer().withServices(KINESIS);
         kinesisContainer.start();
 
-        System.setProperty("pitchfork.forwarders.haystack.kinesis.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.forwarders.haystack.kinesis.authentication-type", "BASIC");
+        var serviceEndpoint = kinesisContainer.getEndpointConfiguration(KINESIS).getServiceEndpoint();
+        var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, "us-west-1");
 
-        AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
-                kinesisContainer.getEndpointConfiguration(KINESIS).getServiceEndpoint(), "us-west-1");
-        System.setProperty("pitchfork.forwarders.haystack.kinesis.service-endpoint", endpointConfiguration.getServiceEndpoint());
+        KINESIS_SERVICE_ENDPOINT = endpointConfiguration.getServiceEndpoint();
+    }
 
-        // https://github.com/localstack/localstack/blob/e479afa41df908305c4177276237925accc77e10/localstack/ext/java/src/test/java/cloud/localstack/BasicFunctionalityTest.java#L54
-        System.setProperty("com.amazonaws.sdk.disableCbor", "true");
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext context) {
+            var values = TestPropertyValues.of(
+                    "pitchfork.forwarders.haystack.kinesis.enabled=true",
+                    "pitchfork.forwarders.haystack.kinesis.authentication-type=BASIC",
+                    "pitchfork.forwarders.haystack.kinesis.service-endpoint=" + KINESIS_SERVICE_ENDPOINT
+            );
+
+            values.applyTo(context);
+        }
     }
 
     @Test
@@ -124,12 +140,8 @@ public class HaystackKinesisForwarderTest {
         });
     }
 
-    /**
-     * Create consumer and subscribe to spans topic.
-     */
     private static AmazonKinesis setupKinesisClient() {
-        AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
-                kinesisContainer.getEndpointConfiguration(KINESIS).getServiceEndpoint(), "us-west-1");
+        var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(KINESIS_SERVICE_ENDPOINT, "us-west-1");
 
         return AmazonKinesisClientBuilder.standard()
                 .withCredentials(kinesisContainer.getDefaultCredentialsProvider())

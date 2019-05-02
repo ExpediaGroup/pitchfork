@@ -33,10 +33,10 @@ import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 
 @ConditionalOnProperty(name = "pitchfork.ingress.kafka.enabled", havingValue = "true")
 @Configuration
-public class KafkaConsumerConfig {
+public class KafkaConsumerSpringConfig {
 
     @Bean
-    public KafkaConsumer<String, byte[]> kafkaConsumer(KafkaIngressConfig config) {
+    public KafkaConsumer<String, byte[]> kafkaConsumer(KafkaIngressConfigProperties config) {
         String kafkaBrokers = config.getBootstrapServers();
         List<String> sourceTopics = config.getSourceTopics();
         int autoCommitIntervalMs = config.getAutoCommitIntervalMs();
@@ -62,8 +62,8 @@ public class KafkaConsumerConfig {
         return consumer;
     }
 
-    @Bean
-    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfig config, MetersProvider metersProvider) {
+    @Bean(initMethod = "initialize")
+    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfigProperties config, MetersProvider metersProvider) {
         return new KafkaRecordsConsumer(fork, spanValidator, kafkaConsumer, config, metersProvider);
     }
 }

@@ -161,6 +161,12 @@
       <version>1.0.64</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.rabbitmq</groupId>
+      <artifactId>amqp-client</artifactId>
+      <version>5.7.0</version>
+    </dependency>
+
     <!-- Compile time dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -227,6 +233,11 @@
     <dependency>
       <groupId>io.zipkin.reporter2</groupId>
       <artifactId>zipkin-sender-kafka11</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.zipkin.reporter2</groupId>
+      <artifactId>zipkin-sender-amqp-client</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

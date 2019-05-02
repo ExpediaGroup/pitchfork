@@ -11,6 +11,41 @@
       "description": "Max allowed difference between now and the timestamp of a given span. If a span has a timestamp outside of this range it will be discarded. Use -1 to disable this validation."
     },
     {
+      "name": "pitchfork.ingress.rabbitmq.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, uses RabbitMq as a source for Zipkin spans."
+    },
+    {
+      "name": "pitchfork.ingress.rabbitmq.user",
+      "type": "java.lang.String",
+      "description": "The username to connect to the broker."
+    },
+    {
+      "name": "pitchfork.ingress.rabbitmq.password",
+      "type": "java.lang.String",
+      "description": "The password to connect to the broker."
+    },
+    {
+      "name": "pitchfork.ingress.rabbitmq.virtual-host",
+      "type": "java.lang.String",
+      "description": "The virtual host to use when connecting to the broker."
+    },
+    {
+      "name": "pitchfork.ingress.rabbitmq.host",
+      "type": "java.lang.String",
+      "description": "The host to use for connections."
+    },
+    {
+      "name": "pitchfork.ingress.rabbitmq.queue-name",
+      "type": "java.lang.String",
+      "description": "Queue from where the Zipkin spans will be read from."
+    },
+    {
+      "name": "pitchfork.ingress.rabbitmq.port",
+      "type": "java.lang.Integer",
+      "description": "The port to use for connections."
+    },
+    {
       "name": "pitchfork.ingress.kafka.enabled",
       "type": "java.lang.Boolean",
       "description": "When true, uses Kafka as a source for Zipkin spans."

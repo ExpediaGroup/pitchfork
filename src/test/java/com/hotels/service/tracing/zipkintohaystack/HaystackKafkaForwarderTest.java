@@ -23,8 +23,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
@@ -38,6 +42,7 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {HaystackKafkaForwarderTest.Initializer.class})
 public class HaystackKafkaForwarderTest {
 
     private static KafkaContainer kafkaContainer;
@@ -53,9 +58,16 @@ public class HaystackKafkaForwarderTest {
     private static void startKafkaContainer() {
         kafkaContainer = new KafkaContainer();
         kafkaContainer.start();
+    }
 
-        System.setProperty("pitchfork.forwarders.haystack.kafka.enabled", String.valueOf(true));
-        System.setProperty("pitchfork.forwarders.haystack.kafka.bootstrap-servers", kafkaContainer.getBootstrapServers());
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext context) {
+            var values = TestPropertyValues.of(
+                    "pitchfork.forwarders.haystack.kafka.enabled=true",
+                    "pitchfork.forwarders.haystack.kafka.bootstrap-servers=" + kafkaContainer.getBootstrapServers()
+            );
+            values.applyTo(context);
+        }
     }
 
     @Test
