@@ -18,12 +18,9 @@ package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
 
 import static java.time.Duration.ofMillis;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;

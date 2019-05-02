@@ -63,7 +63,7 @@ public class KafkaConsumerSpringConfig {
     }
 
     @Bean(initMethod = "initialize")
-    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfig config, MetersProvider metersProvider) {
+    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfigProperties config, MetersProvider metersProvider) {
         return new KafkaRecordsConsumer(fork, spanValidator, kafkaConsumer, config, metersProvider);
     }
 }
