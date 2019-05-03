@@ -7,34 +7,31 @@ import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.List;
 import java.util.Optional;
 
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 import com.rabbitmq.client.Channel;
@@ -45,19 +42,22 @@ import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.amqp.RabbitMQSender;
 
+@Testcontainers
 @DirtiesContext
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = {RabbitMqIngressTest.Initializer.class})
 public class RabbitMqIngressTest {
 
-    private static Integer RABBITMQ_PORT;
-    private static KafkaContainer kafkaContainer;
+    @Container
+    private static KafkaContainer kafkaContainer = new KafkaContainer();
+    @Container
+    private static GenericContainer rabbitMqContainer = new GenericContainer("rabbitmq:3.7.14-alpine")
+            .withExposedPorts(5672)
+            .withNetworkAliases("rabbitmq")
+            .waitingFor(new HostPortWaitStrategy());
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception {
-        startKafkaContainer();
-        startRabbitMqContainer();
         setupRabbitMqQueue();
     }
 
@@ -65,7 +65,7 @@ public class RabbitMqIngressTest {
         public void initialize(ConfigurableApplicationContext context) {
             var values = TestPropertyValues.of(
                     "pitchfork.ingress.rabbitmq.enabled=true",
-                    "pitchfork.ingress.rabbitmq.port=" + RABBITMQ_PORT,
+                    "pitchfork.ingress.rabbitmq.port=" + rabbitMqContainer.getFirstMappedPort(),
                     "pitchfork.ingress.rabbitmq.queue-name=zipkin",
                     "pitchfork.ingress.rabbitmq.source-format=PROTO3",
                     "pitchfork.forwarders.haystack.kafka.enabled=true",
@@ -106,43 +106,13 @@ public class RabbitMqIngressTest {
 
             Optional<com.expedia.open.tracing.Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
 
-            Assert.assertTrue(span.isPresent());
+            assertTrue(span.isPresent());
             assertEquals(span.get().getTraceId(), traceId);
             assertEquals(span.get().getSpanId(), spanId);
             assertEquals(span.get().getParentSpanId(), parentId);
             assertEquals(span.get().getStartTime(), timestamp);
             assertEquals(span.get().getDuration(), duration);
         });
-    }
-
-    private static void startKafkaContainer() {
-        kafkaContainer = new KafkaContainer();
-        kafkaContainer.start();
-
-        AdminClient adminClient = setupKafkaAdminClient();
-        adminClient.createTopics(List.of(new NewTopic("zipkin", 1, (short) 1)));
-        adminClient.close();
-    }
-
-    /**
-     * Create an admin client for Kafka.
-     */
-    private static AdminClient setupKafkaAdminClient() {
-        return AdminClient.create(ImmutableMap.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
-                ConsumerConfig.GROUP_ID_CONFIG, "test-group",
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
-        ));
-    }
-
-    private static void startRabbitMqContainer() {
-        GenericContainer rabbitMqContainer = new GenericContainer("rabbitmq:3.7.14-alpine")
-                .withExposedPorts(5672)
-                .withNetworkAliases("rabbitmq")
-                .waitingFor(new HostPortWaitStrategy());
-        rabbitMqContainer.start();
-
-        RABBITMQ_PORT = rabbitMqContainer.getMappedPort(5672);
     }
 
     /**
@@ -155,7 +125,7 @@ public class RabbitMqIngressTest {
                 .virtualHost("/")
                 .encoding(encoding)
                 .queue("zipkin")
-                .addresses("localhost:" + RABBITMQ_PORT)
+                .addresses("localhost:" + rabbitMqContainer.getFirstMappedPort())
                 .build();
         return AsyncReporter.create(sender);
     }
@@ -175,7 +145,7 @@ public class RabbitMqIngressTest {
         factory.setPassword("guest");
         factory.setVirtualHost("/");
         factory.setHost("localhost");
-        factory.setPort(RABBITMQ_PORT);
+        factory.setPort(rabbitMqContainer.getFirstMappedPort());
 
         var connection = factory.newConnection();
 

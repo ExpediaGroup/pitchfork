@@ -5,19 +5,18 @@ import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.KINESIS;
 
 import static com.amazonaws.services.kinesis.model.ShardIteratorType.TRIM_HORIZON;
 
 import java.util.Optional;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -25,8 +24,9 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.kinesis.AmazonKinesis;
@@ -43,40 +43,27 @@ import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
+@Testcontainers
 @DirtiesContext
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = {HaystackKinesisForwarderTest.Initializer.class})
 public class HaystackKinesisForwarderTest {
 
+    @Container
+    private static LocalStackContainer kinesisContainer = new LocalStackContainer().withServices(KINESIS);
     private static String KINESIS_SERVICE_ENDPOINT;
-    private static LocalStackContainer kinesisContainer;
     private static AmazonKinesis kinesisClient;
 
     @LocalServerPort
     private int localServerPort;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
-        startKinesisContainer();
+        setKinesisServiceEndpoint();
 
+        // create output topic/stream
         kinesisClient = setupKinesisClient();
-
-        // create
         kinesisClient.createStream("proto-spans", 1);
-    }
-
-    private static void startKinesisContainer() {
-        // https://github.com/localstack/localstack/blob/e479afa41df908305c4177276237925accc77e10/localstack/ext/java/src/test/java/cloud/localstack/BasicFunctionalityTest.java#L54
-        System.setProperty("com.amazonaws.sdk.disableCbor", "true");
-
-        kinesisContainer = new LocalStackContainer().withServices(KINESIS);
-        kinesisContainer.start();
-
-        var serviceEndpoint = kinesisContainer.getEndpointConfiguration(KINESIS).getServiceEndpoint();
-        var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, "us-west-1");
-
-        KINESIS_SERVICE_ENDPOINT = endpointConfiguration.getServiceEndpoint();
     }
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
@@ -138,6 +125,16 @@ public class HaystackKinesisForwarderTest {
             assertEquals(span.get().getStartTime(), timestamp);
             assertEquals(span.get().getDuration(), duration);
         });
+    }
+
+    private static void setKinesisServiceEndpoint() {
+        // https://github.com/localstack/localstack/blob/e479afa41df908305c4177276237925accc77e10/localstack/ext/java/src/test/java/cloud/localstack/BasicFunctionalityTest.java#L54
+        System.setProperty("com.amazonaws.sdk.disableCbor", "true");
+
+        var serviceEndpoint = kinesisContainer.getEndpointConfiguration(KINESIS).getServiceEndpoint();
+        var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, "us-west-1");
+
+        KINESIS_SERVICE_ENDPOINT = endpointConfiguration.getServiceEndpoint();
     }
 
     private static AmazonKinesis setupKinesisClient() {
