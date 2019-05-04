@@ -30,10 +30,14 @@ pitchfork:
     haystack:
       kinesis:
         enabled: false
-        region-name: "us-west-1"
+        service-endpoint: ""
         stream-name: "proto-spans"
         endpoint-config-type: REGION
         authentication-type: DEFAULT
+        region-name: "us-west-1"
+        signing-region-name: "us-west-1"
+        aws-access-key: "accesskey"
+        aws-secret-key: "secretkey"
       kafka:
         enabled: false
         bootstrap-servers: kafka-service:9092
@@ -63,4 +67,4 @@ info:
   app:
     name: Pitchfork
     description: Pitchfork lifts Zipkin tracing data into Haystack.
-    readme: https://github.com/HotelsDotCom/pitchfork/blob/master/README.md
+    readme: https://hotelsdotcom.github.io/pitchfork/

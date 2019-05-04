@@ -33,7 +33,6 @@ public class RabbitMqIngressSpringConfig {
     @Bean(destroyMethod = "close")
     public Connection rabbitMqConnection(RabbitMqIngressConfigProperties properties) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
-        // "guest"/"guest" by default, limited to localhost connections
         factory.setUsername(properties.getUser());
         factory.setPassword(properties.getPassword());
         factory.setVirtualHost(properties.getVirtualHost());

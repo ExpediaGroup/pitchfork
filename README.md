@@ -8,9 +8,11 @@
 
 Pitchfork lifts Zipkin tracing data into Haystack.
 
+You can find more detailed documentation at [hotelsdotcom.github.io/pitchfork](https://hotelsdotcom.github.io/pitchfork/).
+
 ## Overview
 
-[Haystack](https://github.com/ExpediaDotCom/haystack) is an [Expedia](https://www.expedia.com/)-backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like [Zipkin](https://github.com/openzipkin/zipkin), its primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
+[Haystack](https://github.com/ExpediaDotCom/haystack) is an [Expedia](https://www.expedia.com/) backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like [Zipkin](https://github.com/openzipkin/zipkin), its primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
 
 [Zipkin](https://github.com/openzipkin/zipkin) is the de facto standard for distributed tracing. We understand that migrating to a new system can be difficult and you may want to go back. Pitchfork can help you with this.
 
@@ -44,7 +46,7 @@ The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/hote
     
 You can override the default properties by with environment variables (macro case or screaming upper case), for example:
 
-    docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_HAYSTACK_ENABLED=false hotelsdotcom/pitchfork:latest
+    docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_LOGGING_ENABLED=true hotelsdotcom/pitchfork:latest
 
 You can also run it as a normal Java application:
 
@@ -54,87 +56,7 @@ Or as a Spring Boot application:
 
     mvn spring-boot:run
 
-###### Testing with Docker Compose
-
-For convenience, you can use the following yaml to start pitchfork with docker-compose which starts both Pitchfork and Zipkin.
-Pitchfork is configured to log the spans received and to forward them to Zipkin.
-You can submit your spans to Pitchfork running on port 9411, and see them using Zipkin's web UI on port 9412.   
-
-```yaml
-version: "3"
-
-services:
-
-  pitchfork:
-    image: hotelsdotcom/pitchfork:latest
-    ports:
-      - "9411:9411"
-    environment:
-      PITCHFORK_FORWARDERS_LOGGING_ENABLED: "true"
-      PITCHFORK_FORWARDERS_LOGGING_LOG_FULL_SPAN: "true"
-      PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENABLED: "true"
-      PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENDPOINT: "http://zipkin:9411/api/v2/spans"
-      
-  zipkin:
-    image: openzipkin/zipkin:latest
-    ports:
-      - "9412:9411"
-```
-    
-##### Health check
-
-The service exposes the following endpoints that can be used to test the app's health and to retrieve useful info:
-
-Endpoint      | Description
---------------|------------
-`/health`     | Shows application health information.
-`/info`       | Displays application info.
-`/metrics`    | Metrics endpoint that can be used to examine metrics collected by the application.
-`/prometheus` | Endpoint that presents metrics in a format that can be scraped by Prometheus.
-
-##### Properties
-
-Description                                                    | Default
----------------------------------------------------------------|-------------------
-SERVER_PORT                                                    | 9411
-PITCHFORK_VALIDATORS_ACCEPT_NULL_TIMESTAMPS                    | true
-PITCHFORK_VALIDATORS_MAX_TIMESTAMP_DRIFT_SECONDS               | 3600
-PITCHFORK_INGRESS_KAFKA_ENABLED                                | false
-PITCHFORK_INGRESS_KAFKA_BOOTSTRAP_SERVERS                      | kafka-service:9092
-PITCHFORK_INGRESS_KAFKA_AUTO_COMMIT_INTERVAL_MS                | 1000
-PITCHFORK_INGRESS_KAFKA_POLL_DURATION_MS                       | 1000
-PITCHFORK_INGRESS_KAFKA_ENABLE_AUTO_COMMIT                     | true
-PITCHFORK_INGRESS_KAFKA_AUTO_OFFSET_RESET                      | earliest
-PITCHFORK_INGRESS_KAFKA_SESSION_TIMEOUT_MS                     | 60000
-PITCHFORK_INGRESS_KAFKA_SOURCE_TOPICS                          | zipkin
-PITCHFORK_INGRESS_KAFKA_SOURCE_FORMAT                          | JSON_V2
-PITCHFORK_INGRESS_RABBITMQ_ENABLED                             | false
-PITCHFORK_INGRESS_RABBITMQ_USER                                | guest
-PITCHFORK_INGRESS_RABBITMQ_PASSWORD                            | guest
-PITCHFORK_INGRESS_RABBITMQ_VIRTUAL_HOST                        | /
-PITCHFORK_INGRESS_RABBITMQ_HOST                                | localhost
-PITCHFORK_INGRESS_RABBITMQ_PORT                                | 5672
-PITCHFORK_INGRESS_RABBITMQ_QUEUE_NAME                          | zipkin
-PITCHFORK_INGRESS_RABBITMQ_SOURCE_FORMAT                       | JSON_V2
-PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED                    | false
-PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS          | kafka-service:9092
-PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_TOPIC                      | proto-spans
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_ENABLED                  | false
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_ENDPOINT_CONFIG_TYPE     | REGION
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_REGION_NAME              | us-west-1
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_SIGNING_REGION_NAME      |
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_SERVICE_ENDPOINT         |
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_STREAM_NAME              | proto-spans
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AWS_ACCESS_KEY           | 
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AWS_SECRET_KEY           | 
-PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTHENTICATION_TYPE      | DEFAULT
-PITCHFORK_FORWARDERS_LOGGING_ENABLED                           | false
-PITCHFORK_FORWARDERS_LOGGING_LOG_FULL_SPAN                     | false
-PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENABLED                       | false
-PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENDPOINT                      | http://localhost:9411/api/v2/spans
-PITCHFORK_FORWARDERS_ZIPKIN_HTTP_MAX_INFLIGHT_REQUESTS         | 256
-PITCHFORK_FORWARDERS_ZIPKIN_HTTP_WRITE_TIMEOUT_MILLIS          | 10000
-PITCHFORK_FORWARDERS_ZIPKIN_HTTP_COMPRESSION_ENABLED           | true
+You can find more info on how to configure Pitchfork in our [documentation](https://hotelsdotcom.github.io/pitchfork/) page.
 
 ## Architecture
 
@@ -166,9 +88,10 @@ None of these are essential for a pull request to be approved but they all help.
 * Try to have a clean git history. Use git rebase when pulling changes from master and, if you have multiple (related) commits do try and squash them into a single one.
 
 ## References
+* [Pitchfork Documentation](https://hotelsdotcom.github.io/pitchfork/)
 * [Pitchfork at Docker Hub](https://hub.docker.com/r/hotelsdotcom/pitchfork/)
-* [Haystack](https://github.com/ExpediaDotCom/haystack)
-* [Zipkin](https://github.com/openzipkin/zipkin)
+* [Haystack](https://github.com/ExpediaDotCom/haystack/)
+* [Zipkin](https://github.com/openzipkin/zipkin/)
 
 ## License
 This project is licensed under the Apache License v2.0 - see the LICENSE.txt file for details.
