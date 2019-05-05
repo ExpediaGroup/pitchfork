@@ -94,4 +94,4 @@ None of these are essential for a pull request to be approved but they all help.
 * [Zipkin](https://github.com/openzipkin/zipkin/)
 
 ## License
-This project is licensed under the Apache License v2.0 - see the LICENSE.txt file for details.
+This project is licensed under the Apache License v2.0 - see the [LICENSE.txt](LICENSE.txt) file for details.
