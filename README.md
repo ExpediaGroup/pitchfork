@@ -44,7 +44,7 @@ The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/hote
 
     docker run -p 9411:9411 hotelsdotcom/pitchfork:latest
     
-You can override the default properties by with environment variables (macro case or screaming upper case), for example:
+You can override the default properties with environment variables (macro case or screaming upper case), for example:
 
     docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_LOGGING_ENABLED=true hotelsdotcom/pitchfork:latest
 

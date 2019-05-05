@@ -27,7 +27,7 @@ You can run Pitchfork as a Docker container. You can find all available tags in 
 docker run -p 9411:9411 hotelsdotcom/pitchfork:latest
 ```
 
-You can override the default properties by with environment variables, for example:
+You can override the default properties with environment variables, for example:
 
 ```bash
 docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_LOGGING_ENABLED=true hotelsdotcom/pitchfork:latest
