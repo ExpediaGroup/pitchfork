@@ -28,6 +28,7 @@ pitchfork:
     haystack:
       kinesis:
         enabled: false
+        service-endpoint: ""
         stream-name: "proto-spans"
         authentication-type: BASIC
         endpoint-config-type: CONFIGURATION
