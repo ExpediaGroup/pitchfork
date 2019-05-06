@@ -46,6 +46,11 @@
       "description": "The port to use for connections."
     },
     {
+      "name": "pitchfork.ingress.rabbitmq.auto-ack",
+      "type": "java.lang.Boolean",
+      "description": "Auto acknowledge messages."
+    },
+    {
       "name": "pitchfork.ingress.kafka.enabled",
       "type": "java.lang.Boolean",
       "description": "When true, uses Kafka as a source for Zipkin spans."

@@ -19,6 +19,7 @@ pitchfork:
       source-format: JSON_V2
     rabbitmq:
       enabled: false
+      auto-ack: true
       user: guest
       password: guest
       virtual-host: "/"

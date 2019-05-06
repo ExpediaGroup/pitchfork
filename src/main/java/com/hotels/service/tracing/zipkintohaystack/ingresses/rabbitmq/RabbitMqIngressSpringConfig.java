@@ -54,7 +54,8 @@ public class RabbitMqIngressSpringConfig {
     public RabbitMqConsumer rabbitMqConsumer(Channel channel, Fork fork, SpanValidator spanValidator, RabbitMqIngressConfigProperties properties) {
         var sourceFormat = properties.getSourceFormat();
         var queueName = properties.getQueueName();
+        var autoAck = properties.isAutoAck();
 
-        return new RabbitMqConsumer(channel, fork, spanValidator, sourceFormat, queueName);
+        return new RabbitMqConsumer(channel, fork, spanValidator, sourceFormat, queueName, autoAck);
     }
 }

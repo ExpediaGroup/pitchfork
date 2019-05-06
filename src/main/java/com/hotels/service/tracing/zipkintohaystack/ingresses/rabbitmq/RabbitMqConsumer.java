@@ -40,20 +40,20 @@ public class RabbitMqConsumer extends DefaultConsumer {
     private final SpanValidator spanValidator;
     private final SpanBytesDecoder decoder;
     private final String queueName;
+    private final boolean autoAck;
 
-    public RabbitMqConsumer(Channel channel, Fork fork, SpanValidator spanValidator, String sourceFormat, String queueName) {
+    public RabbitMqConsumer(Channel channel, Fork fork, SpanValidator spanValidator, String sourceFormat, String queueName, boolean autoAck) {
         super(channel);
 
         this.fork = fork;
         this.spanValidator = spanValidator;
         this.decoder = SpanBytesDecoder.valueOf(sourceFormat);
         this.queueName = queueName;
+        this.autoAck = autoAck;
     }
 
     public void initialize() {
         try {
-            boolean autoAck = false;
-
             this.getChannel().basicConsume(queueName, autoAck, "pitchfork", this);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -62,8 +62,6 @@ public class RabbitMqConsumer extends DefaultConsumer {
 
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-        long deliveryTag = envelope.getDeliveryTag();
-
         List<Span> spans = decoder.decodeList(body);
         spans.stream().filter(spanValidator::isSpanValid)
                 .forEach(span -> fork.processSpan(span)
@@ -71,6 +69,10 @@ public class RabbitMqConsumer extends DefaultConsumer {
                         .onErrorResume(e -> Mono.empty())
                         .blockLast());
 
-        this.getChannel().basicAck(deliveryTag, false);
+        if (!autoAck) {
+            long deliveryTag = envelope.getDeliveryTag();
+
+            this.getChannel().basicAck(deliveryTag, false);
+        }
     }
 }
