@@ -16,10 +16,8 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
 
-import static org.springframework.util.StringUtils.isEmpty;
-
-import static com.google.common.base.Preconditions.checkArgument;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -37,15 +35,17 @@ import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 @Configuration
 public class KinesisForwarderConfig {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Bean
-    public KinesisForwarder createKinesisProducer(@Value("${pitchfork.forwarders.haystack.kinesis.region-name}") String regionName,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.signing-region-name}") String signingRegionName,
+    public KinesisForwarder createKinesisProducer(@Value("${pitchfork.forwarders.haystack.kinesis.client.config-type}") KinesisClientConfigurationEnum endpointConfiguration,
+                                                  @Value("${pitchfork.forwarders.haystack.kinesis.client.region.region-name}") String regionName,
+                                                  @Value("${pitchfork.forwarders.haystack.kinesis.client.endpoint.signing-region-name}") String signingRegionName,
+                                                  @Value("${pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint}") String serviceEndpoint,
                                                   @Value("${pitchfork.forwarders.haystack.kinesis.stream-name}") String streamName,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.service-endpoint}") String serviceEndpoint,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.authentication-type}") AwsAuthenticationTypeEnum authenticationType,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.endpoint-config-type}") KinesisEndpointConfigurationEnum endpointConfiguration,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.aws-access-key}") String awsAccessKey,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.aws-secret-key}") String awsSecretKey) {
+                                                  @Value("${pitchfork.forwarders.haystack.kinesis.auth.config-type}") AwsAuthenticationTypeEnum authenticationType,
+                                                  @Value("${pitchfork.forwarders.haystack.kinesis.auth.basic.aws-access-key}") String awsAccessKey,
+                                                  @Value("${pitchfork.forwarders.haystack.kinesis.auth.basic.aws-secret-key}") String awsSecretKey) {
         var amazonKinesis = getProducerConfiguration(
                 regionName,
                 endpointConfiguration,
@@ -59,7 +59,7 @@ public class KinesisForwarderConfig {
     }
 
     private AmazonKinesis getProducerConfiguration(String regionName,
-                                                   KinesisEndpointConfigurationEnum endpointConfiguration,
+                                                   KinesisClientConfigurationEnum clientConfiguration,
                                                    AwsAuthenticationTypeEnum authenticationType,
                                                    String awsAccessKey,
                                                    String awsSecretKey,
@@ -69,11 +69,12 @@ public class KinesisForwarderConfig {
 
         switch (authenticationType) {
         case DEFAULT:
+            logger.info("Configuring Kinesis auth with default credentials");
+
             credsProvider = DefaultAWSCredentialsProviderChain.getInstance();
             break;
         case BASIC:
-            checkArgument(!isEmpty(awsAccessKey), "AWS access key is required when using BASIC authentication type");
-            checkArgument(!isEmpty(awsSecretKey), "AWS secret access key is required when using BASIC authentication type");
+            logger.info("Configuring Kinesis auth with basic credentials");
 
             credsProvider = new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
             break;
@@ -82,15 +83,15 @@ public class KinesisForwarderConfig {
         AmazonKinesisClientBuilder clientBuilder = AmazonKinesisClientBuilder.standard()
                 .withCredentials(credsProvider);
 
-        switch (endpointConfiguration) {
-        case CONFIGURATION:
-            checkArgument(!isEmpty(serviceEndpoint), "Service endpoint is required when using CONFIGURATION mode for service endpoint configuration");
-            checkArgument(!isEmpty(signingRegionName), "Signing region name is required when using CONFIGURATION mode for service endpoint configuration");
+        switch (clientConfiguration) {
+        case ENDPOINT:
+            logger.info("Configuring Kinesis client with endpoint config. serviceEndpoint={}, signingRegionName={}", serviceEndpoint, signingRegionName);
 
-            clientBuilder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, signingRegionName));
+            var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, signingRegionName);
+            clientBuilder.withEndpointConfiguration(endpointConfiguration);
             break;
         case REGION:
-            checkArgument(!isEmpty(regionName), "Region name is required when using REGION mode for service endpoint configuration");
+            logger.info("Configuring Kinesis client with region config. regionName={}", regionName);
 
             clientBuilder.withRegion(regionName);
             break;

@@ -30,14 +30,19 @@ pitchfork:
     haystack:
       kinesis:
         enabled: false
-        service-endpoint: ""
         stream-name: "proto-spans"
-        endpoint-config-type: REGION
-        authentication-type: DEFAULT
-        region-name: "us-west-1"
-        signing-region-name: "us-west-1"
-        aws-access-key: "accesskey"
-        aws-secret-key: "secretkey"
+        auth:
+          config-type: DEFAULT
+          basic:
+            aws-access-key: "accesskey"
+            aws-secret-key: "secretkey"
+        client:
+          config-type: REGION
+          region:
+            region-name: "us-west-1"
+          endpoint:
+            signing-region-name: "us-west-1"
+            service-endpoint: "https://kinesis.us-west-1.amazonaws.com"
       kafka:
         enabled: false
         bootstrap-servers: kafka-service:9092

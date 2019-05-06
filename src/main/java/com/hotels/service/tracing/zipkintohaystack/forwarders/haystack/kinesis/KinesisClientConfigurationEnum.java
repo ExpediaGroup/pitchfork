@@ -16,7 +16,7 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
 
-public enum KinesisEndpointConfigurationEnum {
+public enum KinesisClientConfigurationEnum {
     REGION,
-    CONFIGURATION
+    ENDPOINT
 }
