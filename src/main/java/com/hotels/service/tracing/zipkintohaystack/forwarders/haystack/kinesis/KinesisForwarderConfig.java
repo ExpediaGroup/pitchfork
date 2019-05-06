@@ -18,8 +18,8 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,7 +30,11 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties.AuthConfigProperties;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties.ClientConfigProperties;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties.KinesisForwarderConfigProperties;
 
+@EnableConfigurationProperties({KinesisForwarderConfigProperties.class})
 @ConditionalOnProperty(name = "pitchfork.forwarders.haystack.kinesis.enabled", havingValue = "true")
 @Configuration
 public class KinesisForwarderConfig {
@@ -38,43 +42,30 @@ public class KinesisForwarderConfig {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Bean
-    public KinesisForwarder createKinesisProducer(@Value("${pitchfork.forwarders.haystack.kinesis.client.config-type}") KinesisClientConfigurationEnum endpointConfiguration,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.client.region.region-name}") String regionName,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.client.endpoint.signing-region-name}") String signingRegionName,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint}") String serviceEndpoint,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.stream-name}") String streamName,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.auth.config-type}") AwsAuthenticationTypeEnum authenticationType,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.auth.basic.aws-access-key}") String awsAccessKey,
-                                                  @Value("${pitchfork.forwarders.haystack.kinesis.auth.basic.aws-secret-key}") String awsSecretKey) {
+    public KinesisForwarder createKinesisProducer(KinesisForwarderConfigProperties properties) {
         var amazonKinesis = getProducerConfiguration(
-                regionName,
-                endpointConfiguration,
-                authenticationType,
-                awsAccessKey,
-                awsSecretKey,
-                serviceEndpoint,
-                signingRegionName);
+                properties.getClient(),
+                properties.getAuth());
 
-        return new KinesisForwarder(amazonKinesis, streamName);
+        return new KinesisForwarder(amazonKinesis, properties.getStreamName());
     }
 
-    private AmazonKinesis getProducerConfiguration(String regionName,
-                                                   KinesisClientConfigurationEnum clientConfiguration,
-                                                   AwsAuthenticationTypeEnum authenticationType,
-                                                   String awsAccessKey,
-                                                   String awsSecretKey,
-                                                   String serviceEndpoint,
-                                                   String signingRegionName) {
+    private AmazonKinesis getProducerConfiguration(ClientConfigProperties client, AuthConfigProperties auth) {
         AWSCredentialsProvider credsProvider = null;
+
+        var authenticationType = auth.getConfigType();
 
         switch (authenticationType) {
         case DEFAULT:
-            logger.info("Configuring Kinesis auth with default credentials");
+            logger.info("Configuring Kinesis auth with default credentials provider");
 
             credsProvider = DefaultAWSCredentialsProviderChain.getInstance();
             break;
         case BASIC:
             logger.info("Configuring Kinesis auth with basic credentials");
+
+            var awsAccessKey = auth.getBasic().getAwsAccessKey();
+            var awsSecretKey = auth.getBasic().getAwsSecretKey();
 
             credsProvider = new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
             break;
@@ -83,14 +74,23 @@ public class KinesisForwarderConfig {
         AmazonKinesisClientBuilder clientBuilder = AmazonKinesisClientBuilder.standard()
                 .withCredentials(credsProvider);
 
+        var clientConfiguration = client.getConfigType();
+
         switch (clientConfiguration) {
         case ENDPOINT:
-            logger.info("Configuring Kinesis client with endpoint config. serviceEndpoint={}, signingRegionName={}", serviceEndpoint, signingRegionName);
+            var serviceEndpoint = client.getEndpoint().getServiceEndpoint();
+            var signingRegionName = client.getEndpoint().getSigningRegionName();
+
+            logger.info("Configuring Kinesis client with endpoint config. serviceEndpoint={}, signingRegionName={}",
+                    serviceEndpoint,
+                    signingRegionName);
 
             var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, signingRegionName);
             clientBuilder.withEndpointConfiguration(endpointConfiguration);
             break;
         case REGION:
+            var regionName = client.getRegion().getRegionName();
+
             logger.info("Configuring Kinesis client with region config. regionName={}", regionName);
 
             clientBuilder.withRegion(regionName);

@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.ingresses.rabbitmq;
+package com.hotels.service.tracing.zipkintohaystack.ingresses.rabbitmq.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

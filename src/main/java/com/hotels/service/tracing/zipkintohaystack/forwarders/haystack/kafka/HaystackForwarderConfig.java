@@ -24,20 +24,22 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka.properties.KafkaForwarderConfigProperties;
+
+@EnableConfigurationProperties(KafkaForwarderConfigProperties.class)
 @ConditionalOnProperty(name = "pitchfork.forwarders.haystack.kafka.enabled", havingValue = "true")
 @Configuration
 public class HaystackForwarderConfig {
 
     @Bean
-    public HaystackKafkaSpanForwarder haystackForwarder(@Value("${pitchfork.forwarders.haystack.kafka.bootstrap-servers}") String bootstrapServers,
-                                                        @Value("${pitchfork.forwarders.haystack.kafka.topic}") String topic) {
+    public HaystackKafkaSpanForwarder haystackForwarder(KafkaForwarderConfigProperties properties) {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getBootstrapServers());
         props.put(ProducerConfig.RETRIES_CONFIG, 2);
         props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, SECONDS.toMillis(1));
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "haystack-proxy");
@@ -46,6 +48,6 @@ public class HaystackForwarderConfig {
 
         KafkaProducer<String, byte[]> kafkaProducer = new KafkaProducer<>(props);
 
-        return new HaystackKafkaSpanForwarder(kafkaProducer, topic);
+        return new HaystackKafkaSpanForwarder(kafkaProducer, properties.getTopic());
     }
 }

@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties.KafkaIngressConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 import io.micrometer.core.instrument.Counter;
 import reactor.core.publisher.Mono;

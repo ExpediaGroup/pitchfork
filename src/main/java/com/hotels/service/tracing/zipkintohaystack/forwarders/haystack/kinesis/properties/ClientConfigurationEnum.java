@@ -14,14 +14,9 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
+public enum ClientConfigurationEnum {
+    REGION,
+    ENDPOINT
 }

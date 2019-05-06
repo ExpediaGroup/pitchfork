@@ -14,14 +14,25 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+public class BasicAuthConfigProperties {
+    private String awsAccessKey;
+    private String awsSecretKey;
 
-@SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+    public String getAwsAccessKey() {
+        return awsAccessKey;
+    }
+
+    public void setAwsAccessKey(String awsAccessKey) {
+        this.awsAccessKey = awsAccessKey;
+    }
+
+    public String getAwsSecretKey() {
+        return awsSecretKey;
+    }
+
+    public void setAwsSecretKey(String awsSecretKey) {
+        this.awsSecretKey = awsSecretKey;
     }
 }
