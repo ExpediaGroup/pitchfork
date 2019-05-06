@@ -29,7 +29,8 @@ public class ZipkinForwarderConfig {
     public ZipkinForwarder createZipkinProducer(@Value("${pitchfork.forwarders.zipkin.http.endpoint}") String endpoint,
                                           @Value("${pitchfork.forwarders.zipkin.http.max-inflight-requests}") int maxInFlightRequests,
                                           @Value("${pitchfork.forwarders.zipkin.http.write-timeout-millis}") int writeTimeoutMillis,
-                                          @Value("${pitchfork.forwarders.zipkin.http.compression-enabled}") boolean compressionEnabled) {
-        return new ZipkinForwarder(endpoint, maxInFlightRequests, writeTimeoutMillis, compressionEnabled);
+                                          @Value("${pitchfork.forwarders.zipkin.http.compression-enabled}") boolean compressionEnabled,
+                                          @Value("${pitchfork.forwarders.zipkin.http.max-idle-connections}") int maxIdleConnections) {
+        return new ZipkinForwarder(endpoint, maxInFlightRequests, writeTimeoutMillis, compressionEnabled, maxIdleConnections);
     }
 }

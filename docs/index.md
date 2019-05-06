@@ -117,6 +117,7 @@ Zipkin output is disabled by default. You can enable and configure it using the 
 | pitchfork.forwarders.zipkin.http.max-inflight-requests | 256                                | Number of max inflight requests                                  |
 | pitchfork.forwarders.zipkin.http.write-timeout-millis  | 10000                              | Write timeout in milliseconds                                    |
 | pitchfork.forwarders.zipkin.http.compression-enabled   | true                               | Set to true for spans to be gzipped before transport             |
+| pitchfork.forwarders.zipkin.http.max-idle-connections  | 50                                 | Max idle connections for the Zipkin reporter connection pool     |
 
 ## Other options
 

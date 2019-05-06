@@ -52,6 +52,7 @@ pitchfork:
         max-inflight-requests: 256
         write-timeout-millis: 10000
         compression-enabled: true
+        max-idle-connections: 50
 
 management:
   metrics:

@@ -184,6 +184,11 @@
       "name": "pitchfork.forwarders.zipkin.http.compression-enabled",
       "type": "java.lang.Boolean",
       "description": "Compresses spans before sending to remote Zipkin collector."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.http.max-idle-connections",
+      "type": "java.lang.Integer",
+      "description": "Max idle connections for the Zipkin reporter connection pool."
     }
   ]
 }
