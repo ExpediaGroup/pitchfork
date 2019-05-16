@@ -108,17 +108,17 @@
     {
       "name": "pitchfork.forwarders.haystack.kinesis.client.region.region-name",
       "type": "java.lang.String",
-      "description": "Which region to send records to. If you do not specify the region and are running in EC2, the library will use the region the instance is in. Used when endpoint-config-type equals REGION."
+      "description": "Which region to send records to. If you do not specify the region and are running in EC2, the library will use the region the instance is in. Used when the kinesis client config-type equals REGION."
     },
     {
       "name": "pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint",
       "type": "java.lang.String",
-      "description": "The service endpoint for AWS Kinesis. Requires signing-region-name to also be set. Used when endpoint-config-type equals CONFIGURATION."
+      "description": "The service endpoint for AWS Kinesis. Requires signing-region-name to also be set. Used when the kinesis client config-type equals CONFIGURATION."
     },
     {
       "name": "pitchfork.forwarders.haystack.kinesis.client.endpoint.signing-region-name",
       "type": "java.lang.String",
-      "description": "The region used for signing of requests for AWS Kinesis. Requires service-endpoint to also be set. Used when endpoint-config-type equals CONFIGURATION."
+      "description": "The region used for signing of requests for AWS Kinesis. Requires service-endpoint to also be set. Used when kinesis client config-type equals CONFIGURATION."
     },
     {
       "name": "pitchfork.forwarders.haystack.kinesis.stream-name",
