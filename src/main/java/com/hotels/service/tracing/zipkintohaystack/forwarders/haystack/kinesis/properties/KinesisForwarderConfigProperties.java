@@ -17,11 +17,14 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 @ConfigurationProperties("pitchfork.forwarders.haystack.kinesis")
 public class KinesisForwarderConfigProperties {
     private String streamName;
+    @NestedConfigurationProperty
     private ClientConfigProperties client;
+    @NestedConfigurationProperty
     private AuthConfigProperties auth;
 
     public String getStreamName() {
