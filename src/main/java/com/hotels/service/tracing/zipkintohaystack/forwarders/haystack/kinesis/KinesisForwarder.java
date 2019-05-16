@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.kinesis.AmazonKinesis;
+import com.expedia.open.tracing.Span;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
-import zipkin2.Span;
 
 /**
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format,
@@ -44,14 +44,14 @@ public class KinesisForwarder implements SpanForwarder {
     }
 
     @Override
-    public void process(Span input) {
+    public void process(zipkin2.Span input) {
         logger.debug("operation=process, span={}", input);
 
-        com.expedia.open.tracing.Span span = fromZipkinV2(input);
+        Span span = fromZipkinV2(input);
 
         byte[] value = span.toByteArray();
 
         // TODO: metrics with success/failures
-        producer.putRecord(streamName, ByteBuffer.wrap(value), input.traceId());
+        producer.putRecord(streamName, ByteBuffer.wrap(value), span.getSpanId());
     }
 }
