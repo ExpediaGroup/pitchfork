@@ -48,7 +48,7 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
         Span span = fromZipkinV2(input);
         byte[] value = span.toByteArray();
 
-        final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getSpanId(), value);
+        final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getTraceId(), value);
 
         // FIXME send() should return a future but it's blocking when kafka servers are unavailable
         // TODO: metrics with success/failures

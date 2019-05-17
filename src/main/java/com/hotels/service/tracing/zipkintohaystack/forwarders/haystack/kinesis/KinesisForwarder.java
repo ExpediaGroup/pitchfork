@@ -52,6 +52,6 @@ public class KinesisForwarder implements SpanForwarder {
         byte[] value = span.toByteArray();
 
         // TODO: metrics with success/failures
-        producer.putRecord(streamName, ByteBuffer.wrap(value), span.getSpanId());
+        producer.putRecord(streamName, ByteBuffer.wrap(value), span.getTraceId());
     }
 }
