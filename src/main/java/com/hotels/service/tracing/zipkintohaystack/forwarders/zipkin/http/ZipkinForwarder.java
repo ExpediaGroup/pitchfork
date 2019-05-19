@@ -37,18 +37,15 @@ public class ZipkinForwarder implements SpanForwarder {
 
     private final OkHttpSender sender;
 
-    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled) {
+    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled, int maxIdleConnections) {
         OkHttpSender.Builder builder = OkHttpSender.newBuilder()
                 .endpoint(endpoint)
                 .maxRequests(maxInFlightRequests)
                 .writeTimeout(writeTimeoutMillis)
                 .compressionEnabled(compressionEnabled);
 
-        // TODO: make configurable
-        int maxIdle = 50;
-
         builder.clientBuilder()
-                .connectionPool(new ConnectionPool(maxIdle, 5, TimeUnit.MINUTES))
+                .connectionPool(new ConnectionPool(maxIdleConnections, 5, TimeUnit.MINUTES))
                 .pingInterval(60, TimeUnit.SECONDS);
 
         this.sender = builder.build();

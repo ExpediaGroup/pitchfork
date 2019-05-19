@@ -14,9 +14,25 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties;
 
-public enum KinesisEndpointConfigurationEnum {
-    REGION,
-    CONFIGURATION
+public class AuthConfigProperties {
+    private AwsAuthenticationTypeEnum configType;
+    private BasicAuthConfigProperties basic;
+
+    public AwsAuthenticationTypeEnum getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(AwsAuthenticationTypeEnum configType) {
+        this.configType = configType;
+    }
+
+    public BasicAuthConfigProperties getBasic() {
+        return basic;
+    }
+
+    public void setBasic(BasicAuthConfigProperties basic) {
+        this.basic = basic;
+    }
 }

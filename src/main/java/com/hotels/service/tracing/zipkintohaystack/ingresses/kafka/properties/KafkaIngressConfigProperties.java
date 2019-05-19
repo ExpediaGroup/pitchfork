@@ -14,14 +14,14 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
+package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties;
 
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("pitchfork.ingress.kafka")
-public class KafkaIngressConfig {
+public class KafkaIngressConfigProperties {
     private boolean enabled;
     private List<String> sourceTopics;
     private String bootstrapServers;

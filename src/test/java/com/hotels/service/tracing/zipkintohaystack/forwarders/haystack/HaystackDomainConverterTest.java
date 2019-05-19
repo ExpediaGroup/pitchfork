@@ -2,8 +2,8 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
 import static java.lang.System.currentTimeMillis;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -81,7 +81,7 @@ public class HaystackDomainConverterTest {
      * Zipkin trace ids are 64 or 128 bits represented as 16 or 32 hex characters with '0' left padding
      */
     private String zipkinTraceId(long id) {
-        return String.format("%032x", id);
+        return String.format("%016x", id);
     }
 
     /**

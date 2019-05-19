@@ -14,14 +14,25 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+public class ClientEndpointConfigProperties {
+    private String signingRegionName;
+    private String serviceEndpoint;
 
-@SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+    public String getSigningRegionName() {
+        return signingRegionName;
+    }
+
+    public void setSigningRegionName(String signingRegionName) {
+        this.signingRegionName = signingRegionName;
+    }
+
+    public String getServiceEndpoint() {
+        return serviceEndpoint;
+    }
+
+    public void setServiceEndpoint(String serviceEndpoint) {
+        this.serviceEndpoint = serviceEndpoint;
     }
 }

@@ -24,19 +24,22 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties.KafkaIngressConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 
+@EnableConfigurationProperties(KafkaIngressConfigProperties.class)
 @ConditionalOnProperty(name = "pitchfork.ingress.kafka.enabled", havingValue = "true")
 @Configuration
-public class KafkaConsumerConfig {
+public class KafkaConsumerSpringConfig {
 
     @Bean
-    public KafkaConsumer<String, byte[]> kafkaConsumer(KafkaIngressConfig config) {
+    public KafkaConsumer<String, byte[]> kafkaConsumer(KafkaIngressConfigProperties config) {
         String kafkaBrokers = config.getBootstrapServers();
         List<String> sourceTopics = config.getSourceTopics();
         int autoCommitIntervalMs = config.getAutoCommitIntervalMs();
@@ -62,8 +65,8 @@ public class KafkaConsumerConfig {
         return consumer;
     }
 
-    @Bean
-    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfig config, MetersProvider metersProvider) {
+    @Bean(initMethod = "initialize")
+    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfigProperties config, MetersProvider metersProvider) {
         return new KafkaRecordsConsumer(fork, spanValidator, kafkaConsumer, config, metersProvider);
     }
 }
