@@ -14,13 +14,14 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.ingresses.rabbitmq;
+package com.hotels.service.tracing.zipkintohaystack.ingresses.rabbitmq.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("pitchfork.ingress.rabbitmq")
 public class RabbitMqIngressConfigProperties {
     private boolean enabled;
+    private boolean autoAck;
     private String user;
     private String password;
     private String host;
@@ -28,6 +29,14 @@ public class RabbitMqIngressConfigProperties {
     private String queueName;
     private String sourceFormat;
     private int port;
+
+    public boolean isAutoAck() {
+        return autoAck;
+    }
+
+    public void setAutoAck(boolean autoAck) {
+        this.autoAck = autoAck;
+    }
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;

@@ -94,17 +94,17 @@ Kafka output is disabled by default. You can enable and configure it using the f
 
 Kinesis output is disabled by default. You can enable and configure it using the following properties.
 
-| Property name                                              | Default value | Description                                                                                                       |
-| ---------------------------------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------- |
-| pitchfork.forwarders.haystack.kinesis.enabled              | false         | If enabled Pitchfork will forward spans to a Kinesis stream                                                       |
-| pitchfork.forwarders.haystack.kinesis.stream-name          | proto-spans   | The name of the Kinesis stream where the spans will be submitted to                                               |
-| pitchfork.forwarders.haystack.kinesis.endpoint-config-type | REGION        | What type of endpoint configuration to use. Possible values are REGION or CONFIGURATION                           |
-| pitchfork.forwarders.haystack.kinesis.authentication-type  | DEFAULT       | Authentication method to use. Possible values are DEFAULT or BASIC                                                |
-| pitchfork.forwarders.haystack.kinesis.region-name          | us-west-1     | Used when endpoint-config-type is REGION. Region is used to determine the service endpoint and the signing region |         
-| pitchfork.forwarders.haystack.kinesis.service-endpoint     |               | Used when endpoint-config-type is CONFIGURATION. The service endpoint (with or without protocol)                  |         
-| pitchfork.forwarders.haystack.kinesis.signing-region-name  | us-west-1     | Used when endpoint-config-type is CONFIGURATION. The region to use for signing of requests                        |
-| pitchfork.forwarders.haystack.kinesis.aws-access-key       | accesskey     | Used when authentication-type is BASIC. The AWS access key                                                        |
-| pitchfork.forwarders.haystack.kinesis.aws-secret-key       | secretkey     | Used when authentication-type is BASIC. The AWS secret access key                                                 |
+| Property name                                                             | Default value                           | Description                                                                                                                 |
+| ------------------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| pitchfork.forwarders.haystack.kinesis.enabled                             | false                                   | If enabled Pitchfork will forward spans to a Kinesis stream                                                                 |
+| pitchfork.forwarders.haystack.kinesis.stream-name                         | proto-spans                             | The name of the Kinesis stream where the spans will be submitted to                                                         |
+| pitchfork.forwarders.haystack.kinesis.client.config-type                  | REGION                                  | What type of endpoint configuration to use. Possible values are REGION or ENDPOINT                                          |
+| pitchfork.forwarders.haystack.kinesis.client.region.region-name           | us-west-1                               | Used when the kinesis client config-type is REGION. Region is used to determine the service endpoint and the signing region |         
+| pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint    | https://kinesis.us-west-1.amazonaws.com | Used when kinesis client config-type is ENDPOINT. The service endpoint (with or without protocol)                           |         
+| pitchfork.forwarders.haystack.kinesis.client.endpoint.signing-region-name | us-west-1                               | Used when kinesis client config-type is ENDPOINT. The region to use for signing of requests                                 |
+| pitchfork.forwarders.haystack.kinesis.auth.config-type                    | DEFAULT                                 | Authentication method to use. Possible values are DEFAULT or BASIC                                                          |
+| pitchfork.forwarders.haystack.kinesis.auth.basic.aws-access-key           | accesskey                               | Used when authentication-type is BASIC. The AWS access key                                                                  |
+| pitchfork.forwarders.haystack.kinesis.auth.basic.aws-secret-key           | secretkey                               | Used when authentication-type is BASIC. The AWS secret access key                                                           |
 
 ### Zipkin HTTP
 
@@ -117,6 +117,7 @@ Zipkin output is disabled by default. You can enable and configure it using the 
 | pitchfork.forwarders.zipkin.http.max-inflight-requests | 256                                | Number of max inflight requests                                  |
 | pitchfork.forwarders.zipkin.http.write-timeout-millis  | 10000                              | Write timeout in milliseconds                                    |
 | pitchfork.forwarders.zipkin.http.compression-enabled   | true                               | Set to true for spans to be gzipped before transport             |
+| pitchfork.forwarders.zipkin.http.max-idle-connections  | 50                                 | Max idle connections for the Zipkin reporter connection pool     |
 
 ## Other options
 

@@ -34,7 +34,6 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
-import io.micrometer.core.instrument.Counter;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import zipkin2.codec.SpanBytesDecoder;
 

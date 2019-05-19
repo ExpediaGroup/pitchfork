@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
+package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties;
 
 import java.util.List;
 

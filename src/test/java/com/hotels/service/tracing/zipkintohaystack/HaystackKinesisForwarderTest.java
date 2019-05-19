@@ -70,8 +70,9 @@ public class HaystackKinesisForwarderTest {
         public void initialize(ConfigurableApplicationContext context) {
             var values = TestPropertyValues.of(
                     "pitchfork.forwarders.haystack.kinesis.enabled=true",
-                    "pitchfork.forwarders.haystack.kinesis.authentication-type=BASIC",
-                    "pitchfork.forwarders.haystack.kinesis.service-endpoint=" + KINESIS_SERVICE_ENDPOINT
+                    "pitchfork.forwarders.haystack.kinesis.auth.config-type=BASIC",
+                    "pitchfork.forwarders.haystack.kinesis.client.config-type=ENDPOINT",
+                    "pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint=" + KINESIS_SERVICE_ENDPOINT
             );
 
             values.applyTo(context);
