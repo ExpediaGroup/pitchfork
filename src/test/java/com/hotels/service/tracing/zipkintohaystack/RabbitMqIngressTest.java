@@ -19,40 +19,55 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
-import com.expedia.open.tracing.Span;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConnectionFactory;
 import zipkin2.Endpoint;
+import zipkin2.Span;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
-import zipkin2.reporter.okhttp3.OkHttpSender;
+import zipkin2.reporter.amqp.RabbitMQSender;
 
 @Testcontainers
 @DirtiesContext
-@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = {HaystackKafkaForwarderTest.Initializer.class})
-public class HaystackKafkaForwarderTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {RabbitMqIngressTest.Initializer.class})
+public class RabbitMqIngressTest {
 
     @Container
     private static KafkaContainer kafkaContainer = new KafkaContainer();
+    @Container
+    private static GenericContainer rabbitMqContainer = new GenericContainer("rabbitmq:3.7.14-alpine")
+            .withExposedPorts(5672)
+            .withNetworkAliases("rabbitmq")
+            .waitingFor(new HostPortWaitStrategy());
 
-    @LocalServerPort
-    private int localServerPort;
+    @BeforeAll
+    public static void setup() throws Exception {
+        setupRabbitMqQueue();
+    }
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         public void initialize(ConfigurableApplicationContext context) {
             var values = TestPropertyValues.of(
+                    "pitchfork.ingress.rabbitmq.enabled=true",
+                    "pitchfork.ingress.rabbitmq.port=" + rabbitMqContainer.getFirstMappedPort(),
+                    "pitchfork.ingress.rabbitmq.queue-name=zipkin",
+                    "pitchfork.ingress.rabbitmq.source-format=PROTO3",
                     "pitchfork.forwarders.haystack.kafka.enabled=true",
                     "pitchfork.forwarders.haystack.kafka.bootstrap-servers=" + kafkaContainer.getBootstrapServers()
             );
@@ -61,7 +76,7 @@ public class HaystackKafkaForwarderTest {
     }
 
     @Test
-    public void shouldForwardTracesToKafka() throws Exception {
+    public void shouldForwardTracesToKafka() {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -78,7 +93,7 @@ public class HaystackKafkaForwarderTest {
                 .localEndpoint(Endpoint.newBuilder().serviceName(localEndpoint).build())
                 .build();
 
-        var reporter = setupReporter();
+        var reporter = setupReporter(Encoding.PROTO3);
         reporter.report(zipkinSpan);
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
@@ -89,7 +104,7 @@ public class HaystackKafkaForwarderTest {
 
             assertFalse(records.isEmpty());
 
-            Optional<Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
+            Optional<com.expedia.open.tracing.Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
 
             assertTrue(span.isPresent());
             assertEquals(span.get().getTraceId(), traceId);
@@ -98,6 +113,52 @@ public class HaystackKafkaForwarderTest {
             assertEquals(span.get().getStartTime(), timestamp);
             assertEquals(span.get().getDuration(), duration);
         });
+    }
+
+    /**
+     * Create reporter.
+     */
+    private AsyncReporter<Span> setupReporter(Encoding encoding) {
+        var sender = RabbitMQSender.newBuilder()
+                .username("guest")
+                .username("guest")
+                .virtualHost("/")
+                .encoding(encoding)
+                .queue("zipkin")
+                .addresses("localhost:" + rabbitMqContainer.getFirstMappedPort())
+                .build();
+        return AsyncReporter.create(sender);
+    }
+
+    private static void setupRabbitMqQueue() throws Exception {
+        var channel = getRabbitMqChannel();
+        var exchangeName = "pitchforkExchange";
+        var routingKey = "pitchforkExchange";
+        channel.exchangeDeclare(exchangeName, "direct", true);
+        channel.queueDeclare("zipkin", true, false, true, null);
+        channel.queueBind("zipkin", exchangeName, routingKey);
+    }
+
+    public static Channel getRabbitMqChannel() throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setUsername("guest");
+        factory.setPassword("guest");
+        factory.setVirtualHost("/");
+        factory.setHost("localhost");
+        factory.setPort(rabbitMqContainer.getFirstMappedPort());
+
+        var connection = factory.newConnection();
+
+        return connection.createChannel();
+    }
+
+    public static Optional<com.expedia.open.tracing.Span> deserialize(byte[] data) {
+        try {
+            return ofNullable(com.expedia.open.tracing.Span.parseFrom(data));
+        } catch (Exception e) {
+            fail("Failed to deserialise span from data");
+            return empty();
+        }
     }
 
     /**
@@ -116,25 +177,5 @@ public class HaystackKafkaForwarderTest {
         consumer.subscribe(singletonList("proto-spans"));
 
         return consumer;
-    }
-
-    /**
-     * Create reporter.
-     */
-    private AsyncReporter<zipkin2.Span> setupReporter() {
-        var sender = OkHttpSender.newBuilder()
-                .encoding(Encoding.PROTO3)
-                .endpoint("http://localhost:" + localServerPort + "/api/v2/spans")
-                .build();
-        return AsyncReporter.create(sender);
-    }
-
-    public static Optional<Span> deserialize(byte[] data) {
-        try {
-            return ofNullable(Span.parseFrom(data));
-        } catch (Exception e) {
-            fail("Failed to deserialise span from data");
-            return empty();
-        }
     }
 }

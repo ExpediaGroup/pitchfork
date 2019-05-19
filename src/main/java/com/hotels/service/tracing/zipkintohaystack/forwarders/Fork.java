@@ -18,6 +18,8 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +31,7 @@ import zipkin2.Span;
 @Component
 public class Fork {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final SpanForwarder[] spanForwarders;
 
     public Fork(@Autowired(required = false) SpanForwarder... spanForwarders) {
@@ -38,7 +41,7 @@ public class Fork {
     @PostConstruct
     public void init() {
         if (spanForwarders.length == 0) {
-            throw new IllegalStateException("No span forwarders configured. See README.md for a list of available forwarders.");
+            logger.warn("No span forwarders configured. Pitchfork will not process any span.");
         }
     }
 

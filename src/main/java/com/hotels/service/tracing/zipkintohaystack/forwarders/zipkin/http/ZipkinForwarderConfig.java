@@ -16,20 +16,25 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http.properties.ZipkinForwarderConfigProperties;
+
+@EnableConfigurationProperties(ZipkinForwarderConfigProperties.class)
 @ConditionalOnProperty(name = "pitchfork.forwarders.zipkin.http.enabled", havingValue = "true")
 @Configuration
 public class ZipkinForwarderConfig {
 
     @Bean
-    public ZipkinForwarder createZipkinProducer(@Value("${pitchfork.forwarders.zipkin.http.endpoint}") String endpoint,
-                                          @Value("${pitchfork.forwarders.zipkin.http.max-inflight-requests}") int maxInFlightRequests,
-                                          @Value("${pitchfork.forwarders.zipkin.http.write-timeout-millis}") int writeTimeoutMillis,
-                                          @Value("${pitchfork.forwarders.zipkin.http.compression-enabled}") boolean compressionEnabled) {
-        return new ZipkinForwarder(endpoint, maxInFlightRequests, writeTimeoutMillis, compressionEnabled);
+    public ZipkinForwarder createZipkinProducer(ZipkinForwarderConfigProperties properties) {
+        return new ZipkinForwarder(
+                properties.getEndpoint(),
+                properties.getMaxInFlightRequests(),
+                properties.getWriteTimeoutMillis(),
+                properties.isCompressionEnabled(),
+                properties.getMaxIdleConnections());
     }
 }

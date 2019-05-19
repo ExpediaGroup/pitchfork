@@ -161,6 +161,12 @@
       <version>1.0.64</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.rabbitmq</groupId>
+      <artifactId>amqp-client</artifactId>
+      <version>5.7.0</version>
+    </dependency>
+
     <!-- Compile time dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -173,6 +179,12 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
       <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
@@ -197,6 +209,12 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
       <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
@@ -227,6 +245,11 @@
     <dependency>
       <groupId>io.zipkin.reporter2</groupId>
       <artifactId>zipkin-sender-kafka11</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.zipkin.reporter2</groupId>
+      <artifactId>zipkin-sender-amqp-client</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -344,6 +367,13 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- JUnit 5 requires Surefire version 2.22.1 or higher -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.1</version>
       </plugin>
 
     </plugins>

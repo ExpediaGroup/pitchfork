@@ -113,7 +113,7 @@ public class HaystackDomainConverter {
                     .build();
 
             return List.of(errorTag, errorMessageTag);
-        case "datacenter": // TODO: input name should be configurable
+        case "datacenter":
             Tag haystackDcTag = Tag.newBuilder()
                     .setKey(HAYSTACK_TAG_KEY_FOR_DATACENTER)
                     .setVStr(value)

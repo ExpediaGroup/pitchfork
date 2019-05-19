@@ -14,9 +14,16 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
+package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties;
 
-public enum AwsAuthenticationTypeEnum {
-    DEFAULT,
-    BASIC
+public class ClientRegionConfigProperties {
+    private String regionName;
+
+    public String getRegionName() {
+        return regionName;
+    }
+
+    public void setRegionName(String regionName) {
+        this.regionName = regionName;
+    }
 }
