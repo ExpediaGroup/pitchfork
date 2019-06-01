@@ -164,7 +164,7 @@
     <dependency>
       <groupId>com.rabbitmq</groupId>
       <artifactId>amqp-client</artifactId>
-      <version>5.7.0</version>
+      <version>5.7.1</version>
     </dependency>
 
     <!-- Compile time dependencies -->
