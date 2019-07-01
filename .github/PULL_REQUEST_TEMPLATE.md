@@ -11,4 +11,4 @@ Refer to CONTRIBUTING.md for more details.
   https://github.com/HotelsDotCom/pitchfork/blob/master/CONTRIBUTING.md
 -->
 
-Fixes #.
+Fixes #
