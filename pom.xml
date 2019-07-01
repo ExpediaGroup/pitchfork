@@ -244,7 +244,7 @@
     </dependency>
     <dependency>
       <groupId>io.zipkin.reporter2</groupId>
-      <artifactId>zipkin-sender-kafka11</artifactId>
+      <artifactId>zipkin-sender-kafka</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
