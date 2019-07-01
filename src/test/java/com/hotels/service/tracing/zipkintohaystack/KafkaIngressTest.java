@@ -36,7 +36,7 @@ import com.expedia.open.tracing.Span;
 import zipkin2.Endpoint;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
-import zipkin2.reporter.kafka11.KafkaSender;
+import zipkin2.reporter.kafka.KafkaSender;
 
 @Testcontainers
 @DirtiesContext
