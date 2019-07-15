@@ -47,10 +47,10 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
 @DirtiesContext
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = {HaystackKinesisForwarderTest.Initializer.class})
-public class HaystackKinesisForwarderTest {
+class HaystackKinesisForwarderTest {
 
     @Container
-    private static LocalStackContainer kinesisContainer = new LocalStackContainer().withServices(KINESIS);
+    private static final LocalStackContainer kinesisContainer = new LocalStackContainer().withServices(KINESIS);
     private static String KINESIS_SERVICE_ENDPOINT;
     private static AmazonKinesis kinesisClient;
 
@@ -58,7 +58,7 @@ public class HaystackKinesisForwarderTest {
     private int localServerPort;
 
     @BeforeAll
-    public static void setup() {
+    static void setup() {
         setKinesisServiceEndpoint();
 
         // create output topic/stream
@@ -80,7 +80,7 @@ public class HaystackKinesisForwarderTest {
     }
 
     @Test
-    public void shouldForwardTracesToKinesis() throws Exception {
+    void shouldForwardTracesToKinesis() throws Exception {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -147,7 +147,7 @@ public class HaystackKinesisForwarderTest {
                 .build();
     }
 
-    public static Optional<Span> deserialize(byte[] data) {
+    private static Optional<Span> deserialize(byte[] data) {
         try {
             return ofNullable(Span.parseFrom(data));
         } catch (Exception e) {

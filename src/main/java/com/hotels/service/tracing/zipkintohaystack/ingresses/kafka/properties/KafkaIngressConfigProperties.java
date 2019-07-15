@@ -32,6 +32,7 @@ public class KafkaIngressConfigProperties {
     private int sessionTimeoutMs;
     private String autoOffsetReset;
     private int pollDurationMs;
+    private int numberConsumers;
 
     public boolean isEnabled() {
         return enabled;
@@ -39,6 +40,14 @@ public class KafkaIngressConfigProperties {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setNumberConsumers(int numberConsumers) {
+        this.numberConsumers = numberConsumers;
+    }
+
+    public int getNumberConsumers() {
+        return numberConsumers;
     }
 
     public int getAutoCommitIntervalMs() {

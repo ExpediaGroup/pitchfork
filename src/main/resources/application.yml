@@ -9,6 +9,7 @@ pitchfork:
     kafka:
       enabled: false
       poll-duration-ms: 1000
+      number-consumers: 4
       auto-commit-internal-ms: 1000
       enable-auto-commit: true
       auto-offset-reset: "earliest"

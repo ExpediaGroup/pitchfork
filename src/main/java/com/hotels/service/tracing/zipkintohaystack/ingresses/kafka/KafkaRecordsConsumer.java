@@ -16,14 +16,11 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
 
-import static java.time.Duration.ofMillis;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import java.util.function.Function;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +29,6 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValid
 import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties.KafkaIngressConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 import io.micrometer.core.instrument.Counter;
-import reactor.core.publisher.Mono;
-import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
 public class KafkaRecordsConsumer {
@@ -42,49 +37,45 @@ public class KafkaRecordsConsumer {
 
     private final Fork fork;
     private final SpanValidator spanValidator;
-    private final KafkaConsumer<String, byte[]> kafkaConsumer;
     private final KafkaIngressConfigProperties config;
     private final MetersProvider metersProvider;
-    private SpanBytesDecoder decoder;
-    private Counter spansCounter;
+    private final List<KafkaConsumerLoop> consumers = new ArrayList<>();
 
-    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfigProperties config, MetersProvider metersProvider) {
+    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaIngressConfigProperties config, MetersProvider metersProvider) {
         this.fork = fork;
         this.spanValidator = spanValidator;
-        this.kafkaConsumer = kafkaConsumer;
         this.metersProvider = metersProvider;
         this.config = config;
     }
 
     public void initialize() {
-        String sourceFormat = config.getSourceFormat();
-        decoder = SpanBytesDecoder.valueOf(sourceFormat);
-        spansCounter = metersProvider.getSpansCounter("tcp", "kafka");
+        logger.info("operation=initialize");
 
-        Thread thread = new Thread(this::fetchRecordsFromKafka);
-        thread.setDaemon(true);
-        thread.start();
+        String sourceFormat = config.getSourceFormat();
+        SpanBytesDecoder decoder = SpanBytesDecoder.valueOf(sourceFormat);
+        Counter spansCounter = metersProvider.getSpansCounter("tcp", "kafka");
+
+        int numberOfConsumers = config.getNumberConsumers();
+
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfConsumers);
+
+        for (int i = 0; i < numberOfConsumers; i++) {
+            KafkaConsumerLoop consumer = new KafkaConsumerLoop(
+                    config,
+                    fork,
+                    spanValidator,
+                    decoder,
+                    spansCounter);
+
+            consumer.initialize();
+            consumers.add(consumer);
+            executor.submit(consumer);
+        }
     }
 
-    private void fetchRecordsFromKafka() {
-        try {
-            while (true) {
-                var records = kafkaConsumer.poll(ofMillis(config.getPollDurationMs()));
-
-                if (!records.isEmpty()) {
-                    StreamSupport.stream(records.spliterator(), false)
-                            .flatMap((Function<ConsumerRecord<String, byte[]>, Stream<Span>>) record -> decoder.decodeList(record.value()).stream())
-                            .filter(spanValidator::isSpanValid)
-                            .peek(span -> spansCounter.increment())
-                            .forEach(span -> fork.processSpan(span)
-                                    .doOnError(throwable -> logger.warn("operation=fetchRecordsFromKafka", throwable))
-                                    .onErrorResume(e -> Mono.empty())
-                                    .blockLast());
-                    // TODO: consider replacing with a reactor KafkaReceiver
-                }
-            }
-        } finally {
-            kafkaConsumer.close();
+    private void shutdown() {
+        for (KafkaConsumerLoop consumer : consumers) {
+            consumer.shutdown();
         }
     }
 }
