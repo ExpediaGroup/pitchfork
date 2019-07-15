@@ -87,7 +87,7 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://localhost:" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"jsonv2\""));
@@ -120,7 +120,7 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://localhost:" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"thrift\""));
@@ -153,7 +153,7 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://localhost:" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"compressedjsonv2\""));
@@ -191,7 +191,7 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://localhost:" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"jsonv1\""));
@@ -224,7 +224,7 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://localhost:" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"proto\""));

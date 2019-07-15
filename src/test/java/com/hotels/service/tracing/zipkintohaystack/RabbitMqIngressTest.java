@@ -65,6 +65,7 @@ public class RabbitMqIngressTest {
         public void initialize(ConfigurableApplicationContext context) {
             var values = TestPropertyValues.of(
                     "pitchfork.ingress.rabbitmq.enabled=true",
+                    "pitchfork.ingress.rabbitmq.host=" + rabbitMqContainer.getContainerIpAddress(),
                     "pitchfork.ingress.rabbitmq.port=" + rabbitMqContainer.getFirstMappedPort(),
                     "pitchfork.ingress.rabbitmq.queue-name=zipkin",
                     "pitchfork.ingress.rabbitmq.source-format=PROTO3",
@@ -125,7 +126,7 @@ public class RabbitMqIngressTest {
                 .virtualHost("/")
                 .encoding(encoding)
                 .queue("zipkin")
-                .addresses("localhost:" + rabbitMqContainer.getFirstMappedPort())
+                .addresses(rabbitMqContainer.getContainerIpAddress() + ":" + rabbitMqContainer.getFirstMappedPort())
                 .build();
         return AsyncReporter.create(sender);
     }
@@ -144,7 +145,7 @@ public class RabbitMqIngressTest {
         factory.setUsername("guest");
         factory.setPassword("guest");
         factory.setVirtualHost("/");
-        factory.setHost("localhost");
+        factory.setHost(rabbitMqContainer.getContainerIpAddress());
         factory.setPort(rabbitMqContainer.getFirstMappedPort());
 
         var connection = factory.newConnection();
