@@ -55,7 +55,7 @@ public class ZipkinForwarderTest {
         public void initialize(ConfigurableApplicationContext context) {
             var values = TestPropertyValues.of(
                     "pitchfork.forwarders.zipkin.http.enabled=true",
-                    "pitchfork.forwarders.zipkin.http.endpoint=http://localhost:" + zipkinContainer.getFirstMappedPort() + "/api/v2/spans"
+                    "pitchfork.forwarders.zipkin.http.endpoint=http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/spans"
             );
             values.applyTo(context);
         }
