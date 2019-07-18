@@ -20,7 +20,6 @@ import static java.time.Duration.ofMillis;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -52,7 +51,6 @@ public class KafkaConsumerLoop implements Runnable {
     private KafkaConsumer<String, byte[]> kafkaConsumer;
     private SpanBytesDecoder decoder;
     private Counter spansCounter;
-    private static ReentrantReadWriteLock consumerLock = new ReentrantReadWriteLock();
     private List<String> sourceTopics;
     private int pollDurationMs;
 
@@ -77,7 +75,8 @@ public class KafkaConsumerLoop implements Runnable {
         this.kafkaConsumer = kafkaConsumer(kafkaBrokers, autoCommitIntervalMs, enableAutoCommit, sessionTimeoutMs, autoOffsetReset);
     }
 
-    private KafkaConsumer<String, byte[]> kafkaConsumer(String kafkaBrokers, int autoCommitIntervalMs, boolean enableAutoCommit, int sessionTimeoutMs, String autoOffsetReset) {
+    private KafkaConsumer<String, byte[]> kafkaConsumer(String kafkaBrokers, int autoCommitIntervalMs, boolean enableAutoCommit, int sessionTimeoutMs,
+            String autoOffsetReset) {
         return new KafkaConsumer<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers,
@@ -98,7 +97,6 @@ public class KafkaConsumerLoop implements Runnable {
             kafkaConsumer.subscribe(sourceTopics);
 
             while (true) {
-                consumerLock.readLock().lock();
                 var records = kafkaConsumer.poll(ofMillis(pollDurationMs));
 
                 if (!records.isEmpty()) {
@@ -113,14 +111,11 @@ public class KafkaConsumerLoop implements Runnable {
                                     .blockLast());
                     // TODO: consider replacing with a reactor KafkaReceiver
                 }
-                consumerLock.readLock().unlock();
             }
         } catch (WakeupException exception) {
             // ignore for shutdown
         } finally {
-            consumerLock.writeLock().lock();
             kafkaConsumer.close();
-            consumerLock.writeLock().unlock();
         }
     }
 
