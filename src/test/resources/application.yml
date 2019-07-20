@@ -7,6 +7,7 @@ pitchfork:
   ingress:
     kafka:
       enabled: false
+      number-consumers: 4
       poll-duration-ms: 1000
       auto-commit-internal-ms: 1000
       enable-auto-commit: true

@@ -61,6 +61,11 @@
       "description": "The maximum time to block in millis for each polling operation."
     },
     {
+      "name": "pitchfork.ingress.kafka.number-consumers",
+      "type": "java.lang.Integer",
+      "description": "The number of consumer threads polling Kafka."
+    },
+    {
       "name": "pitchfork.ingress.kafka.auto-commit-internal-ms",
       "type": "java.lang.Integer",
       "description": "The frequency in milliseconds that the consumer offsets are auto-committed to Kafka if pitchfork.ingress.kafka.enable-auto-commit is set to true."

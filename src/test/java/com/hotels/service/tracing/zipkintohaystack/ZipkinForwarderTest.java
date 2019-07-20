@@ -38,13 +38,13 @@ import zipkin2.reporter.okhttp3.OkHttpSender;
 @DirtiesContext
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = {ZipkinForwarderTest.Initializer.class})
-public class ZipkinForwarderTest {
+class ZipkinForwarderTest {
 
     @LocalServerPort
     private int localServerPort;
 
     @Container
-    private static GenericContainer zipkinContainer = new GenericContainer("openzipkin/zipkin:2.12")
+    private static final GenericContainer zipkinContainer = new GenericContainer("openzipkin/zipkin:2.12")
             .withExposedPorts(9411)
             .waitingFor(new HttpWaitStrategy().forPath("/health"));
 
@@ -55,14 +55,15 @@ public class ZipkinForwarderTest {
         public void initialize(ConfigurableApplicationContext context) {
             var values = TestPropertyValues.of(
                     "pitchfork.forwarders.zipkin.http.enabled=true",
-                    "pitchfork.forwarders.zipkin.http.endpoint=http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/spans"
+                    "pitchfork.forwarders.zipkin.http.endpoint=http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer
+                            .getFirstMappedPort() + "/api/v2/spans"
             );
             values.applyTo(context);
         }
     }
 
     @Test
-    public void shouldAcceptJsonV2AndForwardToZipkin() {
+    void shouldAcceptJsonV2AndForwardToZipkin() {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -87,7 +88,9 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity(
+                            "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
+                            String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"jsonv2\""));
@@ -95,7 +98,7 @@ public class ZipkinForwarderTest {
     }
 
     @Test
-    public void shouldAcceptThriftAndForwardToZipkin() {
+    void shouldAcceptThriftAndForwardToZipkin() {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -120,7 +123,9 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity(
+                            "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
+                            String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"thrift\""));
@@ -128,7 +133,7 @@ public class ZipkinForwarderTest {
     }
 
     @Test
-    public void shouldAcceptCompressedJsonV2AndForwardToZipkin() throws Exception {
+    void shouldAcceptCompressedJsonV2AndForwardToZipkin() throws Exception {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -153,7 +158,9 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity(
+                            "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
+                            String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"compressedjsonv2\""));
@@ -161,7 +168,7 @@ public class ZipkinForwarderTest {
     }
 
     @Test
-    public void shouldAcceptJsonV1AndForwardToZipkin() {
+    void shouldAcceptJsonV1AndForwardToZipkin() {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -191,7 +198,9 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity(
+                            "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
+                            String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"jsonv1\""));
@@ -199,7 +208,7 @@ public class ZipkinForwarderTest {
     }
 
     @Test
-    public void shouldAcceptProtoAndForwardToZipkin() throws Exception {
+    void shouldAcceptProtoAndForwardToZipkin() throws Exception {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -224,7 +233,9 @@ public class ZipkinForwarderTest {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
-                    .getForEntity("http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services", String.class);
+                    .getForEntity(
+                            "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
+                            String.class);
 
             assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
             assertTrue(responseFromZipkin.getBody().contains("\"proto\""));

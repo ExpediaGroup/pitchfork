@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Optional;
 
-import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -42,10 +41,10 @@ import zipkin2.reporter.kafka.KafkaSender;
 @DirtiesContext
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = {KafkaIngressTest.Initializer.class})
-public class KafkaIngressTest {
+class KafkaIngressTest {
 
     @Container
-    private static KafkaContainer kafkaContainer = new KafkaContainer();
+    private static final KafkaContainer kafkaContainer = new KafkaContainer();
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         public void initialize(ConfigurableApplicationContext context) {
@@ -61,7 +60,7 @@ public class KafkaIngressTest {
     }
 
     @Test
-    public void shouldForwardTracesToKafka() throws Exception {
+    void shouldForwardTracesToKafka() throws Exception {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -82,22 +81,22 @@ public class KafkaIngressTest {
         reporter.report(zipkinSpan);
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
-        KafkaConsumer<String, byte[]> consumer = setupConsumer();
+        try (KafkaConsumer<String, byte[]> consumer = setupConsumer()) {
+            await().atMost(10, SECONDS).untilAsserted(() -> {
+                ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(1));
 
-        await().atMost(10, SECONDS).untilAsserted(() -> {
-            ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(1));
+                assertFalse(records.isEmpty());
 
-            assertFalse(records.isEmpty());
+                Optional<Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
 
-            Optional<Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
-
-            assertTrue(span.isPresent());
-            assertEquals(span.get().getTraceId(), traceId);
-            assertEquals(span.get().getSpanId(), spanId);
-            assertEquals(span.get().getParentSpanId(), parentId);
-            assertEquals(span.get().getStartTime(), timestamp);
-            assertEquals(span.get().getDuration(), duration);
-        });
+                assertTrue(span.isPresent());
+                assertEquals(span.get().getTraceId(), traceId);
+                assertEquals(span.get().getSpanId(), spanId);
+                assertEquals(span.get().getParentSpanId(), parentId);
+                assertEquals(span.get().getStartTime(), timestamp);
+                assertEquals(span.get().getDuration(), duration);
+            });
+        }
     }
 
     /**
@@ -129,18 +128,7 @@ public class KafkaIngressTest {
         return consumer;
     }
 
-    /**
-     * Create an admin client for Kafka.
-     */
-    private static AdminClient setupKafkaAdminClient() {
-        return AdminClient.create(ImmutableMap.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
-                ConsumerConfig.GROUP_ID_CONFIG, "test-group",
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
-        ));
-    }
-
-    public static Optional<Span> deserialize(byte[] data) {
+    private static Optional<Span> deserialize(byte[] data) {
         try {
             return ofNullable(Span.parseFrom(data));
         } catch (Exception e) {

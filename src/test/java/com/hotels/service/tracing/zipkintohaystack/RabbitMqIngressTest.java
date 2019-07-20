@@ -46,18 +46,18 @@ import zipkin2.reporter.amqp.RabbitMQSender;
 @DirtiesContext
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = {RabbitMqIngressTest.Initializer.class})
-public class RabbitMqIngressTest {
+class RabbitMqIngressTest {
 
     @Container
-    private static KafkaContainer kafkaContainer = new KafkaContainer();
+    private static final KafkaContainer kafkaContainer = new KafkaContainer();
     @Container
-    private static GenericContainer rabbitMqContainer = new GenericContainer("rabbitmq:3.7.14-alpine")
+    private static final GenericContainer rabbitMqContainer = new GenericContainer("rabbitmq:3.7.14-alpine")
             .withExposedPorts(5672)
             .withNetworkAliases("rabbitmq")
             .waitingFor(new HostPortWaitStrategy());
 
     @BeforeAll
-    public static void setup() throws Exception {
+    static void setup() throws Exception {
         setupRabbitMqQueue();
     }
 
@@ -77,7 +77,7 @@ public class RabbitMqIngressTest {
     }
 
     @Test
-    public void shouldForwardTracesToKafka() {
+    void shouldForwardTracesToKafka() {
         String spanId = "2696599e12b2a265";
         String traceId = "3116bae014149aad";
         String parentId = "d6318b5dfa0088fa";
@@ -98,22 +98,23 @@ public class RabbitMqIngressTest {
         reporter.report(zipkinSpan);
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
-        KafkaConsumer<String, byte[]> consumer = setupConsumer();
+        try (KafkaConsumer<String, byte[]> consumer = setupConsumer()) {
+            await().atMost(10, SECONDS).untilAsserted(() -> {
+                ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(1));
 
-        await().atMost(10, SECONDS).untilAsserted(() -> {
-            ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(1));
+                assertFalse(records.isEmpty());
 
-            assertFalse(records.isEmpty());
+                Optional<com.expedia.open.tracing.Span> span = deserialize(
+                        records.iterator().next().value()); // there's only one element so get first
 
-            Optional<com.expedia.open.tracing.Span> span = deserialize(records.iterator().next().value()); // there's only one element so get first
-
-            assertTrue(span.isPresent());
-            assertEquals(span.get().getTraceId(), traceId);
-            assertEquals(span.get().getSpanId(), spanId);
-            assertEquals(span.get().getParentSpanId(), parentId);
-            assertEquals(span.get().getStartTime(), timestamp);
-            assertEquals(span.get().getDuration(), duration);
-        });
+                assertTrue(span.isPresent());
+                assertEquals(span.get().getTraceId(), traceId);
+                assertEquals(span.get().getSpanId(), spanId);
+                assertEquals(span.get().getParentSpanId(), parentId);
+                assertEquals(span.get().getStartTime(), timestamp);
+                assertEquals(span.get().getDuration(), duration);
+            });
+        }
     }
 
     /**
@@ -140,7 +141,7 @@ public class RabbitMqIngressTest {
         channel.queueBind("zipkin", exchangeName, routingKey);
     }
 
-    public static Channel getRabbitMqChannel() throws Exception {
+    private static Channel getRabbitMqChannel() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setUsername("guest");
         factory.setPassword("guest");
@@ -153,7 +154,7 @@ public class RabbitMqIngressTest {
         return connection.createChannel();
     }
 
-    public static Optional<com.expedia.open.tracing.Span> deserialize(byte[] data) {
+    private static Optional<com.expedia.open.tracing.Span> deserialize(byte[] data) {
         try {
             return ofNullable(com.expedia.open.tracing.Span.parseFrom(data));
         } catch (Exception e) {

@@ -16,13 +16,6 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,35 +31,8 @@ import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 @Configuration
 public class KafkaConsumerSpringConfig {
 
-    @Bean
-    public KafkaConsumer<String, byte[]> kafkaConsumer(KafkaIngressConfigProperties config) {
-        String kafkaBrokers = config.getBootstrapServers();
-        List<String> sourceTopics = config.getSourceTopics();
-        int autoCommitIntervalMs = config.getAutoCommitIntervalMs();
-        boolean enableAutoCommit = config.isEnableAutoCommit();
-        int sessionTimeoutMs = config.getSessionTimeoutMs();
-        String autoOffsetReset = config.getAutoOffsetReset();
-
-        KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(
-                Map.of(
-                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers,
-                        ConsumerConfig.GROUP_ID_CONFIG, "pitchfork",
-                        ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, autoCommitIntervalMs,
-                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit,
-                        ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeoutMs,
-                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset
-                ),
-                new StringDeserializer(),
-                new ByteArrayDeserializer()
-        );
-
-        consumer.subscribe(sourceTopics);
-
-        return consumer;
-    }
-
-    @Bean(initMethod = "initialize")
-    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaConsumer<String, byte[]> kafkaConsumer, KafkaIngressConfigProperties config, MetersProvider metersProvider) {
-        return new KafkaRecordsConsumer(fork, spanValidator, kafkaConsumer, config, metersProvider);
+    @Bean(initMethod = "initialize", destroyMethod = "shutdown")
+    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator validator, KafkaIngressConfigProperties config, MetersProvider meters) {
+        return new KafkaRecordsConsumer(fork, validator, config, meters);
     }
 }
