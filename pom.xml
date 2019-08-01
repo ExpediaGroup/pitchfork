@@ -158,7 +158,7 @@
     <dependency>
       <groupId>com.expedia.www</groupId>
       <artifactId>haystack-idl-java</artifactId>
-      <version>1.0.64</version>
+      <version>1.0.65</version>
     </dependency>
 
     <dependency>
