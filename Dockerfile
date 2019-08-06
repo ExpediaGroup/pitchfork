@@ -35,10 +35,13 @@ COPY --from=build /opt/jdk-mini /opt/jdk-mini
 ENV JAVA_HOME=/opt/jdk-mini
 ENV PATH="$PATH:$JAVA_HOME/bin"
 ENV DIRPATH /pitchfork
+ENV JMXTRANS_AGENT jmxtrans-agent-1.2.6
 
 # Create some dirs and copy pitchfork jar
 RUN mkdir -p $DIRPATH
 COPY target/pitchfork.jar $DIRPATH/
+COPY build/docker/jmxtrans-agent.xml ${DIRPATH}/
+ADD https://github.com/jmxtrans/jmxtrans-agent/releases/download/${JMXTRANS_AGENT}/${JMXTRANS_AGENT}.jar ${DIRPATH}/
 RUN chmod 755 $DIRPATH/pitchfork.jar
 WORKDIR $DIRPATH
 
