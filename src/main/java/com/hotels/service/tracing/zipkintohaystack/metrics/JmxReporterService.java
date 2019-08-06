@@ -37,7 +37,6 @@ public class JmxReporterService {
     @Bean
     public MeterRegistry JmxReporterService( Clock clock) {
         this.jmxMeterRegistry =  new JmxMeterRegistry(JmxConfig.DEFAULT, clock);
-        System.out.println("JmxReporterService: "+jmxMeterRegistry);
         JmxReporter.forRegistry(jmxMeterRegistry.getDropwizardRegistry()).build().start();
         return this.jmxMeterRegistry;
     }
