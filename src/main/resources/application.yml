@@ -65,9 +65,9 @@ management:
   metrics:
     export:
       prometheus:
-        enabled: false
+        enabled: true
       jmx:
-        enabled: false
+        enabled: true
 
   endpoints:
     web:
