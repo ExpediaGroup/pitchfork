@@ -1,19 +1,18 @@
-<jmxtrans-agent>
+<jmxtrans-agent>`
     <queries>
-        <!-- kafka consumer metrics -->
-        <query objectName="tracing.MetersProvider:type=zipkintohaystack.metrics,client-id=*" attribute="counter.pitchfork.spans" resultAlias="tracing-metersProvider-%client-id%.counter.pitchfork.spans"/>
-        <query objectName="tracing.MetersProvider:type=zipkintohaystack.metrics,client-id=*" attribute="counter.pitchfork.spans.invalid" resultAlias="tracing-metersProvider-%client-id%.counter.pitchfork.spans.invalid"/>
+        <query objectName="metrics:name=counterPitchforkSpans.protocol.http.transport.jsonv1" attributes="FifteenMinuteRate,MeanRate,OneMinuteRate,RateUnit" resultAlias="counterPitchforkSpans.protocol.http.transport.jsonv1.#attribute#"/>
+        <query objectName="metrics:name=counterPitchforkSpans.protocol.http.transport.jsonv2" attributes="FifteenMinuteRate,MeanRate,OneMinuteRate,RateUnit" resultAlias="counterPitchforkSpans.protocol.http.transport.jsonv2.#attribute#"/>
+        <query objectName="metrics:name=counterPitchforkSpans.protocol.http.transport.protobuf" attributes="FifteenMinuteRate,MeanRate,OneMinuteRate,RateUnit" resultAlias="counterPitchforkSpans.protocol.http.transport.protobuf.#attribute#"/>
+        <query objectName="metrics:name=counterPitchforkSpans.protocol.http.transport.thrift" attributes="FifteenMinuteRate,MeanRate,OneMinuteRate,RateUnit" resultAlias="counterPitchforkSpans.protocol.http.transport.thrift.#attribute#"/>
+        <query objectName="metrics:name=counterPitchforkSpansInvalid.invalid.true" attributes="FifteenMinuteRate,MeanRate,OneMinuteRate,RateUnit" resultAlias="counterPitchforkSpansInvalid.invalid.true.#attribute#"/>
+        <query objectName="metrics:name=httpServerRequests.exception.None.method.POST.outcome.SUCCESS.status" attributes="FifteenMinuteRate,MeanRate,OneMinuteRate,RateUnit" resultAlias="httpServerRequests.exception.None.method.POST.outcome.SUCCESS.status.#attribute#"/>
+        <query objectName="metrics:name=logbackEvents.level.warn" attributes="FifteenMinuteRate,MeanRate,OneMinuteRate,RateUnit" resultAlias="logbackEvents.level.warn.#attribute#"/>
     </queries>
-<!--    <outputWriter class="org.jmxtrans.agent.GraphitePlainTextTcpOutputWriter">-->
-<!--&lt;!&ndash;        ${HAYSTACK_GRAPHITE_HOST:monitoring-influxdb-graphite.kube-system.svc}&ndash;&gt;-->
-<!--        <host>${HAYSTACK_GRAPHITE_HOST}</host>-->
-<!--        <port>${HAYSTACK_GRAPHITE_PORT:2003}</port>-->
-<!--        <enabled>${HAYSTACK_GRAPHITE_ENABLED:true}</enabled>-->
-<!--        &lt;!&ndash; template used in influxdb : "haystack.* system.subsystem.application.host.class.measurement*" &ndash;&gt;-->
-<!--        <namePrefix>haystack.traces.indexer.#hostname#.</namePrefix>-->
-<!--    </outputWriter>-->
+
+
     <outputWriter class="org.jmxtrans.agent.ConsoleOutputWriter">
         <enabled>true</enabled>
     </outputWriter>
-    <collectIntervalInSeconds>60</collectIntervalInSeconds>
+
+    <collectIntervalInSeconds>30</collectIntervalInSeconds>
 </jmxtrans-agent>

@@ -18,7 +18,7 @@ if [[ -n "$SERVICE_DEBUG_ON" ]] && [[ "$SERVICE_DEBUG_ON" == true ]]; then
    JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,address=5005,server=y"
 fi
 
-exec /opt/jdk-mini/bin/java ${JAVA_OPTS} -jar pitchfork.jar
+exec /opt/jdk-mini/bin/java ${JAVA_OPTS} -Dcom.sun.management.jmxremote -jar pitchfork.jar
 
 #-javaagent:/pitchfork/jmxtrans-agent-1.2.6.jar=/pitchfork/jmxtrans-agent.xml -XX:+UseG1GC -Xmx1024m -Xms1024m -XX:+ExitOnOutOfMemoryError -Dapplication.name=pitchfork -Dapplication.home=/pitchfork
 
@@ -27,3 +27,4 @@ exec /opt/jdk-mini/bin/java ${JAVA_OPTS} -jar pitchfork.jar
 #         ${JAVA_OPTS} \
 #         -jar \
 #         pitchfork.jar
+exec /Library/Java/JavaVirtualMachines/openjdk-12.0.1.jdk/Contents/Home/bin/java -javaagent:/Users/nihgupta/Downloads/jmxtrans-agent-1.2.6.jar=build/docker/jmxtrans-agent.xml -XX:+UseG1GC -Xmx1024m -Xms1024m -XX:+ExitOnOutOfMemoryError -Dapplication.name=pitchfork -Dapplication.home=. -jar  target/pitchfork.jar
