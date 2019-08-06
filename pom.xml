@@ -257,7 +257,6 @@
       <artifactId>zipkin-sender-amqp-client</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>

@@ -9,7 +9,6 @@
         <query objectName="metrics:name=logbackEvents.level.warn" attributes="FifteenMinuteRate,MeanRate,OneMinuteRate,RateUnit" resultAlias="logbackEvents.level.warn.#attribute#"/>
     </queries>
 
-
     <outputWriter class="org.jmxtrans.agent.GraphitePlainTextTcpOutputWriter">
         <host>${HAYSTACK_GRAPHITE_HOST:monitoring-influxdb-graphite.kube-system.svc}</host>
         <port>${HAYSTACK_GRAPHITE_PORT:2003}</port>

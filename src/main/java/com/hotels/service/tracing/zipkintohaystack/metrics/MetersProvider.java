@@ -30,6 +30,7 @@ public class MetersProvider {
 
     @Inject
     public MetersProvider(MeterRegistry meterRegistry) {
+        System.out.println("MeterRegistry: "+meterRegistry);
         this.meterRegistry = meterRegistry;
     }
 
