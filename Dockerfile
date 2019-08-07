@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 ARG JAVA_DOWNLOAD_CHECKSUM=4739064dc439a05487744cce0ba951cb544ed5e796f6c699646e16c09da5dd6a
+ARG JMX_DOWNLOAD_CHECKSUM=4d436d2edffa9fa33cce3c9899f8a0f9f0fc4ca906c4d4e28fe8314b319aaf6f
 
 # Download java and unpack it
 RUN cd /opt; \
@@ -27,21 +28,27 @@ RUN jlink \
      --no-man-pages \
      --output /opt/jdk-mini
 
+RUN cd /opt; \
+    wget --no-check-certificate https://github.com/jmxtrans/jmxtrans-agent/releases/download/jmxtrans-agent-1.2.6/jmxtrans-agent-1.2.6.jar \
+    && echo "${JMX_DOWNLOAD_CHECKSUM}  jmxtrans-agent-1.2.6.jar" | sha256sum -c
+
+
 # Start a new image and copy just the minimal java distribution from the previous one
 FROM debian:9.8-slim
 COPY --from=build /opt/jdk-mini /opt/jdk-mini
+COPY --from=build /opt/jmxtrans-agent-1.2.6.jar /opt/jmxtrans-agent-1.2.6.jar
 
 # Set our java home and other useful envs
 ENV JAVA_HOME=/opt/jdk-mini
 ENV PATH="$PATH:$JAVA_HOME/bin"
 ENV DIRPATH /pitchfork
-ENV JMXTRANS_AGENT jmxtrans-agent-1.2.6
+
 
 # Create some dirs and copy pitchfork jar
 RUN mkdir -p $DIRPATH
 COPY target/pitchfork.jar $DIRPATH/
 COPY build/docker/jmxtrans-agent.xml ${DIRPATH}/
-ADD https://github.com/jmxtrans/jmxtrans-agent/releases/download/${JMXTRANS_AGENT}/${JMXTRANS_AGENT}.jar ${DIRPATH}/
+
 RUN chmod 755 $DIRPATH/pitchfork.jar
 WORKDIR $DIRPATH
 
