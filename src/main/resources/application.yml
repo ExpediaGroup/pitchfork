@@ -66,6 +66,9 @@ management:
     export:
       prometheus:
         enabled: true
+      jmx:
+        enabled: true
+
   endpoints:
     web:
       exposure:

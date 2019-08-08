@@ -44,7 +44,7 @@ public class LoggingForwarder implements SpanForwarder {
         if (logFullSpan) {
             logger.info("operation=process, span={}", span);
         } else {
-            logger.info("operation=process, spanId={}", span.id());
+            logger.info("operation=process, spanId={}, traceId={}", span.id(), span.traceId());
         }
     }
 }
