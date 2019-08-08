@@ -10,10 +10,10 @@
     </queries>
 
     <outputWriter class="org.jmxtrans.agent.GraphitePlainTextTcpOutputWriter">
-        <host>${GRAPHITE_HOST:localhsot}</host>
+        <host>${GRAPHITE_HOST:localhost}</host>
         <port>${GRAPHITE_PORT:2003}</port>
         <enabled>${GRAPHITE_ENABLED:true}</enabled>
-        <namePrefix>haystack.traces.pitchfork.#hostname#.</namePrefix>
+        <namePrefix>${NAME_PREFIX:pitchfork}</namePrefix>
     </outputWriter>
     <collectIntervalInSeconds>60</collectIntervalInSeconds>
 
