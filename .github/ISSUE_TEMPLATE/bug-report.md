@@ -1,6 +1,6 @@
 ---
 name: Bug report 
-about: Please check if there's an open [issue](https://github.com/HotelsDotCom/pitchfork/issues) for the same or a similar bug.
+about: Please check if there's an open issue for the same or a similar bug.
 
 ---
 
