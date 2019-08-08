@@ -69,7 +69,7 @@ management:
       jmx:
         enabled: true
       graphite:
-        enabled: true
+        enabled: false
         host: localhost
         port: 2004
         rate-units: milliseconds
