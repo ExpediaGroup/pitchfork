@@ -16,12 +16,11 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
+import com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http.properties.ZipkinForwarderConfigProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http.properties.ZipkinForwarderConfigProperties;
 
 @EnableConfigurationProperties(ZipkinForwarderConfigProperties.class)
 @ConditionalOnProperty(name = "pitchfork.forwarders.zipkin.http.enabled", havingValue = "true")
@@ -35,6 +34,8 @@ public class ZipkinForwarderConfig {
                 properties.getMaxInFlightRequests(),
                 properties.getWriteTimeoutMillis(),
                 properties.isCompressionEnabled(),
-                properties.getMaxIdleConnections());
+                properties.getMaxIdleConnections(),
+                properties.isIgnoreSslErrors()
+        );
     }
 }

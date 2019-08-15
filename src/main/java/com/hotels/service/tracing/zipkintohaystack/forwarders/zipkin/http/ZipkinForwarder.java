@@ -16,18 +16,20 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
-import static java.util.Collections.singletonList;
-
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import okhttp3.ConnectionPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zipkin2.Callback;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.okhttp3.OkHttpSender;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.Collections.singletonList;
 
 /**
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format re-encodes it in {@code Zipkin V2} format and pushes it to a {@code Zipkin} server.
@@ -37,18 +39,33 @@ public class ZipkinForwarder implements SpanForwarder {
 
     private final OkHttpSender sender;
 
-    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled, int maxIdleConnections) {
-        OkHttpSender.Builder builder = OkHttpSender.newBuilder()
-                .endpoint(endpoint)
-                .maxRequests(maxInFlightRequests)
-                .writeTimeout(writeTimeoutMillis)
-                .compressionEnabled(compressionEnabled);
+    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled, int maxIdleConnections, boolean ignoreSslErrors) {
+        try {
+            OkHttpSender.Builder builder = OkHttpSender.newBuilder()
+                    .endpoint(endpoint)
+                    .maxRequests(maxInFlightRequests)
+                    .writeTimeout(writeTimeoutMillis)
+                    .compressionEnabled(compressionEnabled);
 
-        builder.clientBuilder()
-                .connectionPool(new ConnectionPool(maxIdleConnections, 5, TimeUnit.MINUTES))
-                .pingInterval(60, TimeUnit.SECONDS);
+            builder.clientBuilder()
+                    .connectionPool(new ConnectionPool(maxIdleConnections, 5, TimeUnit.MINUTES))
+                    .pingInterval(61, TimeUnit.SECONDS);
 
-        this.sender = builder.build();
+            if (ignoreSslErrors) {
+                X509TrustManager trustAllCertsTrustManager = new TrustAllCertsTrustManager();
+
+                // Install all trusting trust manager
+                SSLContext sslContext = SSLContext.getInstance("SSL");
+                sslContext.init(null, new TrustManager[]{trustAllCertsTrustManager}, new java.security.SecureRandom());
+
+                builder.clientBuilder()
+                        .sslSocketFactory(sslContext.getSocketFactory(), trustAllCertsTrustManager)
+                        .hostnameVerifier((hostname, session) -> true);
+            }
+            this.sender = builder.build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -62,7 +79,7 @@ public class ZipkinForwarder implements SpanForwarder {
         }
     }
 
-    class ZipkinCallback implements Callback<Void> {
+    static class ZipkinCallback implements Callback<Void> {
         final zipkin2.Span span;
 
         ZipkinCallback(zipkin2.Span span) {
