@@ -68,7 +68,13 @@ management:
         enabled: true
       jmx:
         enabled: true
-
+      graphite:
+        enabled: false
+        host: localhost
+        port: 2004
+        rate-units: milliseconds
+        protocol: plaintext
+        step: 1m
   endpoints:
     web:
       exposure:
@@ -79,3 +85,7 @@ info:
     name: Pitchfork
     description: Pitchfork lifts Zipkin tracing data into Haystack.
     readme: https://hotelsdotcom.github.io/pitchfork/
+
+spring:
+  application:
+    name: pitchfork
