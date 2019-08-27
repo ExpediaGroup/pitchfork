@@ -16,13 +16,6 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -33,6 +26,13 @@ import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties.AuthConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties.ClientConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties.KinesisForwarderConfigProperties;
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @EnableConfigurationProperties({KinesisForwarderConfigProperties.class})
 @ConditionalOnProperty(name = "pitchfork.forwarders.haystack.kinesis.enabled", havingValue = "true")
@@ -42,12 +42,12 @@ public class KinesisForwarderConfig {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Bean
-    public KinesisForwarder createKinesisProducer(KinesisForwarderConfigProperties properties) {
+    public KinesisForwarder createKinesisProducer(KinesisForwarderConfigProperties properties, MetersProvider metersProvider) {
         var amazonKinesis = getProducerConfiguration(
                 properties.getClient(),
                 properties.getAuth());
 
-        return new KinesisForwarder(amazonKinesis, properties.getStreamName());
+        return new KinesisForwarder(amazonKinesis, properties.getStreamName(), metersProvider);
     }
 
     private AmazonKinesis getProducerConfiguration(ClientConfigProperties client, AuthConfigProperties auth) {
@@ -56,19 +56,19 @@ public class KinesisForwarderConfig {
         var authenticationType = auth.getConfigType();
 
         switch (authenticationType) {
-        case DEFAULT:
-            logger.info("Configuring Kinesis auth with default credentials provider");
+            case DEFAULT:
+                logger.info("Configuring Kinesis auth with default credentials provider");
 
-            credsProvider = DefaultAWSCredentialsProviderChain.getInstance();
-            break;
-        case BASIC:
-            logger.info("Configuring Kinesis auth with basic credentials");
+                credsProvider = DefaultAWSCredentialsProviderChain.getInstance();
+                break;
+            case BASIC:
+                logger.info("Configuring Kinesis auth with basic credentials");
 
-            var awsAccessKey = auth.getBasic().getAwsAccessKey();
-            var awsSecretKey = auth.getBasic().getAwsSecretKey();
+                var awsAccessKey = auth.getBasic().getAwsAccessKey();
+                var awsSecretKey = auth.getBasic().getAwsSecretKey();
 
-            credsProvider = new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
-            break;
+                credsProvider = new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
+                break;
         }
 
         AmazonKinesisClientBuilder clientBuilder = AmazonKinesisClientBuilder.standard()
@@ -77,24 +77,24 @@ public class KinesisForwarderConfig {
         var clientConfiguration = client.getConfigType();
 
         switch (clientConfiguration) {
-        case ENDPOINT:
-            var serviceEndpoint = client.getEndpoint().getServiceEndpoint();
-            var signingRegionName = client.getEndpoint().getSigningRegionName();
+            case ENDPOINT:
+                var serviceEndpoint = client.getEndpoint().getServiceEndpoint();
+                var signingRegionName = client.getEndpoint().getSigningRegionName();
 
-            logger.info("Configuring Kinesis client with endpoint config. serviceEndpoint={}, signingRegionName={}",
-                    serviceEndpoint,
-                    signingRegionName);
+                logger.info("Configuring Kinesis client with endpoint config. serviceEndpoint={}, signingRegionName={}",
+                        serviceEndpoint,
+                        signingRegionName);
 
-            var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, signingRegionName);
-            clientBuilder.withEndpointConfiguration(endpointConfiguration);
-            break;
-        case REGION:
-            var regionName = client.getRegion().getRegionName();
+                var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, signingRegionName);
+                clientBuilder.withEndpointConfiguration(endpointConfiguration);
+                break;
+            case REGION:
+                var regionName = client.getRegion().getRegionName();
 
-            logger.info("Configuring Kinesis client with region config. regionName={}", regionName);
+                logger.info("Configuring Kinesis client with region config. regionName={}", regionName);
 
-            clientBuilder.withRegion(regionName);
-            break;
+                clientBuilder.withRegion(regionName);
+                break;
         }
 
         return clientBuilder.build();

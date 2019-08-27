@@ -16,6 +16,7 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http.properties.ZipkinForwarderConfigProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -28,14 +29,15 @@ import org.springframework.context.annotation.Configuration;
 public class ZipkinForwarderConfig {
 
     @Bean
-    public ZipkinForwarder createZipkinProducer(ZipkinForwarderConfigProperties properties) {
+    public ZipkinForwarder createZipkinProducer(ZipkinForwarderConfigProperties properties, MetersProvider metersProvider) {
         return new ZipkinForwarder(
                 properties.getEndpoint(),
                 properties.getMaxInFlightRequests(),
                 properties.getWriteTimeoutMillis(),
                 properties.isCompressionEnabled(),
                 properties.getMaxIdleConnections(),
-                properties.isIgnoreSslErrors()
+                properties.isIgnoreSslErrors(),
+                metersProvider
         );
     }
 }

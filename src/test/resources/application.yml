@@ -59,3 +59,15 @@ pitchfork:
         compression-enabled: true
         max-idle-connections: 50
         ignore-ssl-errors: false
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      jmx:
+        enabled: true
+      graphite:
+        enabled: false
+        protocol: plaintext
+        host: localhost
+        port: 2004
