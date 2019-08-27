@@ -16,18 +16,19 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
-import static java.util.Collections.singletonList;
-
-import java.util.concurrent.TimeUnit;
-
+import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.Counter;
+import okhttp3.ConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
-import okhttp3.ConnectionPool;
 import zipkin2.Callback;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.okhttp3.OkHttpSender;
+
+import java.util.concurrent.TimeUnit;
+
+import static java.util.Collections.singletonList;
 
 /**
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format re-encodes it in {@code Zipkin V2} format and pushes it to a {@code Zipkin} server.
@@ -36,8 +37,10 @@ public class ZipkinForwarder implements SpanForwarder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZipkinForwarder.class);
 
     private final OkHttpSender sender;
+    private final Counter successCounter;
+    private final Counter failureCounter;
 
-    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled, int maxIdleConnections) {
+    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled, int maxIdleConnections, MetersProvider metersProvider) {
         OkHttpSender.Builder builder = OkHttpSender.newBuilder()
                 .endpoint(endpoint)
                 .maxRequests(maxInFlightRequests)
@@ -49,6 +52,8 @@ public class ZipkinForwarder implements SpanForwarder {
                 .pingInterval(60, TimeUnit.SECONDS);
 
         this.sender = builder.build();
+        this.successCounter = metersProvider.forwarderCounter("zipkin", true);
+        this.failureCounter = metersProvider.forwarderCounter("zipkin", false);
     }
 
     @Override
@@ -58,6 +63,7 @@ public class ZipkinForwarder implements SpanForwarder {
             byte[] bytes = SpanBytesEncoder.JSON_V2.encode(span);
             sender.sendSpans(singletonList(bytes)).enqueue(new ZipkinCallback(span));
         } catch (Exception e) {
+            failureCounter.increment();
             LOGGER.error("Unable to serialise span with span id {}", span.id());
         }
     }
@@ -71,11 +77,13 @@ public class ZipkinForwarder implements SpanForwarder {
 
         @Override
         public void onSuccess(Void value) {
-            LOGGER.debug("Successfully wrote span {}", span.id());
+            successCounter.increment();
+            LOGGER.info("Successfully wrote span {}", span.id());
         }
 
         @Override
         public void onError(Throwable t) {
+            failureCounter.increment();
             LOGGER.error("Unable to write span {}", span.id(), t);
         }
     }

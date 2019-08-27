@@ -20,6 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.Properties;
 
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
@@ -37,7 +38,7 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka.pro
 public class HaystackForwarderConfig {
 
     @Bean
-    public HaystackKafkaSpanForwarder haystackForwarder(KafkaForwarderConfigProperties properties) {
+    public HaystackKafkaSpanForwarder haystackForwarder(KafkaForwarderConfigProperties properties, MetersProvider metersProvider) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getBootstrapServers());
         props.put(ProducerConfig.RETRIES_CONFIG, 2);
@@ -48,6 +49,6 @@ public class HaystackForwarderConfig {
 
         KafkaProducer<String, byte[]> kafkaProducer = new KafkaProducer<>(props);
 
-        return new HaystackKafkaSpanForwarder(kafkaProducer, properties.getTopic());
+        return new HaystackKafkaSpanForwarder(kafkaProducer, properties.getTopic(), metersProvider);
     }
 }

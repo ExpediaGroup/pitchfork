@@ -16,15 +16,16 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka;
 
-import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
-
+import com.expedia.open.tracing.Span;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.Counter;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.expedia.open.tracing.Span;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
 
 /**
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format, converts to Haystack domain and pushes a {@code Kafka} stream.
@@ -35,10 +36,14 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
 
     private final String topic;
     private final Producer<String, byte[]> producer;
+    private final Counter successCounter;
+    private final Counter failureCounter;
 
-    public HaystackKafkaSpanForwarder(Producer<String, byte[]> producer, String topic) {
+    public HaystackKafkaSpanForwarder(Producer<String, byte[]> producer, String topic, MetersProvider metersProvider) {
         this.topic = topic;
         this.producer = producer;
+        this.successCounter = metersProvider.forwarderCounter("kafka", true);
+        this.failureCounter = metersProvider.forwarderCounter("kafka", false);
     }
 
     @Override
@@ -51,8 +56,13 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
         final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getTraceId(), value);
 
         // FIXME send() should return a future but it's blocking when kafka servers are unavailable
-        // TODO: metrics with success/failures
-        producer.send(record);
+        producer.send(record, (recordMetadata, error) -> {
+            if (error == null) {
+                successCounter.increment();
+            } else {
+                failureCounter.increment();
+            }
+        });
     }
 
     @Override
