@@ -111,14 +111,15 @@ Kinesis output is disabled by default. You can enable and configure it using the
 
 Zipkin output is disabled by default. You can enable and configure it using the following properties.
 
-| Property name                                          | Default value                      | Description                                                      |
-| ------------------------------------------------------ | ---------------------------------- | ---------------------------------------------------------------- |
-| pitchfork.forwarders.zipkin.http.enabled               | false                              | If enabled Pitchfork will forward spans to an HTTP Zipkin server |
-| pitchfork.forwarders.zipkin.http.endpoint              | http://localhost:9411/api/v2/spans | The POST url for the Zipkin http reporter                        |
-| pitchfork.forwarders.zipkin.http.max-inflight-requests | 256                                | Number of max inflight requests                                  |
-| pitchfork.forwarders.zipkin.http.write-timeout-millis  | 10000                              | Write timeout in milliseconds                                    |
-| pitchfork.forwarders.zipkin.http.compression-enabled   | true                               | Set to true for spans to be gzipped before transport             |
-| pitchfork.forwarders.zipkin.http.max-idle-connections  | 50                                 | Max idle connections for the Zipkin reporter connection pool     |
+| Property name                                          | Default value                      | Description                                                                     |
+| ------------------------------------------------------ | ---------------------------------- | ------------------------------------------------------------------------------- |
+| pitchfork.forwarders.zipkin.http.enabled               | false                              | If enabled Pitchfork will forward spans to an HTTP Zipkin server                |
+| pitchfork.forwarders.zipkin.http.endpoint              | http://localhost:9411/api/v2/spans | The POST url for the Zipkin http reporter                                       |
+| pitchfork.forwarders.zipkin.http.max-inflight-requests | 256                                | Number of max inflight requests                                                 |
+| pitchfork.forwarders.zipkin.http.write-timeout-millis  | 10000                              | Write timeout in milliseconds                                                   |
+| pitchfork.forwarders.zipkin.http.compression-enabled   | true                               | Set to true for spans to be gzipped before transport                            |
+| pitchfork.forwarders.zipkin.http.max-idle-connections  | 50                                 | Max idle connections for the Zipkin reporter connection pool                    |
+| pitchfork.forwarders.zipkin.http.ignore-ssl-errors     | false                              | When true, ignores all SSL errors when connecting to the upstream Zipkin server |
 
 ## Other options
 

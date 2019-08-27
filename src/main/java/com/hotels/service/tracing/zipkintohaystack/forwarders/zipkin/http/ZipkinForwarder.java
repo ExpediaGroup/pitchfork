@@ -26,6 +26,9 @@ import zipkin2.Callback;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.singletonList;
@@ -40,20 +43,35 @@ public class ZipkinForwarder implements SpanForwarder {
     private final Counter successCounter;
     private final Counter failureCounter;
 
-    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled, int maxIdleConnections, MetersProvider metersProvider) {
-        OkHttpSender.Builder builder = OkHttpSender.newBuilder()
-                .endpoint(endpoint)
-                .maxRequests(maxInFlightRequests)
-                .writeTimeout(writeTimeoutMillis)
-                .compressionEnabled(compressionEnabled);
+    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled, int maxIdleConnections, boolean ignoreSslErrors, MetersProvider metersProvider) {
+        try {
+            OkHttpSender.Builder builder = OkHttpSender.newBuilder()
+                    .endpoint(endpoint)
+                    .maxRequests(maxInFlightRequests)
+                    .writeTimeout(writeTimeoutMillis)
+                    .compressionEnabled(compressionEnabled);
 
-        builder.clientBuilder()
-                .connectionPool(new ConnectionPool(maxIdleConnections, 5, TimeUnit.MINUTES))
-                .pingInterval(60, TimeUnit.SECONDS);
+            builder.clientBuilder()
+                    .connectionPool(new ConnectionPool(maxIdleConnections, 5, TimeUnit.MINUTES))
+                    .pingInterval(60, TimeUnit.SECONDS);
 
-        this.sender = builder.build();
-        this.successCounter = metersProvider.forwarderCounter("zipkin", true);
-        this.failureCounter = metersProvider.forwarderCounter("zipkin", false);
+            if (ignoreSslErrors) {
+                X509TrustManager trustAllCertsTrustManager = new TrustAllCertsTrustManager();
+
+                // Install all trusting trust manager
+                SSLContext sslContext = SSLContext.getInstance("SSL");
+                sslContext.init(null, new TrustManager[]{trustAllCertsTrustManager}, new java.security.SecureRandom());
+
+                builder.clientBuilder()
+                        .sslSocketFactory(sslContext.getSocketFactory(), trustAllCertsTrustManager)
+                        .hostnameVerifier((hostname, session) -> true);
+            }
+            this.sender = builder.build();
+            this.successCounter = metersProvider.forwarderCounter("zipkin", true);
+            this.failureCounter = metersProvider.forwarderCounter("zipkin", false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

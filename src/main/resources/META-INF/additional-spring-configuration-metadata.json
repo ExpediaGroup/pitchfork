@@ -176,6 +176,11 @@
       "description": "When true, creates a forwarder that publishes spans into a Zipkin collector."
     },
     {
+      "name": "pitchfork.forwarders.zipkin.http.ignore-ssl-errors",
+      "type": "java.lang.Boolean",
+      "description": "When true, ignores all SSL errors when connecting to the upstream Zipkin collector."
+    },
+    {
       "name": "pitchfork.forwarders.zipkin.http.endpoint",
       "type": "java.lang.String",
       "description": "Endpoint for the remote Zipkin collector, for example 'http://zipkinhost:9411/api/v2/spans'."

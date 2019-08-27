@@ -25,6 +25,7 @@ public class ZipkinForwarderConfigProperties {
     private int writeTimeoutMillis;
     private boolean compressionEnabled;
     private int maxIdleConnections;
+    private boolean ignoreSslErrors;
 
     public String getEndpoint() {
         return endpoint;
@@ -64,5 +65,13 @@ public class ZipkinForwarderConfigProperties {
 
     public void setMaxIdleConnections(int maxIdleConnections) {
         this.maxIdleConnections = maxIdleConnections;
+    }
+
+    public boolean isIgnoreSslErrors() {
+        return ignoreSslErrors;
+    }
+
+    public void setIgnoreSslErrors(boolean ignoreSslErrors) {
+        this.ignoreSslErrors = ignoreSslErrors;
     }
 }

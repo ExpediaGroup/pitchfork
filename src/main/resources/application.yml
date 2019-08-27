@@ -60,6 +60,7 @@ pitchfork:
         write-timeout-millis: 10000
         compression-enabled: true
         max-idle-connections: 50
+        ignore-ssl-errors: false
 
 management:
   metrics:
