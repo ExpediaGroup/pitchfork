@@ -86,7 +86,7 @@ public class ZipkinForwarder implements SpanForwarder {
         }
     }
 
-    static class ZipkinCallback implements Callback<Void> {
+    class ZipkinCallback implements Callback<Void> {
         final zipkin2.Span span;
 
         ZipkinCallback(zipkin2.Span span) {

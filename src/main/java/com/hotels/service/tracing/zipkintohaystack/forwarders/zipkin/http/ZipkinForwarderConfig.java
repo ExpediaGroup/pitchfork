@@ -16,8 +16,8 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http;
 
-import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http.properties.ZipkinForwarderConfigProperties;
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
