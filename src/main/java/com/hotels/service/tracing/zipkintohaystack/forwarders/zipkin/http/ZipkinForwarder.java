@@ -49,7 +49,7 @@ public class ZipkinForwarder implements SpanForwarder {
 
             builder.clientBuilder()
                     .connectionPool(new ConnectionPool(maxIdleConnections, 5, TimeUnit.MINUTES))
-                    .pingInterval(61, TimeUnit.SECONDS);
+                    .pingInterval(60, TimeUnit.SECONDS);
 
             if (ignoreSslErrors) {
                 X509TrustManager trustAllCertsTrustManager = new TrustAllCertsTrustManager();
