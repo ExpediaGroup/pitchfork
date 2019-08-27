@@ -58,3 +58,15 @@ pitchfork:
         write-timeout-millis: 10000
         compression-enabled: true
         max-idle-connections: 50
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      jmx:
+        enabled: true
+      graphite:
+        enabled: false
+        protocol: plaintext
+        host: localhost
+        port: 2004

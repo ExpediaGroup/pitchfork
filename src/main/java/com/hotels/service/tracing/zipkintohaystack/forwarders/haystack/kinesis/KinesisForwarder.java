@@ -16,16 +16,17 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis;
 
-import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
-
-import java.nio.ByteBuffer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.expedia.open.tracing.Span;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.Counter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+
+import static com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.HaystackDomainConverter.fromZipkinV2;
 
 /**
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format,
@@ -37,10 +38,14 @@ public class KinesisForwarder implements SpanForwarder {
 
     private final AmazonKinesis producer;
     private final String streamName;
+    private final Counter successCounter;
+    private final Counter failureCounter;
 
-    public KinesisForwarder(AmazonKinesis producer, String streamName) {
+    public KinesisForwarder(AmazonKinesis producer, String streamName, MetersProvider metersProvider) {
         this.producer = producer;
         this.streamName = streamName;
+        this.successCounter = metersProvider.forwarderCounter("kinesis", true);
+        this.failureCounter = metersProvider.forwarderCounter("kinesis", false);
     }
 
     @Override
@@ -51,7 +56,12 @@ public class KinesisForwarder implements SpanForwarder {
 
         byte[] value = span.toByteArray();
 
-        // TODO: metrics with success/failures
-        producer.putRecord(streamName, ByteBuffer.wrap(value), span.getTraceId());
+        try {
+            producer.putRecord(streamName, ByteBuffer.wrap(value), span.getTraceId());
+            successCounter.increment();
+        } catch (Exception e) {
+            failureCounter.increment();
+            logger.error("Failed to send span to kinesis {}", input.id(), e);
+        }
     }
 }
