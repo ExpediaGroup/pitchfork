@@ -155,9 +155,9 @@ You can also use the following properties to add tag to the metrics and (for uni
 This is useful if you have multiple instances of Pitchfork running and you would want your metrics to look like this: `pitchfork.instance-01.metric-name=123` 
 
 ```
-management.metrics.tags.application="pitchfork"
-management.metrics.tags.instance="instance-01"
-management.metrics.export.graphite.tags-as-prefix="application, instance"
+management.metrics.tags.application=pitchfork
+management.metrics.tags.instance=instance-01
+management.metrics.export.graphite.tags-as-prefix=application,instance
 ```
 
 ### Validators
