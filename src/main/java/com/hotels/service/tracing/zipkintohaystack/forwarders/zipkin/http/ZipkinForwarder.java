@@ -96,7 +96,7 @@ public class ZipkinForwarder implements SpanForwarder {
         @Override
         public void onSuccess(Void value) {
             successCounter.increment();
-            LOGGER.info("Successfully wrote span {}", span.id());
+            LOGGER.debug("Successfully wrote span {}", span.id());
         }
 
         @Override
