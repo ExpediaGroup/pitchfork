@@ -61,6 +61,8 @@ pitchfork:
         ignore-ssl-errors: false
 management:
   metrics:
+    tags:
+      application: ${spring.application.name}
     export:
       prometheus:
         enabled: true
@@ -71,3 +73,5 @@ management:
         protocol: plaintext
         host: localhost
         port: 2004
+        tags-as-prefix:
+          - "application"

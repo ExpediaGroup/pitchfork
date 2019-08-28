@@ -140,6 +140,26 @@ pitchfork.forwarders.logging.enabled=true
 pitchfork.forwarders.logging.log-full-span=true
 ```
 
+### Metrics
+
+By default Pitchfork exposes both a /metrics and a /prometheus endpoint (see section [Endpoints](#Endpoints))
+You can also report data to a Graphite collector by configuring the host and port:
+
+```
+management.metrics.export.graphite.enabled=true
+management.metrics.export.graphite.host=graphite.example.com
+management.metrics.export.graphite.port=9004
+```
+
+You can also use the following properties to add tag to the metrics and (for unidimensional systems like graphite) convert them into prefixes.
+This is useful if you have multiple instances of Pitchfork running and you would want your metrics to look like this: `pitchfork.instance-01.metric-name=123` 
+
+```
+management.metrics.tags.application=pitchfork
+management.metrics.tags.instance=instance-01
+management.metrics.export.graphite.tags-as-prefix=application,instance
+```
+
 ### Validators
 
 You can also configure Pitchfork to discard spans with a null timestamp:

@@ -64,6 +64,8 @@ pitchfork:
 
 management:
   metrics:
+    tags:
+      application: ${spring.application.name}
     export:
       prometheus:
         enabled: true
@@ -76,6 +78,8 @@ management:
         rate-units: milliseconds
         protocol: plaintext
         step: 1m
+        tags-as-prefix:
+        - "application"
   endpoints:
     web:
       exposure:
