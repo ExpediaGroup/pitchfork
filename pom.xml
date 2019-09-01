@@ -129,7 +129,7 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-codec-http</artifactId>
-      <version>4.1.38.Final</version>
+      <version>4.1.39.Final</version>
     </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
@@ -243,7 +243,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>5.1.8.RELEASE</version>
+      <version>5.1.9.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>
