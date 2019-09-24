@@ -16,4 +16,4 @@ jobs:
         java-version: 12
         jdkFile: ./openjdk-12_linux-x64_bin.tar.gz
     - name: Build with Maven
-      run: ./mvn package --file pom.xml
+      run: ./mvnw verify
