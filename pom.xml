@@ -13,7 +13,7 @@
 
     <aws-java-sdk.version>1.11.602</aws-java-sdk.version>
     <zipkin-reporter.version>2.10.2</zipkin-reporter.version>
-    <spring-boot.version>2.1.7.RELEASE</spring-boot.version>
+    <spring-boot.version>2.1.8.RELEASE</spring-boot.version>
     <junit-jupiter.version>5.5.1</junit-jupiter.version>
     <mockito.version>3.0.0</mockito.version>
     <testcontainers.version>1.12.0</testcontainers.version>
@@ -243,7 +243,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>5.1.9.RELEASE</version>
+      <version>5.2.0.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>
