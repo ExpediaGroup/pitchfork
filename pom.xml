@@ -14,7 +14,7 @@
     <aws-java-sdk.version>1.11.602</aws-java-sdk.version>
     <zipkin-reporter.version>2.10.2</zipkin-reporter.version>
     <spring-boot.version>2.1.8.RELEASE</spring-boot.version>
-    <junit-jupiter.version>5.5.1</junit-jupiter.version>
+    <junit-jupiter.version>5.5.2</junit-jupiter.version>
     <mockito.version>3.0.0</mockito.version>
     <testcontainers.version>1.12.0</testcontainers.version>
     <micrometer.version>1.2.0</micrometer.version>
