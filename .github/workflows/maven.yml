@@ -18,6 +18,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 12
-          jdkFile: ./OpenJDK${JAVA_VERSION}U-jre_x64_linux_hotspot_${JAVA_VERSION}_${JAVA_REVISION}.tar.gz
+          jdkFile: ./OpenJDKU-jre_x64_linux_hotspot_12_33.tar.gz
       - name: Build with Maven
         run: ./mvnw verify
