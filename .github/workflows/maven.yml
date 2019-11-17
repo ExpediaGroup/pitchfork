@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: |
-          wget --no-check-certificate https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jdk_x64_linux_hotspot_13.0.1_9.tar.gz \
+          wget "https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jdk_x64_linux_hotspot_13.0.1_9.tar.gz"
           echo "${JAVA_DOWNLOAD_CHECKSUM}  OpenJDK13U-jdk_x64_linux_hotspot_13.0.1_9.tar.gz"  | sha256sum -c
       - name: Set up JDK 13
         uses: actions/setup-java@v1
