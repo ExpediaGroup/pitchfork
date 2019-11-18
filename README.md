@@ -40,6 +40,15 @@ To package:
 To build a Docker image named `hotelsdotcom/pitchfork`:
 
     docker build -t hotelsdotcom/pitchfork .
+
+Alternatively we also provide a makefile that you can use to run the tests or build a docker image for Pitchfork:
+
+    make test
+
+or
+    
+    make build
+    
     
 #### Running Pitchfork
 
