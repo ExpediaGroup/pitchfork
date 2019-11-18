@@ -23,7 +23,7 @@ You can find more detailed documentation at [hotelsdotcom.github.io/pitchfork](h
 
 #### Build
 
-To build Pitchfork you need to have Java 12+ and Docker installed. Maven is optional as you can use the Maven Wrapper. 
+To build Pitchfork you need to have Java 13+ and Docker installed. Maven is optional as you can use the Maven Wrapper. 
 
 To compile and run unit tests (Linux or Mac):
 
@@ -40,6 +40,15 @@ To package:
 To build a Docker image named `hotelsdotcom/pitchfork`:
 
     docker build -t hotelsdotcom/pitchfork .
+
+Alternatively we also provide a makefile that you can use to run the tests or build a docker image for Pitchfork:
+
+    make test
+
+or
+    
+    make build
+    
     
 #### Running Pitchfork
 
