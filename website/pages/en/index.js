@@ -77,19 +77,6 @@ class Index extends React.Component {
         const {config: siteConfig, language = ''} = this.props;
         const {baseUrl} = siteConfig;
 
-        const Block = props => (
-            <Container
-                padding={['bottom', 'top']}
-                id={props.id}
-                background={props.background}>
-                <GridBlock
-                    align="center"
-                    contents={props.children}
-                    layout={props.layout}
-                />
-            </Container>
-        );
-
         const FeatureCallout = () => (
             <div className="productShowcaseSection paddingTop paddingBottom lightBackground" style={{textAlign: 'center'}}>
                 <h2>Features</h2>
@@ -105,31 +92,6 @@ class Index extends React.Component {
                     </ul>
                 </div>
             </div>
-        );
-
-        const Features = () => (
-            <Block layout="oneColumn">
-                {[
-                    {
-                        content: 'Mittens can run as a standalone cmd tool to send requests over REST/gRPC.',
-                        image: `${baseUrl}img/cmd.svg`,
-                        imageAlign: 'top',
-                        title: 'a standalone cmd tool',
-                    },
-                    {
-                        content: 'You can also run it as a Docker container linked to your main app.',
-                        image: `${baseUrl}img/docker.png`,
-                        imageAlign: 'top',
-                        title: 'a linked Docker Container',
-                    },
-                    {
-                        content: 'Or even as a sidecar on Kubernetes, in the pod where your app\'s running.',
-                        image: `${baseUrl}img/kubernetes.png`,
-                        imageAlign: 'top',
-                        title: 'a Sidecar on Kubernetes',
-                    },
-                ]}
-            </Block>
         );
 
         const Showcase = () => {
