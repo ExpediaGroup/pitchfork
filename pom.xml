@@ -22,7 +22,7 @@
     <netty-codec.version>4.1.43.Final</netty-codec.version>
     <jackson.version>2.10.0</jackson.version>
     <amazon-kinesis-producer.version>0.13.1</amazon-kinesis-producer.version>
-    <amazon-kinesis-client.version>1.12.0</amazon-kinesis-client.version>
+    <amazon-kinesis-client.version>1.13.0</amazon-kinesis-client.version>
     <rabbitmq-client.version>5.7.1</rabbitmq-client.version>
     <haystack-idl.version>1.0.65</haystack-idl.version>
     <zipkin-proto.version>0.2.2</zipkin-proto.version>
