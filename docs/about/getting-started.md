@@ -1,56 +1,24 @@
-<style>
-.tablelines table, .tablelines td, .tablelines th {
-        border: 1px solid black;
-        }
-</style>
-# Pitchfork
-
-[Haystack](https://expediadotcom.github.io/haystack/) is an Expedia-backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like Zipkin, its primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
-
-[Zipkin](http://zipkin.io) is the de facto standard for distributed tracing. We understand that migrating to a new system can be difficult and you may want to go back. Pitchfork can help you with this.
-
-## Running
-
-### From a jar
-
-```bash
-java -jar pitchfork.jar
-```
-
-### With Docker
-
-_Note: When using Docker it is preferable to use the posix notation for the properties (eg. FOO_BAR instead of foo.bar)._
-
-You can run Pitchfork as a Docker container. You can find all available tags in [Docker Hub](https://hub.docker.com/r/hotelsdotcom/pitchfork/).
-
-```bash
-docker run -p 9411:9411 hotelsdotcom/pitchfork:latest
-```
-
-You can override the default properties with environment variables, for example:
-
-```bash
-docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_LOGGING_ENABLED=true hotelsdotcom/pitchfork:latest
-```
+---
+id: getting-started
+title: Getting Started
+---
 
 ## Configuring different ingresses
 
 ### HTTP
 
-HTTP is the default ingress and is always enabled.
-The following properties can be overridden.
+HTTP is the default ingress and is always enabled. The following properties can be overridden.
 
-| Property name | Default value | Description                            | 
-| ------------- | ------------- | -------------------------------------- |
-| server.port   | 9411          | HTTP port where Pitchfork is listening | 
-{: .tablelines}
+| Property name | Default value | Description                            |
+|:--------------|:--------------|:---------------------------------------|
+| server.port   | 9411          | HTTP port where Pitchfork is listening |
 
 ### Kafka
 
 Kafka ingress is disabled by default. You can enable and configure it using the following properties.
 
 | Property name                                   | Default value      | Description                                                                                                                                                      |
-| ----------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|:------------------------------------------------|:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | pitchfork.ingress.kafka.enabled                 | false              | If enabled Pitchfork will read Zipkin spans from the configured Kafka topic                                                                                      |
 | pitchfork.ingress.kafka.bootstrap-servers       | kafka-service:9092 | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster                                                                    |
 | pitchfork.ingress.kafka.number-consumers        | 4                  | The number of consumer threads polling Kafka                                                                                                                     |
@@ -68,16 +36,15 @@ Kafka ingress is disabled by default. You can enable and configure it using the 
 RabbitMQ ingress is disabled by default. You can enable and configure it using the following properties.
 
 | Property name                            | Default value | Description                                                                                                |
-| ---------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------- |
-| pitchfork.ingress.rabbitmq.enabled       | false         | If enabled Pitchfork will read Zipkin spans from the configured RabbitMQ queue                             |         
+|:-----------------------------------------|:--------------|:-----------------------------------------------------------------------------------------------------------|
+| pitchfork.ingress.rabbitmq.enabled       | false         | If enabled Pitchfork will read Zipkin spans from the configured RabbitMQ queue                             |
 | pitchfork.ingress.rabbitmq.user          | guest         | The user name to use when connecting to the broker                                                         |
 | pitchfork.ingress.rabbitmq.password      | guest         | The password to use when connecting to the broker                                                          |
 | pitchfork.ingress.rabbitmq.virtual-host  | /             | The virtual host to use for connections                                                                    |
 | pitchfork.ingress.rabbitmq.host          | localhost     | The host for the broker                                                                                    |
 | pitchfork.ingress.rabbitmq.port          | 5762          | The port for the broker                                                                                    |
 | pitchfork.ingress.rabbitmq.queue-name    | zipkin        | The name of the queue to read spans from                                                                   |
-| pitchfork.ingress.rabbitmq.source-format | JSON_V2       | Format/encoding of the spans in the RabbitMQ queue. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3 | 
-{: .tablelines}
+| pitchfork.ingress.rabbitmq.source-format | JSON_V2       | Format/encoding of the spans in the RabbitMQ queue. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3 |
 
 ## Configuring different outputs
 
@@ -86,22 +53,22 @@ RabbitMQ ingress is disabled by default. You can enable and configure it using t
 Kafka output is disabled by default. You can enable and configure it using the following properties.
 
 | Property name                                         | Default value      | Description                                                                                   |
-| ----------------------------------------------------- | ------------------ | --------------------------------------------------------------------------------------------- |
+|:------------------------------------------------------|:-------------------|:----------------------------------------------------------------------------------------------|
 | pitchfork.forwarders.haystack.kafka.enabled           | false              | If enabled Pitchfork will forward spans to a Kafka broker                                     |
 | pitchfork.forwarders.haystack.kafka.bootstrap-servers | kafka-service:9092 | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster |
-| pitchfork.forwarders.haystack.kafka.topic             | proto-spans        | The name of the Kafka topic where the spans will be submitted to                              |         
+| pitchfork.forwarders.haystack.kafka.topic             | proto-spans        | The name of the Kafka topic where the spans will be submitted to                              |
 
 ### Kinesis
 
 Kinesis output is disabled by default. You can enable and configure it using the following properties.
 
 | Property name                                                             | Default value                           | Description                                                                                                                 |
-| ------------------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+|:--------------------------------------------------------------------------|:----------------------------------------|:----------------------------------------------------------------------------------------------------------------------------|
 | pitchfork.forwarders.haystack.kinesis.enabled                             | false                                   | If enabled Pitchfork will forward spans to a Kinesis stream                                                                 |
 | pitchfork.forwarders.haystack.kinesis.stream-name                         | proto-spans                             | The name of the Kinesis stream where the spans will be submitted to                                                         |
 | pitchfork.forwarders.haystack.kinesis.client.config-type                  | REGION                                  | What type of endpoint configuration to use. Possible values are REGION or ENDPOINT                                          |
-| pitchfork.forwarders.haystack.kinesis.client.region.region-name           | us-west-1                               | Used when the kinesis client config-type is REGION. Region is used to determine the service endpoint and the signing region |         
-| pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint    | https://kinesis.us-west-1.amazonaws.com | Used when kinesis client config-type is ENDPOINT. The service endpoint (with or without protocol)                           |         
+| pitchfork.forwarders.haystack.kinesis.client.region.region-name           | us-west-1                               | Used when the kinesis client config-type is REGION. Region is used to determine the service endpoint and the signing region |
+| pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint    | https://kinesis.us-west-1.amazonaws.com | Used when kinesis client config-type is ENDPOINT. The service endpoint (with or without protocol)                           |
 | pitchfork.forwarders.haystack.kinesis.client.endpoint.signing-region-name | us-west-1                               | Used when kinesis client config-type is ENDPOINT. The region to use for signing of requests                                 |
 | pitchfork.forwarders.haystack.kinesis.auth.config-type                    | DEFAULT                                 | Authentication method to use. Possible values are DEFAULT or BASIC                                                          |
 | pitchfork.forwarders.haystack.kinesis.auth.basic.aws-access-key           | accesskey                               | Used when authentication-type is BASIC. The AWS access key                                                                  |
@@ -112,7 +79,7 @@ Kinesis output is disabled by default. You can enable and configure it using the
 Zipkin output is disabled by default. You can enable and configure it using the following properties.
 
 | Property name                                          | Default value                      | Description                                                                     |
-| ------------------------------------------------------ | ---------------------------------- | ------------------------------------------------------------------------------- |
+|:-------------------------------------------------------|:-----------------------------------|:--------------------------------------------------------------------------------|
 | pitchfork.forwarders.zipkin.http.enabled               | false                              | If enabled Pitchfork will forward spans to an HTTP Zipkin server                |
 | pitchfork.forwarders.zipkin.http.endpoint              | http://localhost:9411/api/v2/spans | The POST url for the Zipkin http reporter                                       |
 | pitchfork.forwarders.zipkin.http.max-inflight-requests | 256                                | Number of max inflight requests                                                 |
@@ -181,7 +148,7 @@ max-timestamp-drift-seconds=60
 The service exposes the following endpoints that can be used to test the app's health and to retrieve useful info
 
 | Endpoint    | Description                                                                       |
-| ----------- | --------------------------------------------------------------------------------- |
+|:------------|:----------------------------------------------------------------------------------|
 | /health     | Shows application health information                                              |
 | /info       | Displays application info                                                         |
 | /metrics    | Metrics endpoint that can be used to examine metrics collected by the application |

@@ -1,5 +1,5 @@
 <h1 align="left">
-  <img width="500" alt="Pitchfork" src="pitchfork_logo.svg">
+  <img width="500" alt="Pitchfork" src="images/pitchfork_logo.svg">
 </h1>
 
 [![Build Status](https://travis-ci.org/HotelsDotCom/pitchfork.svg?branch=master)](https://travis-ci.org/HotelsDotCom/pitchfork)
