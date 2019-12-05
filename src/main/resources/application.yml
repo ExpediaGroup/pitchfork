@@ -89,7 +89,7 @@ info:
   app:
     name: Pitchfork
     description: Pitchfork lifts Zipkin tracing data into Haystack.
-    readme: https://hotelsdotcom.github.io/pitchfork/
+    readme: https://expediagroup.github.io/pitchfork/
 
 spring:
   application:

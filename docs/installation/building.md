@@ -31,6 +31,6 @@ or
 
 ### Using Docker
 
-To build a Docker image named `hotelsdotcom/pitchfork`:
+To build a Docker image named `expediagroup/pitchfork`:
 
-    docker build -t hotelsdotcom/pitchfork .
+    docker build -t expediagroup/pitchfork .

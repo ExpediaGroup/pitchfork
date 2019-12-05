@@ -2,20 +2,20 @@
   <img width="500" alt="Pitchfork" src="images/pitchfork_logo.svg">
 </h1>
 
-[![Build Status](https://travis-ci.org/HotelsDotCom/pitchfork.svg?branch=master)](https://travis-ci.org/HotelsDotCom/pitchfork)
-[![Release](https://img.shields.io/github/release/hotelsdotcom/pitchfork.svg)](https://img.shields.io/github/release/hotelsdotcom/pitchfork.svg)
+[![Build Status](https://github.com/ExpediaGroup/pitchfork/workflows/Build/badge.svg)](https://github.com/ExpediaGroup/pitchfork/actions?query=workflow:"Build")
+[![Release](https://img.shields.io/github/release/expediagroup/pitchfork.svg)](https://img.shields.io/github/release/expediagroup/pitchfork.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub site](https://img.shields.io/badge/GitHub-site-blue.svg)](https://hotelsdotcom.github.io/pitchfork/)
+[![GitHub site](https://img.shields.io/badge/GitHub-site-blue.svg)](https://expediagroup.github.io/pitchfork/)
 
 # Pitchfork
 
 Pitchfork lifts Zipkin tracing data into Haystack.
 
-You can find more detailed documentation at [hotelsdotcom.github.io/pitchfork](https://hotelsdotcom.github.io/pitchfork/).
+You can find more detailed documentation at [expediagroup.github.io/pitchfork](https://expediagroup.github.io/pitchfork/).
 
 ## Overview
 
-[Haystack](https://github.com/ExpediaDotCom/haystack) is an [Expedia](https://www.expedia.com/) backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like [Zipkin](https://github.com/openzipkin/zipkin), its primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
+[Haystack](https://github.com/ExpediaGroup/haystack) is an [Expedia](https://www.expedia.com/) backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like [Zipkin](https://github.com/openzipkin/zipkin), its primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
 
 [Zipkin](https://github.com/openzipkin/zipkin) is the de facto standard for distributed tracing. We understand that migrating to a new system can be difficult and you may want to go back. Pitchfork can help you with this.
 
@@ -37,9 +37,9 @@ To package:
 
     ./mvnw clean install
     
-To build a Docker image named `hotelsdotcom/pitchfork`:
+To build a Docker image named `expediagroup/pitchfork`:
 
-    docker build -t hotelsdotcom/pitchfork .
+    docker build -t expediagroup/pitchfork .
 
 Alternatively we also provide a makefile that you can use to run the tests or build a docker image for Pitchfork:
 
@@ -52,13 +52,13 @@ or
     
 #### Running Pitchfork
 
-The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/hotelsdotcom/pitchfork/).
+The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/expediagroup/pitchfork/).
 
-    docker run -p 9411:9411 hotelsdotcom/pitchfork:latest
+    docker run -p 9411:9411 expediagroup/pitchfork:latest
     
 You can override the default properties with environment variables (macro case or screaming upper case), for example:
 
-    docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_LOGGING_ENABLED=true hotelsdotcom/pitchfork:latest
+    docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_LOGGING_ENABLED=true expediagroup/pitchfork:latest
 
 You can also run it as a normal Java application:
 
@@ -68,7 +68,7 @@ Or as a Spring Boot application:
 
     mvn spring-boot:run
 
-You can find more info on how to configure Pitchfork in our [documentation](https://hotelsdotcom.github.io/pitchfork/) page.
+You can find more info on how to configure Pitchfork in our [documentation](https://expediagroup.github.io/pitchfork/) page.
 
 ## Architecture
 
@@ -96,8 +96,8 @@ These different forwarders can be enabled/disabled separately. Please see the ap
 Please refer to our [CONTRIBUTING](./CONTRIBUTING.md) file.
 
 ## References
-* [Pitchfork Documentation](https://hotelsdotcom.github.io/pitchfork/)
-* [Pitchfork at Docker Hub](https://hub.docker.com/r/hotelsdotcom/pitchfork/)
+* [Pitchfork Documentation](https://expediagroup.github.io/pitchfork/)
+* [Pitchfork at Docker Hub](https://hub.docker.com/r/expediagroup/pitchfork/)
 * [Haystack](https://github.com/ExpediaDotCom/haystack/)
 * [Zipkin](https://github.com/openzipkin/zipkin/)
 

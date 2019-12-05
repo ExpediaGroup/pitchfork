@@ -1,9 +1,16 @@
-name: Java CI
+name: Build
 
-on: [push]
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
 
 jobs:
   build:
+    name: Build and Unit Tests
     runs-on: ubuntu-latest
     env:
       JAVA_DOWNLOAD_CHECKSUM: 2226366d7dffb3eb4ec3d14101f4ddb4259195aa43bb319a93810447b8384930
