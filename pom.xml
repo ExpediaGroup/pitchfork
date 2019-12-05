@@ -34,8 +34,8 @@
   </properties>
 
   <organization>
-    <name>Hotels.com</name>
-    <url>http://www.hotels.com</url>
+    <name>Expedia Group</name>
+    <url>http://expediagroup.com</url>
   </organization>
 
   <licenses>
@@ -46,9 +46,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git@github.com:HotelsDotCom/pitchfork.git</connection>
-    <developerConnection>scm:git:git@github.com:HotelsDotCom/pitchfork.git</developerConnection>
-    <url>https://github.com/HotelsDotCom/pitchfork</url>
+    <connection>scm:git:git@github.com:ExpediaGroup/pitchfork.git</connection>
+    <developerConnection>scm:git:git@github.com:ExpediaGroup/pitchfork.git</developerConnection>
+    <url>https://github.com/ExpediaGroup/pitchfork</url>
     <tag>HEAD</tag>
   </scm>
 

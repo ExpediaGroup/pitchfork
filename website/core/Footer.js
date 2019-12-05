@@ -49,12 +49,12 @@ class Footer extends React.Component {
         </div>
         <div>
         <h5>More</h5>
-        <a href="https://github.com/HotelsDotCom/pitchfork">GitHub</a>
+        <a href="https://github.com/ExpediaGroup/pitchfork">GitHub</a>
             <a
         className="github-button"
         href={this.props.config.repoUrl}
         data-icon="octicon-star"
-        data-count-href="/HotelsDotCom/pitchfork/stargazers"
+        data-count-href="/ExpediaGroup/pitchfork/stargazers"
         data-show-count="true"
         data-count-aria-label="# stargazers on GitHub"
         aria-label="Star this project on GitHub">
@@ -64,7 +64,7 @@ class Footer extends React.Component {
             </section>
 
             <a
-        href="https://hotelsdotcom.github.io"
+        href="https://expediagroup.github.io"
         target="_blank"
         rel="noreferrer noopener"
         className="egOpenSource">

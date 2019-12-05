@@ -25,18 +25,18 @@ const siteConfig = {
   title: 'Pitchfork', // Title for your website.
   tagline: 'Convert tracing data between Zipkin and Haystack formats',
 
-  url: 'https://hotelsdotcom.github.io', // Your website URL
+  url: 'https://expediagroup.github.io', // Your website URL
   baseUrl: '/pitchfork/', // Base URL for your project */
 
   // Used for publishing and more
   projectName: 'Pitchfork',
-  organizationName: 'HotelsDotCom',
+  organizationName: 'ExpediaGroup',
 
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     { search: true },
     {doc: 'about/introduction', label: 'Docs'},
-    {href: 'https://github.com/HotelsDotCom/pitchfork', label: 'GitHub'}
+    {href: 'https://github.com/ExpediaGroup/pitchfork', label: 'GitHub'}
   ],
 
   users,
@@ -84,7 +84,7 @@ const siteConfig = {
 
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
-  repoUrl: 'https://github.com/HotelsDotCom/pitchfork',
+  repoUrl: 'https://github.com/ExpediaGroup/pitchfork',
 };
 
 module.exports = siteConfig;
