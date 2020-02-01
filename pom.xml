@@ -18,10 +18,10 @@
     <junit-jupiter.version>5.5.2</junit-jupiter.version>
     <mockito.version>3.2.4</mockito.version>
     <testcontainers.version>1.12.4</testcontainers.version>
-    <micrometer.version>1.3.2</micrometer.version>
-    <netty-codec.version>4.1.43.Final</netty-codec.version>
+    <micrometer.version>1.3.3</micrometer.version>
+    <netty-codec.version>4.1.45.Final</netty-codec.version>
     <jackson.version>2.10.1</jackson.version>
-    <amazon-kinesis-producer.version>0.13.1</amazon-kinesis-producer.version>
+    <amazon-kinesis-producer.version>0.14.0</amazon-kinesis-producer.version>
     <amazon-kinesis-client.version>1.13.0</amazon-kinesis-client.version>
     <rabbitmq-client.version>5.7.1</rabbitmq-client.version>
     <haystack-idl.version>1.0.65</haystack-idl.version>
@@ -337,7 +337,7 @@
           <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>7.2</version> <!-- Use newer version of ASM -->
+            <version>7.3.1</version> <!-- Use newer version of ASM -->
           </dependency>
         </dependencies>
       </plugin>
