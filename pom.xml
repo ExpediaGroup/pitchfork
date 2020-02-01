@@ -17,7 +17,7 @@
     <spring-test.version>5.2.0.RELEASE</spring-test.version>
     <junit-jupiter.version>5.5.2</junit-jupiter.version>
     <mockito.version>3.2.4</mockito.version>
-    <testcontainers.version>1.12.4</testcontainers.version>
+    <testcontainers.version>1.12.5</testcontainers.version>
     <micrometer.version>1.3.3</micrometer.version>
     <netty-codec.version>4.1.45.Final</netty-codec.version>
     <jackson.version>2.10.1</jackson.version>
