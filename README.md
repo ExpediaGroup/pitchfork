@@ -97,7 +97,7 @@ Please refer to our [CONTRIBUTING](./CONTRIBUTING.md) file.
 
 ## References
 * [Pitchfork Documentation](https://expediagroup.github.io/pitchfork/)
-* [Pitchfork at Docker Hub](https://hub.docker.com/r/expediagroup/pitchfork/)
+* [Pitchfork at Docker Hub](https://hub.docker.com/r/hotelsdotcom/pitchfork/)
 * [Haystack](https://github.com/ExpediaDotCom/haystack/)
 * [Zipkin](https://github.com/openzipkin/zipkin/)
 
