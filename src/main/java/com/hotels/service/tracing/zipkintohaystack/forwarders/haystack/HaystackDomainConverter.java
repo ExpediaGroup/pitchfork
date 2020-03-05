@@ -58,9 +58,8 @@ public class HaystackDomainConverter {
                 .map(annotation -> Log.newBuilder()
                         .setTimestamp(annotation.timestamp())
                         .addFields(Tag.newBuilder()
+                                .setKey("annotation")
                                 .setVStr(annotation.value())
-                                .setType(Tag.TagType.STRING)
-                                .setKey("event")
                                 .build())
                         .build())
                 .collect(toList());
