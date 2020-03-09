@@ -2,6 +2,7 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
 import static java.lang.System.currentTimeMillis;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,44 +38,57 @@ public class HaystackDomainConverterTest {
                 .timestamp(timestamp)
                 .duration(duration)
                 .kind(zipkin2.Span.Kind.CLIENT)
+                .addAnnotation(123L, "something")
+                .addAnnotation(456L, "something-else")
                 .putTag("tag1", "value1")
                 .putTag("tag2", "value2")
                 .build();
 
         Span haystackSpan = HaystackDomainConverter.fromZipkinV2(zipkinSpan);
 
-        assertEquals(traceId, haystackSpan.getTraceId());
-        assertEquals(spanId, haystackSpan.getSpanId());
-        assertEquals(parentId, haystackSpan.getParentSpanId());
-        assertEquals(name, haystackSpan.getOperationName());
-        assertEquals(timestamp, haystackSpan.getStartTime());
-        assertEquals(duration, haystackSpan.getDuration());
-        assertEquals(tags, haystackSpan.getTagsList().stream().collect(Collectors.toMap(Tag::getKey, Tag::getVStr)));
+        assertThat(haystackSpan.getTraceId()).isEqualTo(traceId);
+        assertThat(haystackSpan.getSpanId()).isEqualTo(spanId);
+        assertThat(haystackSpan.getParentSpanId()).isEqualTo(parentId);
+        assertThat(haystackSpan.getOperationName()).isEqualTo(name);
+        assertThat(haystackSpan.getDuration()).isEqualTo(duration);
+        assertThat(haystackSpan.getStartTime()).isEqualTo(timestamp);
+
+        // 2 user defined tags + span.kind
+        assertThat(haystackSpan.getTagsList()).hasSize(3);
+        assertThat(haystackSpan.getTagsList()).extracting("key").contains("tag1", "tag2", "span.kind");
+        assertThat(haystackSpan.getTagsList()).extracting("vStr").contains("value1", "value2", "client");
+
+        // 2 logs or annotations
+        assertThat(haystackSpan.getLogsList()).hasSize(2);
+        assertThat(haystackSpan.getLogsList()).extracting("timestamp").contains(123L, 456L);
     }
 
     @Test
     public void shouldConvertZipkinErrorTagIntoSeparateHaystackErrorTags() {
-        String errorMessage = "failure";
+        String errorMessage = "failure_msg";
 
         zipkin2.Span zipkinSpan = zipkin2.Span.newBuilder()
                 .traceId(zipkinTraceId(123L))
                 .id(zipkinSpanId(456L))
-                .putTag("error", errorMessage)
+                .putTag("error", "failure_msg")
                 .build();
 
         Span haystackSpan = HaystackDomainConverter.fromZipkinV2(zipkinSpan);
 
-        assertTrue(haystackSpan.getTagsList().stream()
+        var errorTag = haystackSpan.getTagsList().stream()
                 .filter(tag -> "error".equals(tag.getKey()))
                 .map(Tag::getVBool)
-                .findFirst()
-                .orElse(false));
+                .findFirst();
+        assertThat(errorTag).isPresent();
+        assertThat(errorTag.get()).isTrue();
 
-        assertEquals(errorMessage, haystackSpan.getTagsList().stream()
+        var errorMessageTag = haystackSpan.getTagsList().stream()
                 .filter(tag -> "error_msg".equals(tag.getKey()))
                 .map(Tag::getVStr)
-                .findFirst()
-                .orElse(null));
+                .findFirst();
+
+        assertThat(errorMessageTag).isPresent();
+        assertThat(errorMessageTag.get()).isEqualTo(errorMessage);
     }
 
     /**
