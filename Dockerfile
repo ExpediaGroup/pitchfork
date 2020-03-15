@@ -22,7 +22,7 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 RUN jlink \
      --module-path /opt/java/jmods \
      --compress=2 \
-     --add-modules jdk.jfr,jdk.management.agent,java.base,java.logging,java.xml,jdk.unsupported,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
+     --add-modules jdk.jfr,jdk.management.agent,java.base,java.logging,java.xml,jdk.unsupported,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,jdk.management \
      --no-header-files \
      --no-man-pages \
      --output /opt/jdk-mini
@@ -36,7 +36,6 @@ ENV JAVA_HOME=/opt/jdk-mini
 ENV PATH="$PATH:$JAVA_HOME/bin"
 ENV DIRPATH /pitchfork
 
-
 # Create some dirs and copy pitchfork jar
 RUN mkdir -p $DIRPATH
 COPY target/pitchfork.jar $DIRPATH/
@@ -44,9 +43,4 @@ COPY target/pitchfork.jar $DIRPATH/
 RUN chmod 755 $DIRPATH/pitchfork.jar
 WORKDIR $DIRPATH
 
-# Set timezone (for logs) and run pitchfork
-CMD export TZ=$(date +%Z) &&\
-    exec $JAVA_HOME/bin/java \
-         $JAVA_JVM_ARGS \
-         -jar \
-         pitchfork.jar
+CMD ["/bin/bash", "-c", "$JAVA_HOME/bin/java $JAVA_JVM_ARGS -jar pitchfork.jar"]
