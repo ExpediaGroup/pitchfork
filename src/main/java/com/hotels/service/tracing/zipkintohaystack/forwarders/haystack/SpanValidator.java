@@ -43,8 +43,8 @@ public class SpanValidator {
     private Counter invalidSpansCounter;
 
     public SpanValidator(@Value("${pitchfork.validators.accept-null-timestamps}") boolean acceptNullTimestamps,
-            @Value("${pitchfork.validators.max-timestamp-drift-seconds}") int maxTimestampDriftSeconds,
-            MetersProvider metersProvider) {
+                         @Value("${pitchfork.validators.max-timestamp-drift-seconds}") int maxTimestampDriftSeconds,
+                         MetersProvider metersProvider) {
         this.acceptNullTimestamps = acceptNullTimestamps;
         this.maxTimestampDriftSeconds = maxTimestampDriftSeconds;
         this.metersProvider = metersProvider;
