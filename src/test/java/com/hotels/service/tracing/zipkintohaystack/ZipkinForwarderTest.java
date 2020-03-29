@@ -1,15 +1,5 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import static zipkin2.codec.SpanBytesEncoder.JSON_V1;
-
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,11 +18,17 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
 import zipkin2.Endpoint;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
+
+import java.util.List;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static zipkin2.codec.SpanBytesEncoder.JSON_V1;
 
 @Testcontainers
 @DirtiesContext
@@ -92,8 +88,8 @@ class ZipkinForwarderTest {
                             "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
                             String.class);
 
-            assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
-            assertTrue(responseFromZipkin.getBody().contains("\"jsonv2\""));
+            assertThat(HttpStatus.OK).isEqualTo(responseFromZipkin.getStatusCode());
+            assertThat(responseFromZipkin.getBody()).contains("\"jsonv2\"");
         });
     }
 
@@ -127,8 +123,8 @@ class ZipkinForwarderTest {
                             "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
                             String.class);
 
-            assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
-            assertTrue(responseFromZipkin.getBody().contains("\"thrift\""));
+            assertThat(HttpStatus.OK).isEqualTo(responseFromZipkin.getStatusCode());
+            assertThat(responseFromZipkin.getBody()).contains("\"thrift\"");
         });
     }
 
@@ -162,8 +158,8 @@ class ZipkinForwarderTest {
                             "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
                             String.class);
 
-            assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
-            assertTrue(responseFromZipkin.getBody().contains("\"compressedjsonv2\""));
+            assertThat(HttpStatus.OK).isEqualTo(responseFromZipkin.getStatusCode());
+            assertThat(responseFromZipkin.getBody()).contains("\"compressedjsonv2\"");
         });
     }
 
@@ -191,7 +187,7 @@ class ZipkinForwarderTest {
         headers.set("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(new String(bytes), headers);
         ResponseEntity<String> responseFromVictim = this.restTemplate.postForEntity("/api/v1/spans", request, String.class);
-        assertEquals(HttpStatus.OK, responseFromVictim.getStatusCode(), "Expected a 200 status from pitchfork");
+        assertThat(HttpStatus.OK).isEqualTo(responseFromVictim.getStatusCode()).withFailMessage("Expected a 200 status from pitchfork");
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
         await().atMost(10, SECONDS).untilAsserted(() -> {
@@ -202,8 +198,8 @@ class ZipkinForwarderTest {
                             "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
                             String.class);
 
-            assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
-            assertTrue(responseFromZipkin.getBody().contains("\"jsonv1\""));
+            assertThat(HttpStatus.OK).isEqualTo(responseFromZipkin.getStatusCode());
+            assertThat(responseFromZipkin.getBody()).contains("\"jsonv1\"");
         });
     }
 
@@ -237,8 +233,8 @@ class ZipkinForwarderTest {
                             "http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer.getFirstMappedPort() + "/api/v2/services",
                             String.class);
 
-            assertEquals(HttpStatus.OK, responseFromZipkin.getStatusCode());
-            assertTrue(responseFromZipkin.getBody().contains("\"proto\""));
+            assertThat(HttpStatus.OK).isEqualTo(responseFromZipkin.getStatusCode());
+            assertThat(responseFromZipkin.getBody()).contains("\"proto\"");
         });
     }
 
