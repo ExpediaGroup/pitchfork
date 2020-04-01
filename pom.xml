@@ -24,7 +24,7 @@
     <amazon-kinesis-producer.version>0.14.0</amazon-kinesis-producer.version>
     <amazon-kinesis-client.version>1.13.2</amazon-kinesis-client.version>
     <rabbitmq-client.version>5.7.1</rabbitmq-client.version>
-    <haystack-idl.version>1.0.65</haystack-idl.version>
+    <haystack-idl.version>1.0.66</haystack-idl.version>
     <zipkin-proto.version>0.2.2</zipkin-proto.version>
     <kafka.version>2.4.0</kafka.version>
     <logback-classic.version>1.2.3</logback-classic.version>
