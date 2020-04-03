@@ -11,7 +11,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <aws-java-sdk.version>1.11.664</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.756</aws-java-sdk.version>
     <zipkin-reporter.version>2.12.1</zipkin-reporter.version>
     <spring-boot.version>2.2.5.RELEASE</spring-boot.version>
     <spring-test.version>5.2.3.RELEASE</spring-test.version>
@@ -352,7 +352,7 @@
       <plugin>
         <groupId>com.github.os72</groupId>
         <artifactId>protoc-jar-maven-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.11.4</version>
         <executions>
           <execution>
             <id>generate-proto-sources</id>
