@@ -72,7 +72,7 @@ Kinesis output is disabled by default. You can enable and configure it using the
 | PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_CLIENT_ENDPOINT_SIGNING_REGION_NAME | us-west-1                               | Used when kinesis client config-type is ENDPOINT. The region to use for signing of requests                                 |
 | PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTH_CONFIG_TYPE                    | DEFAULT                                 | Authentication method to use. Possible values are DEFAULT or BASIC                                                          |
 | PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTH_BASIC_AWS_ACCESS_KEY           | accesskey                               | Used when authentication-type is BASIC. The AWS access key                                                                  |
-| PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTH_basic_AWS_SECRET_KEY           | secretkey                               | Used when authentication-type is BASIC. The AWS secret access key                                                           |
+| PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTH_BASIC_AWS_SECRET_KEY           | secretkey                               | Used when authentication-type is BASIC. The AWS secret access key                                                           |
 
 ### Zipkin HTTP
 
