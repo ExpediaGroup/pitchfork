@@ -23,12 +23,12 @@ You can find more detailed documentation at [expediagroup.github.io/pitchfork](h
 
 #### Build
 
-To build Pitchfork you need to have Java 13+ and Docker installed. Maven is optional as you can use the Maven Wrapper. 
+To build Pitchfork you need to have Java 14+ and Docker installed. Maven is optional as you can use the Maven Wrapper.
 
 To compile and run unit tests (Linux or Mac):
 
     ./mvnw clean verify
-    
+
 or (Windows):
 
     ./mvnw.cmd clean verify
@@ -36,7 +36,7 @@ or (Windows):
 To package:
 
     ./mvnw clean install
-    
+
 To build a Docker image named `expediagroup/pitchfork`:
 
     docker build -t expediagroup/pitchfork .
@@ -46,16 +46,16 @@ Alternatively we also provide a makefile that you can use to run the tests or bu
     make test
 
 or
-    
+
     make build
-    
-    
+
+
 #### Running Pitchfork
 
 The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/expediagroup/pitchfork/).
 
     docker run -p 9411:9411 expediagroup/pitchfork:latest
-    
+
 You can override the default properties with environment variables (macro case or screaming upper case), for example:
 
     docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_LOGGING_ENABLED=true expediagroup/pitchfork:latest
@@ -63,7 +63,7 @@ You can override the default properties with environment variables (macro case o
 You can also run it as a normal Java application:
 
     java -jar pitchfork.jar
-    
+
 Or as a Spring Boot application:
 
     mvn spring-boot:run
@@ -85,11 +85,11 @@ Pitchfork can be configured to forward incoming spans to: a Zipkin collector; Ha
                          /                            \
     [ Service B ] ------                               ------> [ Zipkin ]
 
-These different forwarders can be enabled/disabled separately. Please see the application.yml file for a list of the different configurations available for each, or refer to the table above with the list of properties you can configure. 
+These different forwarders can be enabled/disabled separately. Please see the application.yml file for a list of the different configurations available for each, or refer to the table above with the list of properties you can configure.
 
 ## Use Cases
 
-* [Hotels.com](https://www.hotels.com/) - Microservices architecture using stock Zipkin data and libraries ([Spring Cloud Sleuth](https://cloud.spring.io/spring-cloud-sleuth/), [Brave](https://github.com/openzipkin/brave), etc.) that report to Pitchfork which handles the integration with [Haystack](https://github.com/ExpediaDotCom/haystack). 
+* [Hotels.com](https://www.hotels.com/) - Microservices architecture using stock Zipkin data and libraries ([Spring Cloud Sleuth](https://cloud.spring.io/spring-cloud-sleuth/), [Brave](https://github.com/openzipkin/brave), etc.) that report to Pitchfork which handles the integration with [Haystack](https://github.com/ExpediaDotCom/haystack).
 
 ## Contributing
 
