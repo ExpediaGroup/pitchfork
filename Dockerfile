@@ -42,8 +42,7 @@ COPY target/pitchfork.jar $DIRPATH/
 WORKDIR $DIRPATH
 
 # Set timezone (for logs) and run pitchfork
-CMD export TZ=$(date +%Z) &&\
-    exec $JAVA_HOME/bin/java \
+CMD exec $JAVA_HOME/bin/java \
          $JAVA_JVM_ARGS \
          -jar \
          pitchfork.jar
