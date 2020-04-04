@@ -122,9 +122,9 @@ You can also use the following properties to add tag to the metrics and (for uni
 This is useful if you have multiple instances of Pitchfork running and you would want your metrics to look like this: `pitchfork.instance-01.metric-name=123`
 
 ```
-MANAGEMENT_METRICS_MANAGEMENT_METRICS_TAGS_APP=pitchfork
-MANAGEMENT_METRICS_MANAGEMENT_METRICS_TAGS_INSTANCE=instance-01
-MANAGEMENT_METRICS_MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX=APP,INSTANCE
+MANAGEMENT_METRICS_TAGS_APP=pitchfork
+MANAGEMENT_METRICS_TAGS_INSTANCE=instance-01
+MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX=APP,INSTANCE
 ```
 
 ### Validators
