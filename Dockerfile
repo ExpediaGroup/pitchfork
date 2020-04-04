@@ -36,7 +36,6 @@ ENV JAVA_HOME=/opt/jdk-mini
 ARG DIRPATH=/pitchfork
 
 # Create some dirs and copy pitchfork jar
-RUN mkdir -p $DIRPATH
 COPY target/pitchfork.jar $DIRPATH/
 
 WORKDIR $DIRPATH
