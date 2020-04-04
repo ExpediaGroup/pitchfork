@@ -18,12 +18,13 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
 import static java.util.Optional.empty;
 
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.expedia.open.tracing.Log;
 import com.expedia.open.tracing.Span;
 import com.expedia.open.tracing.Tag;
 
@@ -48,12 +49,21 @@ public class HaystackDomainConverter {
         doIfNotNull(zipkin.parentId(), builder::setParentSpanId);
         doIfNotNull(zipkin.localServiceName(), builder::setServiceName);
 
-        if (!isEmpty(zipkin.tags())) {
-            zipkin.tags().forEach((key, value) -> {
-                List<Tag> tagStream = fromZipkinTag(key, value);
-                builder.addAllTags(tagStream);
-            });
-        }
+        List<Tag> tags = zipkin.tags().entrySet().stream()
+                .flatMap(entry -> fromZipkinTag(entry.getKey(), entry.getValue()).stream())
+                .collect(toList());
+        builder.addAllTags(tags);
+
+        var logs = zipkin.annotations().stream()
+                .map(annotation -> Log.newBuilder()
+                        .setTimestamp(annotation.timestamp())
+                        .addFields(Tag.newBuilder()
+                                .setKey("annotation")
+                                .setVStr(annotation.value())
+                                .build())
+                        .build())
+                .collect(toList());
+        builder.addAllLogs(logs);
 
         getTagForKind(zipkin.kind()).ifPresent(builder::addTags);
 
@@ -71,18 +81,18 @@ public class HaystackDomainConverter {
 
         if (kind != null) {
             switch (kind) {
-            case CLIENT:
-                value = "client";
-                break;
-            case SERVER:
-                value = "server";
-                break;
-            case CONSUMER:
-                value = "consumer";
-                break;
-            case PRODUCER:
-                value = "producer";
-                break;
+                case CLIENT:
+                    value = "client";
+                    break;
+                case SERVER:
+                    value = "server";
+                    break;
+                case CONSUMER:
+                    value = "consumer";
+                    break;
+                case PRODUCER:
+                    value = "producer";
+                    break;
             }
 
             return Optional.of(Tag.newBuilder()
@@ -97,32 +107,32 @@ public class HaystackDomainConverter {
 
     private static List<Tag> fromZipkinTag(String key, String value) {
         switch (key) {
-        case "error":
-            // Zipkin error tags are Strings where as in Haystack they're Booleans
-            // Since a Zipkin error tag may contain relevant information about the error we expand it into two tags (error + error message)
-            Tag errorTag = Tag.newBuilder()
-                    .setKey(key)
-                    .setVBool(true)
-                    .setType(Tag.TagType.BOOL)
-                    .build();
+            case "error":
+                // Zipkin error tags are Strings where as in Haystack they're Booleans
+                // Since a Zipkin error tag may contain relevant information about the error we expand it into two tags (error + error message)
+                Tag errorTag = Tag.newBuilder()
+                        .setKey(key)
+                        .setVBool(true)
+                        .setType(Tag.TagType.BOOL)
+                        .build();
 
-            Tag errorMessageTag = Tag.newBuilder()
-                    .setKey("error_msg")
-                    .setVStr(value)
-                    .setType(Tag.TagType.STRING)
-                    .build();
+                Tag errorMessageTag = Tag.newBuilder()
+                        .setKey("error_msg")
+                        .setVStr(value)
+                        .setType(Tag.TagType.STRING)
+                        .build();
 
-            return List.of(errorTag, errorMessageTag);
-        case "datacenter":
-            Tag haystackDcTag = Tag.newBuilder()
-                    .setKey(HAYSTACK_TAG_KEY_FOR_DATACENTER)
-                    .setVStr(value)
-                    .setType(Tag.TagType.STRING)
-                    .build();
+                return List.of(errorTag, errorMessageTag);
+            case "datacenter":
+                Tag haystackDcTag = Tag.newBuilder()
+                        .setKey(HAYSTACK_TAG_KEY_FOR_DATACENTER)
+                        .setVStr(value)
+                        .setType(Tag.TagType.STRING)
+                        .build();
 
-            return List.of(haystackDcTag);
-        default:
-            break;
+                return List.of(haystackDcTag);
+            default:
+                break;
         }
 
         Tag tag = Tag.newBuilder()
