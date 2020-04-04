@@ -1,19 +1,7 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
-import static java.time.Duration.ofSeconds;
-import static java.util.Collections.singletonList;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.util.Optional;
-
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConnectionFactory;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -33,14 +21,22 @@ import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
-
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.ConnectionFactory;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.amqp.RabbitMQSender;
+
+import java.util.Optional;
+
+import static java.time.Duration.ofSeconds;
+import static java.util.Collections.singletonList;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.awaitility.Awaitility.await;
 
 @Testcontainers
 @DirtiesContext
@@ -102,17 +98,17 @@ class RabbitMqIngressTest {
             await().atMost(10, SECONDS).untilAsserted(() -> {
                 ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(1));
 
-                assertFalse(records.isEmpty());
+                assertThat(records).isNotEmpty();
 
                 Optional<com.expedia.open.tracing.Span> span = deserialize(
                         records.iterator().next().value()); // there's only one element so get first
 
-                assertTrue(span.isPresent());
-                assertEquals(span.get().getTraceId(), traceId);
-                assertEquals(span.get().getSpanId(), spanId);
-                assertEquals(span.get().getParentSpanId(), parentId);
-                assertEquals(span.get().getStartTime(), timestamp);
-                assertEquals(span.get().getDuration(), duration);
+                assertThat(span).isPresent();
+                assertThat(span.get().getTraceId()).isEqualTo(traceId);
+                assertThat(span.get().getSpanId()).isEqualTo(spanId);
+                assertThat(span.get().getParentSpanId()).isEqualTo(parentId);
+                assertThat(span.get().getStartTime()).isEqualTo(timestamp);
+                assertThat(span.get().getDuration()).isEqualTo(duration);
             });
         }
     }
