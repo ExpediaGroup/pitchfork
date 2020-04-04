@@ -15,9 +15,7 @@ RUN cd /opt; \
     && tar zxf OpenJDK14U-jdk_x64_linux_hotspot_14_36.tar.gz \
     && rm -f OpenJDK14U-jdk_x64_linux_hotspot_14_36.tar.gz
 
-# Set java home and run jlink to create a minimal java distribution with modules required for Spring Boot
-ENV JAVA_HOME=/opt/jdk-14+36
-ENV PATH="$PATH:$JAVA_HOME/bin"
+ENV PATH="$PATH:/opt/jdk-14+36/bin"
 
 RUN jlink \
      --module-path /opt/java/jmods \
@@ -31,17 +29,13 @@ RUN jlink \
 FROM debian:10.3-slim
 COPY --from=build /opt/jdk-mini /opt/jdk-mini
 
-# Set our java home and other useful envs
-ENV JAVA_HOME=/opt/jdk-mini
-ARG DIRPATH=/pitchfork
-
 # Create some dirs and copy pitchfork jar
-COPY target/pitchfork.jar $DIRPATH/
+COPY target/pitchfork.jar /pitchfork/
 
-WORKDIR $DIRPATH
+WORKDIR /pitchfork
 
 # Set timezone (for logs) and run pitchfork
-CMD exec $JAVA_HOME/bin/java \
+CMD exec /opt/jdk-mini/bin/java \
          $JAVA_JVM_ARGS \
          -jar \
          pitchfork.jar
