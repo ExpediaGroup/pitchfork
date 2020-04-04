@@ -34,8 +34,8 @@ COPY --from=build /opt/jdk-mini /opt/jdk-mini
 
 # Set our java home and other useful envs
 ENV JAVA_HOME=/opt/jdk-mini
-ENV PATH="$PATH:$JAVA_HOME/bin"
-ENV DIRPATH /pitchfork
+ARG PATH="$PATH:$JAVA_HOME/bin"
+ARG DIRPATH=/pitchfork
 
 # Create some dirs and copy pitchfork jar
 RUN mkdir -p $DIRPATH
@@ -44,4 +44,9 @@ COPY target/pitchfork.jar $DIRPATH/
 RUN chmod 755 $DIRPATH/pitchfork.jar
 WORKDIR $DIRPATH
 
-CMD ["/bin/bash", "-c", "$JAVA_HOME/bin/java $JAVA_JVM_ARGS -jar pitchfork.jar"]
+# Set timezone (for logs) and run pitchfork
+CMD export TZ=$(date +%Z) &&\
+    exec $JAVA_HOME/bin/java \
+         $JAVA_JVM_ARGS \
+         -jar \
+         pitchfork.jar
