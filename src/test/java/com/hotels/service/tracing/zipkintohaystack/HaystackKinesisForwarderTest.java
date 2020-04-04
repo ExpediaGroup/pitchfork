@@ -3,6 +3,7 @@ package com.hotels.service.tracing.zipkintohaystack;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
+import com.amazonaws.services.kinesis.model.Record;
 import com.amazonaws.services.kinesis.model.*;
 import com.expedia.open.tracing.Span;
 import org.junit.jupiter.api.BeforeAll;
