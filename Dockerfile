@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ARG JAVA_DOWNLOAD_CHECKSUM=6c06853332585ab58834d9e8a02774b388e6e062ef6c4084b4f058c67f2e81b5
 
-
 # Download java and unpack it
 RUN cd /opt; \
     wget --no-check-certificate https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14%2B36/OpenJDK14U-jdk_x64_linux_hotspot_14_36.tar.gz \
@@ -41,7 +40,6 @@ ARG DIRPATH=/pitchfork
 RUN mkdir -p $DIRPATH
 COPY target/pitchfork.jar $DIRPATH/
 
-RUN chmod 755 $DIRPATH/pitchfork.jar
 WORKDIR $DIRPATH
 
 # Set timezone (for logs) and run pitchfork
