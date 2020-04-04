@@ -1,13 +1,10 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
 import static java.lang.System.currentTimeMillis;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
