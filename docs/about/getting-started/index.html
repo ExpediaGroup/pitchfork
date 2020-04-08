@@ -62,7 +62,7 @@
 <tr><th style="text-align:left">Property name</th><th style="text-align:left">Default value</th><th style="text-align:left">Description</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align:left">server.port</td><td style="text-align:left">9411</td><td style="text-align:left">HTTP port where Pitchfork is listening</td></tr>
+<tr><td style="text-align:left">SERVER_PORT</td><td style="text-align:left">9411</td><td style="text-align:left">HTTP port where Pitchfork is listening</td></tr>
 </tbody>
 </table>
 <h3><a class="anchor" aria-hidden="true" id="kafka"></a><a href="#kafka" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Kafka</h3>
@@ -72,16 +72,16 @@
 <tr><th style="text-align:left">Property name</th><th style="text-align:left">Default value</th><th style="text-align:left">Description</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.enabled</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will read Zipkin spans from the configured Kafka topic</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.bootstrap-servers</td><td style="text-align:left">kafka-service:9092</td><td style="text-align:left">A list of host/port pairs to use for establishing the initial connection to the Kafka cluster</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.number-consumers</td><td style="text-align:left">4</td><td style="text-align:left">The number of consumer threads polling Kafka</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.enable-auto-commit</td><td style="text-align:left">true</td><td style="text-align:left">If true the consumer's offset will be periodically committed in the background</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.auto-commit-internal-ms</td><td style="text-align:left">1000</td><td style="text-align:left">The frequency in milliseconds that the consumer offsets are auto-committed to Kafka</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.poll-duration-ms</td><td style="text-align:left">1000</td><td style="text-align:left">The maximum time to block waiting for new records</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.auto-offset-reset</td><td style="text-align:left">earliest</td><td style="text-align:left">What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Possible values are earliest, latest or none</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.session-timeout-ms</td><td style="text-align:left">60000</td><td style="text-align:left">The timeout used to detect consumer failures when using Kafka's group management facility</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.source-topics</td><td style="text-align:left">zipkin</td><td style="text-align:left">List of Kafka topics to subscribe to</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.kafka.source-format</td><td style="text-align:left">JSON_V2</td><td style="text-align:left">Format/encoding of the spans in the Kafka topic. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_ENABLED</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will read Zipkin spans from the configured Kafka topic</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_BOOTSTRAP_SERVERS</td><td style="text-align:left">kafka-service:9092</td><td style="text-align:left">A list of host/port pairs to use for establishing the initial connection to the Kafka cluster</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_NUMBER_CONSUMERS</td><td style="text-align:left">4</td><td style="text-align:left">The number of consumer threads polling Kafka</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_ENABLE_AUTO_COMMIT</td><td style="text-align:left">true</td><td style="text-align:left">If true the consumer's offset will be periodically committed in the background</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_AUTO_COMMIT_INTERNAL_MS</td><td style="text-align:left">1000</td><td style="text-align:left">The frequency in milliseconds that the consumer offsets are auto-committed to Kafka</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_POLL_DURATION_MS</td><td style="text-align:left">1000</td><td style="text-align:left">The maximum time to block waiting for new records</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_AUTO_OFFSET_RESET</td><td style="text-align:left">earliest</td><td style="text-align:left">What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Possible values are earliest, latest or none</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_SESSION_TIMEOUT_MS</td><td style="text-align:left">60000</td><td style="text-align:left">The timeout used to detect consumer failures when using Kafka's group management facility</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_SOURCE_TOPICS</td><td style="text-align:left">zipkin</td><td style="text-align:left">List of Kafka topics to subscribe to</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_KAFKA_SOURCE_FORMAT</td><td style="text-align:left">JSON_V2</td><td style="text-align:left">Format/encoding of the spans in the Kafka topic. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3</td></tr>
 </tbody>
 </table>
 <p>{: .tablelines}</p>
@@ -92,14 +92,14 @@
 <tr><th style="text-align:left">Property name</th><th style="text-align:left">Default value</th><th style="text-align:left">Description</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align:left">pitchfork.ingress.rabbitmq.enabled</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will read Zipkin spans from the configured RabbitMQ queue</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.rabbitmq.user</td><td style="text-align:left">guest</td><td style="text-align:left">The user name to use when connecting to the broker</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.rabbitmq.password</td><td style="text-align:left">guest</td><td style="text-align:left">The password to use when connecting to the broker</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.rabbitmq.virtual-host</td><td style="text-align:left">/</td><td style="text-align:left">The virtual host to use for connections</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.rabbitmq.host</td><td style="text-align:left">localhost</td><td style="text-align:left">The host for the broker</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.rabbitmq.port</td><td style="text-align:left">5762</td><td style="text-align:left">The port for the broker</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.rabbitmq.queue-name</td><td style="text-align:left">zipkin</td><td style="text-align:left">The name of the queue to read spans from</td></tr>
-<tr><td style="text-align:left">pitchfork.ingress.rabbitmq.source-format</td><td style="text-align:left">JSON_V2</td><td style="text-align:left">Format/encoding of the spans in the RabbitMQ queue. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_RABBITMQ_ENABLED</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will read Zipkin spans from the configured RabbitMQ queue</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_RABBITMQ_USER</td><td style="text-align:left">guest</td><td style="text-align:left">The user name to use when connecting to the broker</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_RABBITMQ_PASSWORD</td><td style="text-align:left">guest</td><td style="text-align:left">The password to use when connecting to the broker</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_RABBITMQ_VIRTUAL_HOST</td><td style="text-align:left">/</td><td style="text-align:left">The virtual host to use for connections</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_RABBITMQ_HOST</td><td style="text-align:left">localhost</td><td style="text-align:left">The host for the broker</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_RABBITMQ_PORT</td><td style="text-align:left">5762</td><td style="text-align:left">The port for the broker</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_RABBITMQ_QUEUE_NAME</td><td style="text-align:left">zipkin</td><td style="text-align:left">The name of the queue to read spans from</td></tr>
+<tr><td style="text-align:left">PITCHFORK_INGRESS_RABBITMQ_SOURCE_FORMAT</td><td style="text-align:left">JSON_V2</td><td style="text-align:left">Format/encoding of the spans in the RabbitMQ queue. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3</td></tr>
 </tbody>
 </table>
 <h2><a class="anchor" aria-hidden="true" id="configuring-different-outputs"></a><a href="#configuring-different-outputs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuring different outputs</h2>
@@ -110,9 +110,9 @@
 <tr><th style="text-align:left">Property name</th><th style="text-align:left">Default value</th><th style="text-align:left">Description</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kafka.enabled</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will forward spans to a Kafka broker</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kafka.bootstrap-servers</td><td style="text-align:left">kafka-service:9092</td><td style="text-align:left">A list of host/port pairs to use for establishing the initial connection to the Kafka cluster</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kafka.topic</td><td style="text-align:left">proto-spans</td><td style="text-align:left">The name of the Kafka topic where the spans will be submitted to</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will forward spans to a Kafka broker</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS</td><td style="text-align:left">kafka-service:9092</td><td style="text-align:left">A list of host/port pairs to use for establishing the initial connection to the Kafka cluster</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_TOPIC</td><td style="text-align:left">proto-spans</td><td style="text-align:left">The name of the Kafka topic where the spans will be submitted to</td></tr>
 </tbody>
 </table>
 <h3><a class="anchor" aria-hidden="true" id="kinesis"></a><a href="#kinesis" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Kinesis</h3>
@@ -122,15 +122,15 @@
 <tr><th style="text-align:left">Property name</th><th style="text-align:left">Default value</th><th style="text-align:left">Description</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.enabled</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will forward spans to a Kinesis stream</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.stream-name</td><td style="text-align:left">proto-spans</td><td style="text-align:left">The name of the Kinesis stream where the spans will be submitted to</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.client.config-type</td><td style="text-align:left">REGION</td><td style="text-align:left">What type of endpoint configuration to use. Possible values are REGION or ENDPOINT</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.client.region.region-name</td><td style="text-align:left">us-west-1</td><td style="text-align:left">Used when the kinesis client config-type is REGION. Region is used to determine the service endpoint and the signing region</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint</td><td style="text-align:left"><a href="https://kinesis.us-west-1.amazonaws.com">https://kinesis.us-west-1.amazonaws.com</a></td><td style="text-align:left">Used when kinesis client config-type is ENDPOINT. The service endpoint (with or without protocol)</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.client.endpoint.signing-region-name</td><td style="text-align:left">us-west-1</td><td style="text-align:left">Used when kinesis client config-type is ENDPOINT. The region to use for signing of requests</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.auth.config-type</td><td style="text-align:left">DEFAULT</td><td style="text-align:left">Authentication method to use. Possible values are DEFAULT or BASIC</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.auth.basic.aws-access-key</td><td style="text-align:left">accesskey</td><td style="text-align:left">Used when authentication-type is BASIC. The AWS access key</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.haystack.kinesis.auth.basic.aws-secret-key</td><td style="text-align:left">secretkey</td><td style="text-align:left">Used when authentication-type is BASIC. The AWS secret access key</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_ENABLED</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will forward spans to a Kinesis stream</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_STREAM_NAME</td><td style="text-align:left">proto-spans</td><td style="text-align:left">The name of the Kinesis stream where the spans will be submitted to</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_CLIENT_CONFIG_TYPE</td><td style="text-align:left">REGION</td><td style="text-align:left">What type of endpoint configuration to use. Possible values are REGION or ENDPOINT</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_CLIENT_REGION_REGION_NAME</td><td style="text-align:left">us-west-1</td><td style="text-align:left">Used when the kinesis client config-type is REGION. Region is used to determine the service endpoint and the signing region</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_CLIENT_ENDPOINT_SERVICE_ENDPOINT</td><td style="text-align:left"><a href="https://kinesis.us-west-1.amazonaws.com">https://kinesis.us-west-1.amazonaws.com</a></td><td style="text-align:left">Used when kinesis client config-type is ENDPOINT. The service endpoint (with or without protocol)</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_CLIENT_ENDPOINT_SIGNING_REGION_NAME</td><td style="text-align:left">us-west-1</td><td style="text-align:left">Used when kinesis client config-type is ENDPOINT. The region to use for signing of requests</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTH_CONFIG_TYPE</td><td style="text-align:left">DEFAULT</td><td style="text-align:left">Authentication method to use. Possible values are DEFAULT or BASIC</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTH_BASIC_AWS_ACCESS_KEY</td><td style="text-align:left">accesskey</td><td style="text-align:left">Used when authentication-type is BASIC. The AWS access key</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_HAYSTACK_KINESIS_AUTH_BASIC_AWS_SECRET_KEY</td><td style="text-align:left">secretkey</td><td style="text-align:left">Used when authentication-type is BASIC. The AWS secret access key</td></tr>
 </tbody>
 </table>
 <h3><a class="anchor" aria-hidden="true" id="zipkin-http"></a><a href="#zipkin-http" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Zipkin HTTP</h3>
@@ -140,45 +140,45 @@
 <tr><th style="text-align:left">Property name</th><th style="text-align:left">Default value</th><th style="text-align:left">Description</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align:left">pitchfork.forwarders.zipkin.http.enabled</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will forward spans to an HTTP Zipkin server</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.zipkin.http.endpoint</td><td style="text-align:left"><a href="http://localhost:9411/api/v2/spans">http://localhost:9411/api/v2/spans</a></td><td style="text-align:left">The POST url for the Zipkin http reporter</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.zipkin.http.max-inflight-requests</td><td style="text-align:left">256</td><td style="text-align:left">Number of max inflight requests</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.zipkin.http.write-timeout-millis</td><td style="text-align:left">10000</td><td style="text-align:left">Write timeout in milliseconds</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.zipkin.http.compression-enabled</td><td style="text-align:left">true</td><td style="text-align:left">Set to true for spans to be gzipped before transport</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.zipkin.http.max-idle-connections</td><td style="text-align:left">50</td><td style="text-align:left">Max idle connections for the Zipkin reporter connection pool</td></tr>
-<tr><td style="text-align:left">pitchfork.forwarders.zipkin.http.ignore-ssl-errors</td><td style="text-align:left">false</td><td style="text-align:left">When true, ignores all SSL errors when connecting to the upstream Zipkin server</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENABLED</td><td style="text-align:left">false</td><td style="text-align:left">If enabled Pitchfork will forward spans to an HTTP Zipkin server</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_ZIPKIN_HTTP_ENDPOINT</td><td style="text-align:left"><a href="http://localhost:9411/api/v2/spans">http://localhost:9411/api/v2/spans</a></td><td style="text-align:left">The POST url for the Zipkin http reporter</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_ZIPKIN_HTTP_MAX_INFLIGHT_REQUESTS</td><td style="text-align:left">256</td><td style="text-align:left">Number of max inflight requests</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_ZIPKIN_HTTP_WRITE_TIMEOUT_MILLIS</td><td style="text-align:left">10000</td><td style="text-align:left">Write timeout in milliseconds</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_ZIPKIN_HTTP_COMPRESSION_ENABLED</td><td style="text-align:left">true</td><td style="text-align:left">Set to true for spans to be gzipped before transport</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_ZIPKIN_HTTP_MAX_IDLE_CONNECTIONS</td><td style="text-align:left">50</td><td style="text-align:left">Max idle connections for the Zipkin reporter connection pool</td></tr>
+<tr><td style="text-align:left">PITCHFORK_FORWARDERS_ZIPKIN_HTTP_IGNORE_SSL_ERRORS</td><td style="text-align:left">false</td><td style="text-align:left">When true, ignores all SSL errors when connecting to the upstream Zipkin server</td></tr>
 </tbody>
 </table>
 <h2><a class="anchor" aria-hidden="true" id="other-options"></a><a href="#other-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Other options</h2>
 <h3><a class="anchor" aria-hidden="true" id="logging"></a><a href="#logging" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Logging</h3>
 <p>It may be useful to enable the logging of spans for troubleshooting.</p>
 <p>To enable the logging of just the trace id:</p>
-<pre><code class="hljs css language-yaml"><span class="hljs-string">pitchfork.forwarders.logging.enabled=true</span>
+<pre><code class="hljs"><span class="hljs-attr">PITCHFORK_FORWARDERS_LOGGING_ENABLED</span>=<span class="hljs-literal">true</span>
 </code></pre>
 <p>To enable the logging of the entire span received:</p>
-<pre><code class="hljs css language-yaml"><span class="hljs-string">pitchfork.forwarders.logging.enabled=true</span>
-<span class="hljs-string">pitchfork.forwarders.logging.log-full-span=true</span>
+<pre><code class="hljs"><span class="hljs-attr">PITCHFORK_FORWARDERS_LOGGING_ENABLED</span>=<span class="hljs-literal">true</span>
+<span class="hljs-attr">PITCHFORK_FORWARDERS_LOGGING_LOG_FULL_SPAN</span>=<span class="hljs-literal">true</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="metrics"></a><a href="#metrics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Metrics</h3>
 <p>By default Pitchfork exposes both a /metrics and a /prometheus endpoint (see section <a href="#Endpoints">Endpoints</a>)
 You can also report data to a Graphite collector by configuring the host and port:</p>
-<pre><code class="hljs">management<span class="hljs-selector-class">.metrics</span><span class="hljs-selector-class">.export</span><span class="hljs-selector-class">.graphite</span>.enabled=true
-management<span class="hljs-selector-class">.metrics</span><span class="hljs-selector-class">.export</span><span class="hljs-selector-class">.graphite</span>.host=graphite<span class="hljs-selector-class">.example</span><span class="hljs-selector-class">.com</span>
-management<span class="hljs-selector-class">.metrics</span><span class="hljs-selector-class">.export</span><span class="hljs-selector-class">.graphite</span>.port=<span class="hljs-number">9004</span>
+<pre><code class="hljs"><span class="hljs-attr">MANAGEMENT_METRICS_EXPORT_GRAPHITE_ENABLED</span>=<span class="hljs-literal">true</span>
+<span class="hljs-attr">MANAGEMENT_METRICS_EXPORT_GRAPHITE_HOST</span>=graphite.example.com
+<span class="hljs-attr">MANAGEMENT_METRICS_EXPORT_GRAPHITE_PORT</span>=<span class="hljs-number">9004</span>
 </code></pre>
 <p>You can also use the following properties to add tag to the metrics and (for unidimensional systems like graphite) convert them into prefixes.
 This is useful if you have multiple instances of Pitchfork running and you would want your metrics to look like this: <code>pitchfork.instance-01.metric-name=123</code></p>
-<pre><code class="hljs">management<span class="hljs-selector-class">.metrics</span><span class="hljs-selector-class">.tags</span>.application=pitchfork
-management<span class="hljs-selector-class">.metrics</span><span class="hljs-selector-class">.tags</span>.instance=instance-<span class="hljs-number">01</span>
-management<span class="hljs-selector-class">.metrics</span><span class="hljs-selector-class">.export</span><span class="hljs-selector-class">.graphite</span>.tags-as-prefix=application,instance
+<pre><code class="hljs"><span class="hljs-attr">MANAGEMENT_METRICS_TAGS_APP</span>=pitchfork
+<span class="hljs-attr">MANAGEMENT_METRICS_TAGS_INSTANCE</span>=instance-<span class="hljs-number">01</span>
+<span class="hljs-attr">MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX</span>=APP,INSTANCE
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="validators"></a><a href="#validators" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Validators</h3>
 <p>You can also configure Pitchfork to discard spans with a null timestamp:</p>
-<pre><code class="hljs css language-yaml"><span class="hljs-string">pitchfork.validators.accept-null-timestamps=false</span>
+<pre><code class="hljs"><span class="hljs-attr">PITCHFORK_VALIDATORS_ACCEPT_NULL_TIMESTAMPS</span>=<span class="hljs-literal">false</span>
 </code></pre>
 <p>Or to discard spans if the difference between the timestamp of the span and the timestamp of the server is over x seconds.</p>
 <p>Example for 60 seconds (-1 to disable):</p>
-<pre><code class="hljs css language-yaml"><span class="hljs-string">max-timestamp-drift-seconds=60</span>
+<pre><code class="hljs"><span class="hljs-attr">MAX_TIMESTAMP_DRIFT_SECONDS</span>=<span class="hljs-number">60</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="endpoints"></a><a href="#endpoints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Endpoints</h3>
 <p>The service exposes the following endpoints that can be used to test the app's health and to retrieve useful info</p>
@@ -193,4 +193,4 @@ management<span class="hljs-selector-class">.metrics</span><span class="hljs-sel
 <tr><td style="text-align:left">/prometheus</td><td style="text-align:left">Endpoint that presents metrics in a format that can be scraped by Prometheus</td></tr>
 </tbody>
 </table>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/pitchfork/docs/about/introduction"><span class="arrow-prev">← </span><span>Introduction</span></a><a class="docs-next button" href="/pitchfork/docs/installation/building"><span>How to Build</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#configuring-different-ingresses">Configuring different ingresses</a><ul class="toc-headings"><li><a href="#http">HTTP</a></li><li><a href="#kafka">Kafka</a></li><li><a href="#rabbitmq">RabbitMQ</a></li></ul></li><li><a href="#configuring-different-outputs">Configuring different outputs</a><ul class="toc-headings"><li><a href="#kafka-1">Kafka</a></li><li><a href="#kinesis">Kinesis</a></li><li><a href="#zipkin-http">Zipkin HTTP</a></li></ul></li><li><a href="#other-options">Other options</a><ul class="toc-headings"><li><a href="#logging">Logging</a></li><li><a href="#metrics">Metrics</a></li><li><a href="#validators">Validators</a></li><li><a href="#endpoints">Endpoints</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/pitchfork/" class="nav-home"><img src="/pitchfork/img/pitchfork_devil.svg" alt="Pitchfork" width="66" height="58"/></a><div><h5>Docs</h5><a href="/pitchfork/docs/about/introduction.html">Introduction</a></div><div><h5>Community</h5><a href="/pitchfork/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/ExpediaGroup/pitchfork">GitHub</a><a class="github-button" href="https://github.com/ExpediaGroup/pitchfork" data-icon="octicon-star" data-count-href="/ExpediaGroup/pitchfork/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://expediagroup.github.io" target="_blank" rel="noreferrer noopener" class="egOpenSource"><img src="/pitchfork/img/expedia_oss_logo.png" alt="Expedia Group Open Source" width="170" height="45" class="center"/></a><section class="copyright">Copyright © 2019 Expedia, Inc.</section></footer></div></body></html>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/pitchfork/docs/about/introduction"><span class="arrow-prev">← </span><span>Introduction</span></a><a class="docs-next button" href="/pitchfork/docs/installation/building"><span>How to Build</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#configuring-different-ingresses">Configuring different ingresses</a><ul class="toc-headings"><li><a href="#http">HTTP</a></li><li><a href="#kafka">Kafka</a></li><li><a href="#rabbitmq">RabbitMQ</a></li></ul></li><li><a href="#configuring-different-outputs">Configuring different outputs</a><ul class="toc-headings"><li><a href="#kafka-1">Kafka</a></li><li><a href="#kinesis">Kinesis</a></li><li><a href="#zipkin-http">Zipkin HTTP</a></li></ul></li><li><a href="#other-options">Other options</a><ul class="toc-headings"><li><a href="#logging">Logging</a></li><li><a href="#metrics">Metrics</a></li><li><a href="#validators">Validators</a></li><li><a href="#endpoints">Endpoints</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/pitchfork/" class="nav-home"><img src="/pitchfork/img/pitchfork_devil.svg" alt="Pitchfork" width="66" height="58"/></a><div><h5>Docs</h5><a href="/pitchfork/docs/about/introduction.html">Introduction</a></div><div><h5>Community</h5><a href="/pitchfork/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/ExpediaGroup/pitchfork">GitHub</a><a class="github-button" href="https://github.com/ExpediaGroup/pitchfork" data-icon="octicon-star" data-count-href="/ExpediaGroup/pitchfork/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://expediagroup.github.io" target="_blank" rel="noreferrer noopener" class="egOpenSource"><img src="/pitchfork/img/expedia_oss_logo.png" alt="Expedia Group Open Source" width="170" height="45" class="center"/></a><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div></body></html>
