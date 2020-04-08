@@ -96,13 +96,13 @@ It may be useful to enable the logging of spans for troubleshooting.
 
 To enable the logging of just the trace id:
 
-```yaml
+```
 PITCHFORK_FORWARDERS_LOGGING_ENABLED=true
 ```
 
 To enable the logging of the entire span received:
 
-```yaml
+```
 PITCHFORK_FORWARDERS_LOGGING_ENABLED=true
 PITCHFORK_FORWARDERS_LOGGING_LOG_FULL_SPAN=true
 ```
@@ -131,7 +131,7 @@ MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX=APP,INSTANCE
 
 You can also configure Pitchfork to discard spans with a null timestamp:
 
-```yaml
+```
 PITCHFORK_VALIDATORS_ACCEPT_NULL_TIMESTAMPS=false
 ```
 
@@ -139,7 +139,7 @@ Or to discard spans if the difference between the timestamp of the span and the 
 
 Example for 60 seconds (-1 to disable):
 
-```yaml
+```
 MAX_TIMESTAMP_DRIFT_SECONDS=60
 ```
 
