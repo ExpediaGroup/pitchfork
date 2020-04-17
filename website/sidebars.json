@@ -1,15 +1,15 @@
 {
   "docs": {
     "About": [
-      "about/introduction",
-      "about/getting-started"
+      "about/introduction"
     ],
-    "Installation": [
-      "installation/building",
-      "installation/running"
-
+    "Running": [
+      "installation/running",
+      "installation/configuration-options",
+      "installation/kubernetes"
     ],
     "Contributing": [
+      "contributing/building",
       "contributing/contributing"
     ]
   }

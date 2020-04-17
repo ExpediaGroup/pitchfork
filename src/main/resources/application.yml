@@ -83,8 +83,18 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,prometheus
       base-path: /
+  endpoint:
+    prometheus.enabled: true
+    info:
+      cache:
+        time-to-live: 5s
+    health:
+      show-details: ALWAYS
+      cache:
+        time-to-live: 5s
+
 info:
   app:
     name: Pitchfork

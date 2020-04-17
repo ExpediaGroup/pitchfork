@@ -1,6 +1,6 @@
 ---
-id: getting-started
-title: Getting Started
+id: configuration-options
+title: Configuration Options
 ---
 
 ## Configuring different ingresses
@@ -29,7 +29,6 @@ Kafka ingress is disabled by default. You can enable and configure it using the 
 | PITCHFORK_INGRESS_KAFKA_SESSION_TIMEOUT_MS      | 60000              | The timeout used to detect consumer failures when using Kafka's group management facility                                                                        |
 | PITCHFORK_INGRESS_KAFKA_SOURCE_TOPICS           | zipkin             | List of Kafka topics to subscribe to                                                                                                                             |
 | PITCHFORK_INGRESS_KAFKA_SOURCE_FORMAT           | JSON_V2            | Format/encoding of the spans in the Kafka topic. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3                                                          |
-{: .tablelines}
 
 ### RabbitMQ
 

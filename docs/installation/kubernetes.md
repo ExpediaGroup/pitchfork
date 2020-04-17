@@ -5,25 +5,26 @@ title: Kubernetes
 
 ## Kubernetes
 
-Bla bla. Explain motivation why we're adding this.
-Most folks are using kube so this may be helpful.
+If you are using Kubernetes you may find the following scripts useful for a new installation of Pitchfork.
 
-Explain what this provides. deployment, hpa and service.
+They consist of a deployment, a service and a horizontal pod autoscaler that you can modify according to your needs.
 
 ```yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pitchfork
   labels:
     app: pitchfork
-    release: pitchfork
 spec:
   strategy:
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
   replicas: 1
+  selector:
+    matchLabels:
+      app: pitchfork
   template:
     metadata:
       labels:
@@ -41,17 +42,21 @@ spec:
           ports:
             - containerPort: 9411
               name: pitchfork
+            - containerPort: 8081
+              name: actuator
           env:
             - name: SERVER_PORT
               value: "9411"
             - name: JAVA_JVM_ARGS
-              value: "-Dspring.jmx.enabled=true -XMaxMemory=80%"
+              value: "-Dspring.jmx.enabled=true -XX:MaxRAMPercentage=80.0"
             - name: PITCHFORK_FORWARDERS_LOGGING_ENABLED
               value: "true"
+            # You can enabled and configure more forwarders here.
             - name: PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED
               value: "true"
             - name: PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS
               value: "kafka-service:9092"
+            # The following properties are use to tag metrics produced by Pitchfork with the app name and with the name of the pod.
             - name: MANAGEMENT_METRICS_TAGS_APP
               value: "pitchfork"
             - name: MANAGEMENT_METRICS_TAGS_INSTANCE
@@ -60,6 +65,9 @@ spec:
                   fieldPath: metadata.name
             - name: MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX
               value: "APP,INSTANCE"
+            # Isolating actuator endpoints. This allows Pitchfork to handle healthchecks even when under immense load.
+            - name: MANAGEMENT_ENDPOINT_SERVER_PORT
+              value: "8081"
           resources:
             requests:
               memory: "1Gi"
@@ -67,10 +75,17 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "1"
+          livenessProbe:
+            httpGet:
+              path: /actuator/info
+              port: 8081
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /health
-              port: 9411
+              path: /actuator/health
+              port: 8081
             initialDelaySeconds: 10
             timeoutSeconds: 1
             periodSeconds: 30
@@ -89,26 +104,23 @@ metadata:
   name: pitchfork
   labels:
     app: pitchfork
-    release: pitchfork
 spec:
   type: ClusterIP
   ports:
-  - port: 9411
-    name: web
-  selector:
-    app: pitchfork
-    release: pitchfork
+    - name: app-port
+      port: 9411
+      protocol: TCP
+      targetPort: 9411
 ```
 
 
 ```yaml
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: pitchfork
   labels:
     app: pitchfork
-    release: pitchfork
 spec:
   scaleTargetRef:
     apiVersion: extensions/v2beta1
@@ -120,5 +132,7 @@ spec:
   - type: Resource
     resource:
       name: cpu
-      targetAverageUtilization: 30
+      target:
+        type: Utilization
+        averageUtilization: 30
 ```
