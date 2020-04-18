@@ -51,7 +51,7 @@ spec:
               value: "-Dspring.jmx.enabled=true -XX:MaxRAMPercentage=80.0"
             - name: PITCHFORK_FORWARDERS_LOGGING_ENABLED
               value: "true"
-            # You can enabled and configure more forwarders here.
+            # You can enable and configure more forwarders here.
             - name: PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED
               value: "true"
             - name: PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS
