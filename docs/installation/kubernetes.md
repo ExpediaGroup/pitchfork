@@ -35,20 +35,27 @@ spec:
         prometheus.io/port: "8081"
         prometheus.io/path: "/actuator/prometheus"
     spec:
-      terminationGracePeriodSeconds: 0
       containers:
+        # Please replace "latest" with the most recent version available at https://hub.docker.com/r/expediagroup/pitchfork/tags
         - name: pitchfork
           image: expediagroup/pitchfork:latest
           ports:
             - containerPort: 9411
-              name: pitchfork
             - containerPort: 8081
-              name: actuator
           env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: SERVER_PORT
               value: "9411"
+            # If you are familiar with the JVM you can tune memory and settings here. If not, these should give you an overall decent experience.
             - name: JAVA_JVM_ARGS
-              value: "-Dspring.jmx.enabled=true -XX:MaxRAMPercentage=80.0"
+              value: "-XX:MaxRAMPercentage=80.0"
+            # If you are not using Kafka or if you do not care about capturing metrics for the Kafka consumers/producers you can disable this option
+            - name: SPRING_JMX_ENABLED
+              value: "true"
+            # You can enabled and configure more forwarders here.
             - name: PITCHFORK_FORWARDERS_LOGGING_ENABLED
               value: "true"
             # You can enable and configure more forwarders here.
@@ -60,13 +67,11 @@ spec:
             - name: MANAGEMENT_METRICS_TAGS_APP
               value: "pitchfork"
             - name: MANAGEMENT_METRICS_TAGS_INSTANCE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+              value: $(POD_NAME)
             - name: MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX
               value: "APP,INSTANCE"
-            # Isolating actuator endpoints. This allows Pitchfork to handle healthchecks even when under immense load.
-            - name: MANAGEMENT_ENDPOINT_SERVER_PORT
+            # Isolating actuator endpoints. This allows Pitchfork to handle healthchecks even when under extremely high load.
+            - name: MANAGEMENT_SERVER_PORT
               value: "8081"
           resources:
             requests:
@@ -77,14 +82,14 @@ spec:
               cpu: "1"
           livenessProbe:
             httpGet:
-              path: /actuator/info
+              path: /info
               port: 8081
             initialDelaySeconds: 10
             timeoutSeconds: 1
             periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /actuator/health
+              path: /health
               port: 8081
             initialDelaySeconds: 10
             timeoutSeconds: 1
