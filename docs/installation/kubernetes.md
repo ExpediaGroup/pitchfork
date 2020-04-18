@@ -38,7 +38,7 @@ spec:
       terminationGracePeriodSeconds: 0
       containers:
         - name: pitchfork
-          image: expediagroup/pitchfork:1.19
+          image: expediagroup/pitchfork:latest
           ports:
             - containerPort: 9411
               name: pitchfork
