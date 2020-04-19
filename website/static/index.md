@@ -20,11 +20,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="refresh" content="0; url=docs/id-of-doc-to-land-on.html">
     <script type="text/javascript">
-      window.location.href = 'docs/introduction.html';
+      window.location.href = 'docs/about/introduction.html';
     </script>
     <title>Pitchfork</title>
 </head>
 <body>
-If you are not redirected automatically, follow this <a href="docs/introduction.html">link</a>.
+If you are not redirected automatically, follow this <a href="docs/about/introduction.html">link</a>.
 </body>
 </html>

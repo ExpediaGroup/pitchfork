@@ -22,13 +22,15 @@ Kafka ingress is disabled by default. You can enable and configure it using the 
 | PITCHFORK_INGRESS_KAFKA_ENABLED                 | false              | If enabled Pitchfork will read Zipkin spans from the configured Kafka topic                                                                                      |
 | PITCHFORK_INGRESS_KAFKA_BOOTSTRAP_SERVERS       | kafka-service:9092 | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster                                                                    |
 | PITCHFORK_INGRESS_KAFKA_NUMBER_CONSUMERS        | 4                  | The number of consumer threads polling Kafka                                                                                                                     |
-| PITCHFORK_INGRESS_KAFKA_ENABLE_AUTO_COMMIT      | true               | If true the consumer's offset will be periodically committed in the background                                                                                   |
-| PITCHFORK_INGRESS_KAFKA_AUTO_COMMIT_INTERNAL_MS | 1000               | The frequency in milliseconds that the consumer offsets are auto-committed to Kafka                                                                              |
 | PITCHFORK_INGRESS_KAFKA_POLL_DURATION_MS        | 1000               | The maximum time to block waiting for new records                                                                                                                |
-| PITCHFORK_INGRESS_KAFKA_AUTO_OFFSET_RESET       | earliest           | What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Possible values are earliest, latest or none |
-| PITCHFORK_INGRESS_KAFKA_SESSION_TIMEOUT_MS      | 60000              | The timeout used to detect consumer failures when using Kafka's group management facility                                                                        |
 | PITCHFORK_INGRESS_KAFKA_SOURCE_TOPICS           | zipkin             | List of Kafka topics to subscribe to                                                                                                                             |
 | PITCHFORK_INGRESS_KAFKA_SOURCE_FORMAT           | JSON_V2            | Format/encoding of the spans in the Kafka topic. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3                                                          |
+
+You can further tune the consumer by overriding other [Kafka consumer properties](https://kafka.apache.org/documentation/#consumerconfigs).
+To do so just use the prefix `PITCHFORK_INGRESS_KAFKA_OVERRIDES` followed by the name (all uppercase snake case) of the property you want to override.
+
+For example, to set `enable.auto.commit=false` simply define a property with the name `PITCHFORK_INGRESS_KAFKA_OVERRIDES_ENABLE_AUTO_COMMIT=false`
+
 
 ### RabbitMQ
 
@@ -56,6 +58,11 @@ Kafka output is disabled by default. You can enable and configure it using the f
 | PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_ENABLED           | false              | If enabled Pitchfork will forward spans to a Kafka broker                                     |
 | PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_BOOTSTRAP_SERVERS | kafka-service:9092 | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster |
 | PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_TOPIC             | proto-spans        | The name of the Kafka topic where the spans will be submitted to                              |
+
+You can further tune the producer by overriding other [Kafka producer properties](https://kafka.apache.org/documentation/#producerconfigs).
+To do so just use the prefix `PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_OVERRIDES` followed by the name (all uppercase snake case) of the property you want to override.
+
+For example, to set `retries=2` simply define a property with the name `PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_OVERRIDES_RETRIES=2`
 
 ### Kinesis
 

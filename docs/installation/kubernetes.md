@@ -9,6 +9,8 @@ If you are using Kubernetes you may find the following scripts useful for a new 
 
 They consist of a deployment, a service and a horizontal pod autoscaler that you can modify according to your needs.
 
+### Deployment
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -101,6 +103,7 @@ spec:
                 command: [ "/bin/sleep", "20"]
 ```
 
+### Service
 
 ```yaml
 apiVersion: v1
@@ -118,6 +121,7 @@ spec:
       targetPort: 9411
 ```
 
+### Horizontal Pod Autoscaler
 
 ```yaml
 apiVersion: autoscaling/v2beta2

@@ -18,10 +18,23 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka.pr
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
+
 @ConfigurationProperties("pitchfork.forwarders.haystack.kafka")
 public class KafkaForwarderConfigProperties {
     private String bootstrapServers;
     private String topic;
+    private Map<String, Object> overrides = emptyMap();
+
+    public Map<String, Object> getOverrides() {
+        return overrides;
+    }
+
+    public void setOverrides(Map<String, Object> overrides) {
+        this.overrides = overrides;
+    }
 
     public String getBootstrapServers() {
         return bootstrapServers;
