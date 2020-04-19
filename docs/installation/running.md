@@ -5,10 +5,10 @@ title: How to Run
 
 ## Run the Docker image
 
-The preferred way to run Pitchfork is via [Docker](https://hub.docker.com/r/expediagroup/pitchfork/).
+The preferred way to run Pitchfork is with [Docker](https://hub.docker.com/r/expediagroup/pitchfork/).
 
     docker run -p 9411:9411 expediagroup/pitchfork:latest
-    
+
 You can override the default properties with environment variables (macro case or screaming upper case), for example:
 
     docker run -p 9411:9411 -e PITCHFORK_FORWARDERS_LOGGING_ENABLED=true expediagroup/pitchfork:latest
@@ -18,7 +18,7 @@ You can override the default properties with environment variables (macro case o
 You can also run it as a normal Java application:
 
     java -jar pitchfork.jar
-    
+
 ## Run as a Spring Boot application
 
 Or as a Spring Boot application:
