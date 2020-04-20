@@ -16,20 +16,19 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties.KafkaIngressConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 import io.micrometer.core.instrument.Counter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zipkin2.codec.SpanBytesDecoder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class KafkaRecordsConsumer {
 
@@ -37,31 +36,34 @@ public class KafkaRecordsConsumer {
 
     private final Fork fork;
     private final SpanValidator spanValidator;
-    private final KafkaIngressConfigProperties config;
+    private final KafkaIngressConfigProperties properties;
     private final MetersProvider metersProvider;
     private final List<KafkaConsumerLoop> consumers = new ArrayList<>();
 
-    public KafkaRecordsConsumer(Fork fork, SpanValidator spanValidator, KafkaIngressConfigProperties config, MetersProvider metersProvider) {
+    public KafkaRecordsConsumer(Fork fork,
+                                SpanValidator spanValidator,
+                                KafkaIngressConfigProperties properties,
+                                MetersProvider metersProvider) {
         this.fork = fork;
         this.spanValidator = spanValidator;
         this.metersProvider = metersProvider;
-        this.config = config;
+        this.properties = properties;
     }
 
     public void initialize() {
         logger.info("operation=initialize");
 
-        String sourceFormat = config.getSourceFormat();
+        String sourceFormat = properties.getSourceFormat();
         SpanBytesDecoder decoder = SpanBytesDecoder.valueOf(sourceFormat);
         Counter spansCounter = metersProvider.getSpansCounter("tcp", "kafka");
 
-        int numberOfConsumers = config.getNumberConsumers();
+        int numberOfConsumers = properties.getNumberConsumers();
 
         ExecutorService executor = Executors.newFixedThreadPool(numberOfConsumers);
 
         for (int i = 0; i < numberOfConsumers; i++) {
             KafkaConsumerLoop consumer = new KafkaConsumerLoop(
-                    config,
+                    properties,
                     fork,
                     spanValidator,
                     decoder,

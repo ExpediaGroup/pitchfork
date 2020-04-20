@@ -16,9 +16,12 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties;
 
-import java.util.List;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
 
 @ConfigurationProperties("pitchfork.ingress.kafka")
 public class KafkaIngressConfigProperties {
@@ -27,12 +30,17 @@ public class KafkaIngressConfigProperties {
     private String bootstrapServers;
     private String sourceFormat;
     private String haystackTopic;
-    private int autoCommitIntervalMs;
-    private boolean enableAutoCommit;
-    private int sessionTimeoutMs;
-    private String autoOffsetReset;
     private int pollDurationMs;
     private int numberConsumers;
+    private Map<String, Object> overrides = emptyMap();
+
+    public Map<String, Object> getOverrides() {
+        return overrides;
+    }
+
+    public void setOverrides(Map<String, Object> overrides) {
+        this.overrides = overrides;
+    }
 
     public boolean isEnabled() {
         return enabled;
@@ -48,14 +56,6 @@ public class KafkaIngressConfigProperties {
 
     public int getNumberConsumers() {
         return numberConsumers;
-    }
-
-    public int getAutoCommitIntervalMs() {
-        return autoCommitIntervalMs;
-    }
-
-    public void setAutoCommitIntervalMs(int autoCommitIntervalMs) {
-        this.autoCommitIntervalMs = autoCommitIntervalMs;
     }
 
     public List<String> getSourceTopics() {
@@ -88,30 +88,6 @@ public class KafkaIngressConfigProperties {
 
     public void setBootstrapServers(String bootstrapServers) {
         this.bootstrapServers = bootstrapServers;
-    }
-
-    public boolean isEnableAutoCommit() {
-        return enableAutoCommit;
-    }
-
-    public void setEnableAutoCommit(boolean enableAutoCommit) {
-        this.enableAutoCommit = enableAutoCommit;
-    }
-
-    public int getSessionTimeoutMs() {
-        return sessionTimeoutMs;
-    }
-
-    public void setSessionTimeoutMs(int sessionTimeoutMs) {
-        this.sessionTimeoutMs = sessionTimeoutMs;
-    }
-
-    public String getAutoOffsetReset() {
-        return autoOffsetReset;
-    }
-
-    public void setAutoOffsetReset(String autoOffsetReset) {
-        this.autoOffsetReset = autoOffsetReset;
     }
 
     public int getPollDurationMs() {
