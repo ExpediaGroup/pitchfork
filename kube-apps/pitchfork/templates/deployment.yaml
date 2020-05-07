@@ -51,6 +51,8 @@ spec:
             periodSeconds: {{ .Values.service.readinessProbe.periodSeconds }}
           lifecycle:
             {{- toYaml .Values.service.lifecycle | nindent 12 }}
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
