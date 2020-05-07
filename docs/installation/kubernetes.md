@@ -145,3 +145,7 @@ spec:
         type: Utilization
         averageUtilization: 30
 ```
+
+### Helm charts
+
+We have helm charts which will help you get up and running quickly. You can access them under ```kube-apps``` folder.

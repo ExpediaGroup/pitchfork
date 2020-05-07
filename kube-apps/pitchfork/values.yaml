@@ -1,0 +1,90 @@
+replicaCount: 1
+
+image:
+  repository: expediagroup/pitchfork
+  pullPolicy: Always
+  tag: "1.21"
+
+imagePullSecrets: []
+nameOverride: "pitchfork"
+fullnameOverride: "pitchfork"
+labels:
+  - app: pitchfork
+  - release: pitchfork
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8081"
+  prometheus.io/path: "/actuator/prometheus"
+
+ingress:
+  enabled : false
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  name: app-port
+  type: ClusterIP
+  port: 9411
+  healthCheckPort: 8081
+  env:
+    - name: SERVER_PORT
+      value: "9411"
+    # If you are familiar with the JVM you can tune memory and settings here. If not, these should give you an overall decent experience.
+    - name: JAVA_JVM_ARGS
+      value: "-XX:MaxRAMPercentage=80.0"
+    # If you are not using Kafka or if you do not care about capturing metrics for the Kafka consumers/producers you can disable this option
+    - name: SPRING_JMX_ENABLED
+      value: "true"
+    # You can enabled and configure more forwarders here.
+    - name: PITCHFORK_FORWARDERS_LOGGING_ENABLED
+      value: "true"
+    # The following properties are use to tag metrics produced by Pitchfork with the app name and with the name of the pod.
+    - name: MANAGEMENT_METRICS_TAGS_APP
+      value: "pitchfork"
+    - name: MANAGEMENT_METRICS_TAGS_INSTANCE
+      value: $(POD_NAME)
+    - name: MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX
+      value: "app,instance"
+    # Isolating actuator endpoints. This allows Pitchfork to handle healthchecks even when under extremely high load.
+    - name: MANAGEMENT_SERVER_PORT
+      value: "8081"
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 1
+      memory: 1Gi
+  livenessProbe:
+    httpGet:
+      path: /info
+    initialDelaySeconds: 10
+    timeoutSeconds: 1
+    periodSeconds: 30
+  readinessProbe:
+    httpGet:
+      path: /health
+    initialDelaySeconds: 10
+    timeoutSeconds: 1
+    periodSeconds: 30
+  lifecycle:
+    preStop:
+      exec:
+        command: [ "/bin/sleep", "20"]
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 30
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+serviceAccount:
+  create: false
