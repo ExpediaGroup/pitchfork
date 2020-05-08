@@ -106,7 +106,5 @@ info:
     readme: https://expediagroup.github.io/pitchfork/
 
 spring:
-#  codec:
-#    max-in-memory-size: 10MB
   application:
     name: pitchfork
