@@ -75,7 +75,7 @@ public class KafkaConsumerLoop implements Runnable {
         this.kafkaConsumer = kafkaConsumer(kafkaBrokers, properties.getOverrides());
     }
 
-    private KafkaConsumer<String, byte[]> kafkaConsumer(String kafkaBrokers, Map<String, Object> propertiesOverrides) {
+    private KafkaConsumer<String, byte[]> kafkaConsumer(String kafkaBrokers, Map<String, String> propertiesOverrides) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "pitchfork");

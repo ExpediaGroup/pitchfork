@@ -32,13 +32,13 @@ public class KafkaIngressConfigProperties {
     private String haystackTopic;
     private int pollDurationMs;
     private int numberConsumers;
-    private Map<String, Object> overrides = emptyMap();
+    private Map<String, String> overrides = emptyMap();
 
-    public Map<String, Object> getOverrides() {
+    public Map<String, String> getOverrides() {
         return overrides;
     }
 
-    public void setOverrides(Map<String, Object> overrides) {
+    public void setOverrides(Map<String, String> overrides) {
         this.overrides = overrides;
     }
 
