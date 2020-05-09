@@ -48,6 +48,6 @@ public class Fork {
     public Flux<Object> processSpan(Span span) {
         return Flux.fromArray(spanForwarders)
                 .flatMap(forwarder -> Mono.fromRunnable(() -> forwarder.process(span))
-                        .subscribeOn(Schedulers.elastic()));
+                        .subscribeOn(Schedulers.boundedElastic()));
     }
 }
