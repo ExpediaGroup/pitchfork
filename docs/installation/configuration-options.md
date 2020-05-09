@@ -27,10 +27,14 @@ Kafka ingress is disabled by default. You can enable and configure it using the 
 | PITCHFORK_INGRESS_KAFKA_SOURCE_FORMAT           | JSON_V2            | Format/encoding of the spans in the Kafka topic. Possible values are JSON_V1, THRIFT, JSON_V2 or PROTO3                                                          |
 
 You can further tune the consumer by overriding other [Kafka consumer properties](https://kafka.apache.org/documentation/#consumerconfigs).
-To do so just use the prefix `PITCHFORK_INGRESS_KAFKA_OVERRIDES` followed by the name (all uppercase snake case) of the property you want to override.
 
-For example, to set `enable.auto.commit=false` simply define a property with the name `PITCHFORK_INGRESS_KAFKA_OVERRIDES_ENABLE_AUTO_COMMIT=false`
+To do this you can prefix the property you want to override with `pitchfork.ingress.kafka.overrides`.
 
+For example, to set `enable.auto.commit: false` you can set a system a property like this `-Dpitchfork.ingress.kafka.overrides.enable.auto.commit=false`
+
+If you are using docker you will need to override this property together with the other JVM args, ie, like this `JAVA_JVM_ARGS=-Dpitchfork.ingress.haystack.kafka.overrides.enable.auto.commit=false`
+
+See the [overriding JVM options with docker](#overriding-jvm-options-with-docker) section for more info.
 
 ### RabbitMQ
 
@@ -60,9 +64,14 @@ Kafka output is disabled by default. You can enable and configure it using the f
 | PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_TOPIC             | proto-spans        | The name of the Kafka topic where the spans will be submitted to                              |
 
 You can further tune the producer by overriding other [Kafka producer properties](https://kafka.apache.org/documentation/#producerconfigs).
-To do so just use the prefix `PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_OVERRIDES` followed by the name (all uppercase snake case) of the property you want to override.
 
-For example, to set `retries=2` simply define a property with the name `PITCHFORK_FORWARDERS_HAYSTACK_KAFKA_OVERRIDES_RETRIES=2`
+To do this you can prefix the property you want to override with `pitchfork.forwarders.haystack.kafka.overrides`.
+
+For example, to set `batch.size: 256000` you can set a system a property like this `-Dpitchfork.forwarders.haystack.kafka.overrides.batch.size=256000`
+
+If you are using docker you will need to override this property together with the other JVM args, ie, like this `JAVA_JVM_ARGS=-Dpitchfork.forwarders.haystack.kafka.overrides.batch.size=256000`
+
+See the [overriding JVM options with docker](#overriding-jvm-options-with-docker) section for more info.
 
 ### Kinesis
 
@@ -130,7 +139,7 @@ This is useful if you have multiple instances of Pitchfork running and you would
 ```
 MANAGEMENT_METRICS_TAGS_APP=pitchfork
 MANAGEMENT_METRICS_TAGS_INSTANCE=instance-01
-MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX=APP,INSTANCE
+MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX=app,instance
 ```
 
 ### Validators
@@ -147,6 +156,14 @@ Example for 60 seconds (-1 to disable):
 
 ```
 MAX_TIMESTAMP_DRIFT_SECONDS=60
+```
+
+## Overriding JVM Options with Docker
+
+To override the JVM options you can use following property `JAVA_JVM_ARGS`. This can be useful if you need to tweak JVM advanced settings.
+
+```
+JAVA_JVM_ARGS=-Xms1500m -Xmx1500m -XX:+UseG1GC ...
 ```
 
 ### Endpoints

@@ -74,8 +74,8 @@ public class ZipkinController {
                 .flatMapIterable(decodeList(decoder))
                 .filter(spanValidator::isSpanValid)
                 .doOnEach(spanSignal -> counter.increment())
-                .flatMap(fork::processSpan)
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))
+                .doOnNext(fork::processSpan)
                 .then(ok().body(BodyInserters.empty()));
     }
 
