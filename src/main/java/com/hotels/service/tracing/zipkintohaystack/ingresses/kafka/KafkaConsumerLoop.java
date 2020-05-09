@@ -28,16 +28,12 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static java.time.Duration.ofMillis;
 
@@ -93,17 +89,13 @@ public class KafkaConsumerLoop implements Runnable {
             while (true) {
                 var records = kafkaConsumer.poll(ofMillis(pollDurationMs));
 
-                if (!records.isEmpty()) {
-                    StreamSupport.stream(records.spliterator(), false)
-                            .flatMap((Function<ConsumerRecord<String, byte[]>, Stream<Span>>) record -> decoder.decodeList(record.value())
-                                    .stream())
+                for (ConsumerRecord<String, byte[]> record : records) {
+                    List<Span> spans = decoder.decodeList(record.value());
+
+                    spans.stream()
                             .filter(validator::isSpanValid)
                             .peek(span -> spansCounter.increment())
-                            .forEach(span -> fork.processSpan(span)
-                                    .doOnError(throwable -> logger.warn("operation=fetchRecordsFromKafka", throwable))
-                                    .onErrorResume(e -> Mono.empty())
-                                    .blockLast());
-                    // TODO: consider replacing with a reactor KafkaReceiver
+                            .forEach(fork::processSpan);
                 }
             }
         } catch (WakeupException exception) {
