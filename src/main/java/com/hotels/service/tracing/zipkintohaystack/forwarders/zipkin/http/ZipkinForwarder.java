@@ -37,7 +37,7 @@ import static java.util.Collections.singletonList;
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format re-encodes it in {@code Zipkin V2} format and pushes it to a {@code Zipkin} server.
  */
 public class ZipkinForwarder implements SpanForwarder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZipkinForwarder.class);
+    private static final Logger logger = LoggerFactory.getLogger(ZipkinForwarder.class);
 
     private final OkHttpSender sender;
     private final Counter successCounter;
@@ -75,14 +75,15 @@ public class ZipkinForwarder implements SpanForwarder {
     }
 
     @Override
-    public void process(zipkin2.Span span) {
+    public void process(zipkin2.Span input) {
+        logger.debug("operation=process, spanId={}", input);
+
         try {
-            LOGGER.debug("operation=process, spanId={}", span);
-            byte[] bytes = SpanBytesEncoder.JSON_V2.encode(span);
-            sender.sendSpans(singletonList(bytes)).enqueue(new ZipkinCallback(span));
+            byte[] bytes = SpanBytesEncoder.JSON_V2.encode(input);
+            sender.sendSpans(singletonList(bytes)).enqueue(new ZipkinCallback(input));
         } catch (Exception e) {
             failureCounter.increment();
-            LOGGER.error("Unable to serialise span with span id {}", span.id());
+            logger.error("Unable to forward span with id {}", input.id());
         }
     }
 
@@ -96,13 +97,13 @@ public class ZipkinForwarder implements SpanForwarder {
         @Override
         public void onSuccess(Void value) {
             successCounter.increment();
-            LOGGER.debug("Successfully wrote span {}", span.id());
+            logger.debug("Successfully wrote span {}", span.id());
         }
 
         @Override
         public void onError(Throwable t) {
             failureCounter.increment();
-            LOGGER.error("Unable to write span {}", span.id(), t);
+            logger.error("Unable to write span {}", span.id(), t);
         }
     }
 }

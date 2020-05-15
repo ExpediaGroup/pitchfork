@@ -56,19 +56,16 @@ public class KinesisForwarderConfig {
         var authenticationType = auth.getConfigType();
 
         switch (authenticationType) {
-            case DEFAULT:
+            case DEFAULT -> {
                 logger.info("Configuring Kinesis auth with default credentials provider");
-
                 credsProvider = DefaultAWSCredentialsProviderChain.getInstance();
-                break;
-            case BASIC:
+            }
+            case BASIC -> {
                 logger.info("Configuring Kinesis auth with basic credentials");
-
                 var awsAccessKey = auth.getBasic().getAwsAccessKey();
                 var awsSecretKey = auth.getBasic().getAwsSecretKey();
-
                 credsProvider = new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
-                break;
+            }
         }
 
         AmazonKinesisClientBuilder clientBuilder = AmazonKinesisClientBuilder.standard()
@@ -77,24 +74,20 @@ public class KinesisForwarderConfig {
         var clientConfiguration = client.getConfigType();
 
         switch (clientConfiguration) {
-            case ENDPOINT:
+            case ENDPOINT -> {
                 var serviceEndpoint = client.getEndpoint().getServiceEndpoint();
                 var signingRegionName = client.getEndpoint().getSigningRegionName();
-
                 logger.info("Configuring Kinesis client with endpoint config. serviceEndpoint={}, signingRegionName={}",
                         serviceEndpoint,
                         signingRegionName);
-
                 var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, signingRegionName);
                 clientBuilder.withEndpointConfiguration(endpointConfiguration);
-                break;
-            case REGION:
+            }
+            case REGION -> {
                 var regionName = client.getRegion().getRegionName();
-
                 logger.info("Configuring Kinesis client with region config. regionName={}", regionName);
-
                 clientBuilder.withRegion(regionName);
-                break;
+            }
         }
 
         return clientBuilder.build();

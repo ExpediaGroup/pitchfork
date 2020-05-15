@@ -16,17 +16,16 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack;
 
-import static java.util.Optional.empty;
-
-import static java.util.stream.Collectors.toList;
+import com.expedia.open.tracing.Log;
+import com.expedia.open.tracing.Span;
+import com.expedia.open.tracing.Tag;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import com.expedia.open.tracing.Log;
-import com.expedia.open.tracing.Span;
-import com.expedia.open.tracing.Tag;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Converter between {@code Zipkin} and {@code Haystack} domains.
@@ -77,23 +76,13 @@ public class HaystackDomainConverter {
     }
 
     private static Optional<Tag> getTagForKind(zipkin2.Span.Kind kind) {
-        String value = null;
-
         if (kind != null) {
-            switch (kind) {
-                case CLIENT:
-                    value = "client";
-                    break;
-                case SERVER:
-                    value = "server";
-                    break;
-                case CONSUMER:
-                    value = "consumer";
-                    break;
-                case PRODUCER:
-                    value = "producer";
-                    break;
-            }
+            String value = switch (kind) {
+                case CLIENT -> "client";
+                case SERVER -> "server";
+                case CONSUMER -> "consumer";
+                case PRODUCER -> "producer";
+            };
 
             return Optional.of(Tag.newBuilder()
                     .setKey("span.kind")

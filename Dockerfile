@@ -34,6 +34,9 @@ COPY target/pitchfork.jar /pitchfork/
 
 WORKDIR /pitchfork
 
+# Default jvm options
+ENV JAVA_JVM_ARGS="-XX:MaxRAMPercentage=80.0"
+
 # Set timezone (for logs) and run pitchfork
 CMD exec /opt/jdk-mini/bin/java \
          $JAVA_JVM_ARGS \
