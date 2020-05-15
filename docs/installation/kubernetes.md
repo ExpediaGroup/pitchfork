@@ -71,7 +71,7 @@ spec:
             - name: MANAGEMENT_METRICS_TAGS_INSTANCE
               value: $(POD_NAME)
             - name: MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX
-              value: "APP,INSTANCE"
+              value: "app,instance"
             # Isolating actuator endpoints. This allows Pitchfork to handle healthchecks even when under extremely high load.
             - name: MANAGEMENT_SERVER_PORT
               value: "8081"

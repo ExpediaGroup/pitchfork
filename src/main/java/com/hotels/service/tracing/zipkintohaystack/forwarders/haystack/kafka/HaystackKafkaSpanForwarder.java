@@ -50,19 +50,24 @@ public class HaystackKafkaSpanForwarder implements SpanForwarder, AutoCloseable 
     public void process(zipkin2.Span input) {
         logger.debug("operation=process, span={}", input);
 
-        Span span = fromZipkinV2(input);
-        byte[] value = span.toByteArray();
+        try {
+            Span span = fromZipkinV2(input);
+            byte[] value = span.toByteArray();
 
-        final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getTraceId(), value);
+            final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, span.getTraceId(), value);
 
-        // FIXME send() should return a future but it's blocking when kafka servers are unavailable
-        producer.send(record, (recordMetadata, error) -> {
-            if (error == null) {
-                successCounter.increment();
-            } else {
-                failureCounter.increment();
-            }
-        });
+            // FIXME send() should return a future but it's blocking when kafka servers are unavailable
+            producer.send(record, (recordMetadata, error) -> {
+                if (error == null) {
+                    successCounter.increment();
+                } else {
+                    failureCounter.increment();
+                }
+            });
+        } catch (Exception e) {
+            failureCounter.increment();
+            logger.error("Unable to forward span with id {}", input.id());
+        }
     }
 
     @Override

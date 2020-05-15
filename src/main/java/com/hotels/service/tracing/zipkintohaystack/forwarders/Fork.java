@@ -16,17 +16,13 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import zipkin2.Span;
+
+import javax.annotation.PostConstruct;
 
 @Component
 public class Fork {
@@ -45,9 +41,9 @@ public class Fork {
         }
     }
 
-    public Flux<Object> processSpan(Span span) {
-        return Flux.fromArray(spanForwarders)
-                .flatMap(forwarder -> Mono.fromRunnable(() -> forwarder.process(span))
-                        .subscribeOn(Schedulers.elastic()));
+    public void processSpan(Span span) {
+        for (SpanForwarder forwarder : spanForwarders) {
+            forwarder.process(span);
+        }
     }
 }
