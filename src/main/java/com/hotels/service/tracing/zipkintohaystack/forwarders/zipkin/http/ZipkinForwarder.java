@@ -103,7 +103,8 @@ public class ZipkinForwarder implements SpanForwarder {
         @Override
         public void onError(Throwable t) {
             failureCounter.increment();
-            logger.error("Unable to write span {}", span.id(), t);
+            logger.debug("Unable to write span {}", span.id(), t);
+            logger.error("Unable to write span {} with error {}", span.id(), t.getMessage());
         }
     }
 }
