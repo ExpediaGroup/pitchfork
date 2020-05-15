@@ -16,21 +16,19 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.ingresses.rabbitmq;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
-import reactor.core.publisher.Mono;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
+
+import java.io.IOException;
+import java.util.List;
 
 public class RabbitMqConsumer extends DefaultConsumer {
 
@@ -63,11 +61,10 @@ public class RabbitMqConsumer extends DefaultConsumer {
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
         List<Span> spans = decoder.decodeList(body);
-        spans.stream().filter(spanValidator::isSpanValid)
-                .forEach(span -> fork.processSpan(span)
-                        .doOnError(throwable -> logger.warn("operation=handleDelivery", throwable))
-                        .onErrorResume(e -> Mono.empty())
-                        .blockLast());
+
+        spans.stream()
+                .filter(spanValidator::isSpanValid)
+                .forEach(fork::processSpan);
 
         if (!autoAck) {
             long deliveryTag = envelope.getDeliveryTag();
