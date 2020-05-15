@@ -12,13 +12,13 @@
     <java.version>14</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <aws-java-sdk.version>1.11.756</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.773</aws-java-sdk.version>
     <zipkin-reporter.version>2.12.1</zipkin-reporter.version>
-    <spring-boot.version>2.2.5.RELEASE</spring-boot.version>
+    <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
     <testcontainers.version>1.14.1</testcontainers.version>
     <jackson.version>2.10.2</jackson.version>
     <amazon-kinesis-producer.version>0.14.0</amazon-kinesis-producer.version>
-    <amazon-kinesis-client.version>1.13.2</amazon-kinesis-client.version>
+    <amazon-kinesis-client.version>1.13.3</amazon-kinesis-client.version>
     <rabbitmq-client.version>5.7.1</rabbitmq-client.version>
     <haystack-idl.version>1.0.66</haystack-idl.version>
     <zipkin-proto.version>0.2.2</zipkin-proto.version>
