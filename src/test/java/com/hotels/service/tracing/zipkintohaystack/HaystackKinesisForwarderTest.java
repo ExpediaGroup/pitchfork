@@ -6,6 +6,7 @@ import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.model.Record;
 import com.amazonaws.services.kinesis.model.*;
 import com.expedia.open.tracing.Span;
+import org.awaitility.core.ConditionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import static com.amazonaws.services.kinesis.model.ShardIteratorType.TRIM_HORIZON;
@@ -42,6 +44,11 @@ class HaystackKinesisForwarderTest {
 
     @Container
     private static final LocalStackContainer kinesisContainer = new LocalStackContainer().withServices(KINESIS);
+    private static final ConditionFactory AWAIT = await()
+            .atMost(Duration.ofSeconds(10))
+            .pollInterval(Duration.ofSeconds(1))
+            .pollDelay(Duration.ofSeconds(1));
+
     private static String KINESIS_SERVICE_ENDPOINT;
     private static AmazonKinesis kinesisClient;
 
@@ -91,6 +98,8 @@ class HaystackKinesisForwarderTest {
         var reporter = setupReporter();
         reporter.report(zipkinSpan);
 
+        AWAIT.untilAsserted(() -> assertThat(streamStatus("proto-spans")).isEqualTo("ACTIVE"));
+
         DescribeStreamResult streamResult = kinesisClient.describeStream("proto-spans");
         GetShardIteratorRequest shardIteratorRequest = new GetShardIteratorRequest()
                 .withShardIteratorType(TRIM_HORIZON)
@@ -101,7 +110,7 @@ class HaystackKinesisForwarderTest {
         GetRecordsRequest getRecordsRequest = new GetRecordsRequest().withShardIterator(shardIterator.getShardIterator());
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
-        await().atMost(10, SECONDS).untilAsserted(() -> {
+        AWAIT.untilAsserted(() -> {
             GetRecordsResult records = kinesisClient.getRecords(getRecordsRequest);
 
             assertThat(records.getRecords()).isNotEmpty();
@@ -117,6 +126,11 @@ class HaystackKinesisForwarderTest {
             assertThat(span.get().getStartTime()).isEqualTo(timestamp);
             assertThat(span.get().getDuration()).isEqualTo(duration);
         });
+    }
+
+    private String streamStatus(String streamName) {
+        DescribeStreamResult streamResult = kinesisClient.describeStream(streamName);
+        return streamResult.getStreamDescription().getStreamStatus();
     }
 
     private static void setKinesisServiceEndpoint() {
