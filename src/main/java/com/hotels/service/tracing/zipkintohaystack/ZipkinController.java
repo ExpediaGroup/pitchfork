@@ -73,7 +73,7 @@ public class ZipkinController {
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
                 .filter(spanValidator::isSpanValid)
-                .doOnEach(spanSignal -> counter.increment())
+                .doOnComplete(counter::increment)
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))
                 .doOnNext(fork::processSpan)
                 .then(ok().body(BodyInserters.empty()));
