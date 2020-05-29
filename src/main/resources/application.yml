@@ -108,3 +108,5 @@ info:
 spring:
   application:
     name: pitchfork
+  codec:
+    max-in-memory-size: 10MB
