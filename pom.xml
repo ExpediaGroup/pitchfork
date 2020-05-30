@@ -15,7 +15,7 @@
     <aws-java-sdk.version>1.11.773</aws-java-sdk.version>
     <zipkin-reporter.version>2.12.1</zipkin-reporter.version>
     <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
-    <testcontainers.version>1.14.2</testcontainers.version>
+    <testcontainers.version>1.14.3</testcontainers.version>
     <jackson.version>2.10.2</jackson.version>
     <amazon-kinesis-producer.version>0.14.0</amazon-kinesis-producer.version>
     <amazon-kinesis-client.version>1.13.3</amazon-kinesis-client.version>
