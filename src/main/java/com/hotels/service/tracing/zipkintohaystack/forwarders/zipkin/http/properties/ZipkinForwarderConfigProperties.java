@@ -26,6 +26,7 @@ public class ZipkinForwarderConfigProperties {
     private boolean compressionEnabled;
     private int maxIdleConnections;
     private boolean ignoreSslErrors;
+    private int queuedMaxSpans;
 
     public String getEndpoint() {
         return endpoint;
@@ -73,5 +74,13 @@ public class ZipkinForwarderConfigProperties {
 
     public void setIgnoreSslErrors(boolean ignoreSslErrors) {
         this.ignoreSslErrors = ignoreSslErrors;
+    }
+
+    public int getQueuedMaxSpans() {
+        return queuedMaxSpans;
+    }
+
+    public void setQueueMaxSpans(int queuedMaxSpans) {
+        this.queuedMaxSpans = queuedMaxSpans;
     }
 }

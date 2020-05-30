@@ -61,6 +61,8 @@ pitchfork:
         compression-enabled: true
         max-idle-connections: 50
         ignore-ssl-errors: false
+        queued-max-spans: 1000
+
 management:
   metrics:
     tags:
