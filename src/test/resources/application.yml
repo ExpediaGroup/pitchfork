@@ -77,3 +77,9 @@ management:
         port: 2004
         tags-as-prefix:
           - "application"
+
+spring:
+  application:
+    name: pitchfork
+  codec:
+    max-in-memory-size: 1MB

@@ -20,6 +20,7 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties.KafkaIngressConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -30,11 +31,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KafkaConsumerSpringConfig {
 
-
     @Bean(initMethod = "initialize", destroyMethod = "shutdown")
     public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator validator,
                                                      KafkaIngressConfigProperties properties,
-                                                     MetersProvider meters) {
-        return new KafkaRecordsConsumer(fork, validator, properties, meters);
+                                                     MetersProvider meters,
+                                                     MeterRegistry meterRegistry) {
+        return new KafkaRecordsConsumer(fork, validator, properties, meters, meterRegistry);
     }
 }
