@@ -80,7 +80,7 @@ public class ZipkinForwarderConfigProperties {
         return queuedMaxSpans;
     }
 
-    public void setQueueMaxSpans(int queuedMaxSpans) {
+    public void setQueuedMaxSpans(int queuedMaxSpans) {
         this.queuedMaxSpans = queuedMaxSpans;
     }
 }

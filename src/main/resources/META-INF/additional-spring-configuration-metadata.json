@@ -194,6 +194,11 @@
       "name": "pitchfork.forwarders.zipkin.http.max-idle-connections",
       "type": "java.lang.Integer",
       "description": "Max idle connections for the Zipkin reporter connection pool."
+    },
+    {
+      "name": "pitchfork.forwarders.zipkin.http.queued-max-spans",
+      "type": "java.lang.Integer",
+      "description": "Maximum backlog of spans reported vs sent."
     }
   ]
 }
