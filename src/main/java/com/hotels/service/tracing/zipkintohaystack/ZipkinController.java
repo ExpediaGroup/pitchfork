@@ -16,12 +16,10 @@
  */
 package com.hotels.service.tracing.zipkintohaystack;
 
-import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
-
-import java.util.Collection;
-import java.util.function.Function;
-
+import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import io.micrometer.core.instrument.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +28,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-
-import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
-import io.micrometer.core.instrument.Counter;
 import reactor.core.publisher.Mono;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
+
+import java.util.Collection;
+import java.util.function.Function;
+
+import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @RestController
 public class ZipkinController {
@@ -73,7 +72,7 @@ public class ZipkinController {
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
                 .filter(spanValidator::isSpanValid)
-                .doOnEach(spanSignal -> counter.increment())
+                .doOnNext(span -> counter.increment())
                 .doOnError(throwable -> logger.warn("operation=addSpans", throwable))
                 .doOnNext(fork::processSpan)
                 .then(ok().body(BodyInserters.empty()));
