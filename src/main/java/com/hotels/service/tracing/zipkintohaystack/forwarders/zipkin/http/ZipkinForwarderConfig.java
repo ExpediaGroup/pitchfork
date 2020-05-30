@@ -38,6 +38,7 @@ public class ZipkinForwarderConfig {
                 properties.getMaxIdleConnections(),
                 properties.isIgnoreSslErrors(),
                 properties.getQueuedMaxSpans(),
+                properties.getEncoding(),
                 metersProvider
         );
     }

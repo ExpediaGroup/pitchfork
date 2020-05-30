@@ -48,13 +48,14 @@ public class ZipkinForwarder implements SpanForwarder {
                            int maxIdleConnections,
                            boolean ignoreSslErrors,
                            int queuedMaxSpans,
+                           Encoding encoding,
                            MetersProvider metersProvider) {
         try {
             OkHttpSender.Builder builder = OkHttpSender.newBuilder()
                     .endpoint(endpoint)
-                    .encoding(Encoding.JSON)
                     .maxRequests(maxInFlightRequests)
                     .writeTimeout(writeTimeoutMillis)
+                    .encoding(encoding)
                     .compressionEnabled(compressionEnabled);
 
             builder.clientBuilder()

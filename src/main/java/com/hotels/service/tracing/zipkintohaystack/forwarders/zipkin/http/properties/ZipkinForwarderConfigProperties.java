@@ -17,6 +17,7 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import zipkin2.codec.Encoding;
 
 @ConfigurationProperties("pitchfork.forwarders.zipkin.http")
 public class ZipkinForwarderConfigProperties {
@@ -27,6 +28,7 @@ public class ZipkinForwarderConfigProperties {
     private int maxIdleConnections;
     private boolean ignoreSslErrors;
     private int queuedMaxSpans;
+    private Encoding encoding;
 
     public String getEndpoint() {
         return endpoint;
@@ -82,5 +84,13 @@ public class ZipkinForwarderConfigProperties {
 
     public void setQueuedMaxSpans(int queuedMaxSpans) {
         this.queuedMaxSpans = queuedMaxSpans;
+    }
+
+    public Encoding getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(Encoding encoding) {
+        this.encoding = encoding;
     }
 }

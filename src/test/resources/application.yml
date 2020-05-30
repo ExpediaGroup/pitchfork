@@ -62,6 +62,7 @@ pitchfork:
         max-idle-connections: 50
         ignore-ssl-errors: false
         queued-max-spans: 1000
+        encoding: JSON
 
 management:
   metrics:
