@@ -54,9 +54,6 @@ spec:
             # If you are familiar with the JVM you can tune memory and settings here. If not, these should give you an overall decent experience.
             - name: JAVA_JVM_ARGS
               value: "-XX:MaxRAMPercentage=80.0"
-            # If you are not using Kafka or if you do not care about capturing metrics for the Kafka consumers/producers you can disable this option
-            - name: SPRING_JMX_ENABLED
-              value: "true"
             # You can enabled and configure more forwarders here.
             - name: PITCHFORK_FORWARDERS_LOGGING_ENABLED
               value: "true"

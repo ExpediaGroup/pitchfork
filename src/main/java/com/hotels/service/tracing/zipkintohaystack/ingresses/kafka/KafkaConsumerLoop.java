@@ -20,6 +20,8 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties.KafkaIngressConfigProperties;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -46,6 +48,7 @@ public class KafkaConsumerLoop implements Runnable {
     private final KafkaIngressConfigProperties properties;
     private final SpanBytesDecoder decoder;
     private final Counter spansCounter;
+    private final MeterRegistry meterRegistry;
     private KafkaConsumer<String, byte[]> kafkaConsumer;
     private List<String> sourceTopics;
     private int pollDurationMs;
@@ -54,12 +57,14 @@ public class KafkaConsumerLoop implements Runnable {
                              Fork fork,
                              SpanValidator validator,
                              SpanBytesDecoder decoder,
-                             Counter spansCounter) {
+                             Counter spansCounter,
+                             MeterRegistry meterRegistry) {
         this.fork = fork;
         this.properties = properties;
         this.validator = validator;
         this.decoder = decoder;
         this.spansCounter = spansCounter;
+        this.meterRegistry = meterRegistry;
     }
 
     public void initialize() {
@@ -69,6 +74,9 @@ public class KafkaConsumerLoop implements Runnable {
         String kafkaBrokers = properties.getBootstrapServers();
 
         this.kafkaConsumer = kafkaConsumer(kafkaBrokers, properties.getOverrides());
+
+        KafkaClientMetrics kafkaClientMetrics = new KafkaClientMetrics(this.kafkaConsumer);
+        kafkaClientMetrics.bindTo(meterRegistry);
     }
 
     private KafkaConsumer<String, byte[]> kafkaConsumer(String kafkaBrokers, Map<String, String> propertiesOverrides) {
