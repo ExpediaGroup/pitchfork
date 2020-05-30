@@ -18,6 +18,8 @@ package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka.properties.KafkaForwarderConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
@@ -38,7 +40,8 @@ public class HaystackForwarderConfig {
 
     @Bean
     public HaystackKafkaSpanForwarder haystackForwarder(KafkaForwarderConfigProperties properties,
-                                                        MetersProvider metersProvider) {
+                                                        MetersProvider metersProvider,
+                                                        MeterRegistry meterRegistry) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getBootstrapServers());
         props.put(ProducerConfig.RETRIES_CONFIG, 2);
@@ -50,6 +53,9 @@ public class HaystackForwarderConfig {
         props.putAll(properties.getOverrides());
 
         KafkaProducer<String, byte[]> kafkaProducer = new KafkaProducer<>(props);
+
+        KafkaClientMetrics kafkaClientMetrics = new KafkaClientMetrics(kafkaProducer);
+        kafkaClientMetrics.bindTo(meterRegistry);
 
         return new HaystackKafkaSpanForwarder(kafkaProducer, properties.getTopic(), metersProvider);
     }
