@@ -9,14 +9,15 @@ pitchfork:
       enabled: false
       number-consumers: 4
       poll-duration-ms: 1000
-      auto-commit-internal-ms: 1000
-      enable-auto-commit: true
-      auto-offset-reset: "earliest"
-      session-timeout-ms: 60000
       bootstrap-servers: kafka-service:9092
       source-topics:
         - zipkin
       source-format: JSON_V2
+      overrides:
+        auto-commit-internal-ms: 1000
+        enable-auto-commit: true
+        auto-offset-reset: "earliest"
+        session-timeout-ms: 60000
     rabbitmq:
       enabled: false
       auto-ack: true
@@ -47,6 +48,7 @@ pitchfork:
         enabled: false
         bootstrap-servers: kafka-service:9092
         topic: proto-spans
+        overrides: {}
     logging:
       enabled: true
       log-full-span: true
@@ -59,6 +61,9 @@ pitchfork:
         compression-enabled: true
         max-idle-connections: 50
         ignore-ssl-errors: false
+        queued-max-spans: 1000
+        encoding: JSON
+
 management:
   metrics:
     tags:
@@ -75,3 +80,9 @@ management:
         port: 2004
         tags-as-prefix:
           - "application"
+
+spring:
+  application:
+    name: pitchfork
+  codec:
+    max-in-memory-size: 1MB

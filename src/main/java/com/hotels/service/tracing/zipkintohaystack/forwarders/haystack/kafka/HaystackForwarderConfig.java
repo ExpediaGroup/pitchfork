@@ -16,11 +16,10 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import java.util.Properties;
-
+import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka.properties.KafkaForwarderConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
@@ -30,7 +29,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka.properties.KafkaForwarderConfigProperties;
+import java.util.Properties;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @EnableConfigurationProperties(KafkaForwarderConfigProperties.class)
 @ConditionalOnProperty(name = "pitchfork.forwarders.haystack.kafka.enabled", havingValue = "true")
@@ -38,7 +39,9 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kafka.pro
 public class HaystackForwarderConfig {
 
     @Bean
-    public HaystackKafkaSpanForwarder haystackForwarder(KafkaForwarderConfigProperties properties, MetersProvider metersProvider) {
+    public HaystackKafkaSpanForwarder haystackForwarder(KafkaForwarderConfigProperties properties,
+                                                        MetersProvider metersProvider,
+                                                        MeterRegistry meterRegistry) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getBootstrapServers());
         props.put(ProducerConfig.RETRIES_CONFIG, 2);
@@ -47,7 +50,12 @@ public class HaystackForwarderConfig {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
 
+        props.putAll(properties.getOverrides());
+
         KafkaProducer<String, byte[]> kafkaProducer = new KafkaProducer<>(props);
+
+        KafkaClientMetrics kafkaClientMetrics = new KafkaClientMetrics(kafkaProducer);
+        kafkaClientMetrics.bindTo(meterRegistry);
 
         return new HaystackKafkaSpanForwarder(kafkaProducer, properties.getTopic(), metersProvider);
     }

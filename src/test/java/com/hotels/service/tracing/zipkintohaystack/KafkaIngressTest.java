@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.awaitility.core.ConditionFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -22,6 +23,7 @@ import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.kafka.KafkaSender;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import static java.time.Duration.ofSeconds;
@@ -41,6 +43,10 @@ class KafkaIngressTest {
 
     @Container
     private static final KafkaContainer kafkaContainer = new KafkaContainer();
+    private static final ConditionFactory AWAIT = await()
+            .atMost(Duration.ofSeconds(10))
+            .pollInterval(Duration.ofSeconds(1))
+            .pollDelay(Duration.ofSeconds(1));
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         public void initialize(ConfigurableApplicationContext context) {
@@ -78,7 +84,7 @@ class KafkaIngressTest {
 
         // proxy is async, and kafka is async too, so we retry our assertions until they are true
         try (KafkaConsumer<String, byte[]> consumer = setupConsumer()) {
-            await().atMost(10, SECONDS).untilAsserted(() -> {
+            AWAIT.untilAsserted(() -> {
                 ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(1));
 
                 assertThat(records).isNotEmpty();

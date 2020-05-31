@@ -16,15 +16,15 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
 import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties.KafkaIngressConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @EnableConfigurationProperties(KafkaIngressConfigProperties.class)
 @ConditionalOnProperty(name = "pitchfork.ingress.kafka.enabled", havingValue = "true")
@@ -32,7 +32,10 @@ import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 public class KafkaConsumerSpringConfig {
 
     @Bean(initMethod = "initialize", destroyMethod = "shutdown")
-    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator validator, KafkaIngressConfigProperties config, MetersProvider meters) {
-        return new KafkaRecordsConsumer(fork, validator, config, meters);
+    public KafkaRecordsConsumer kafkaRecordsConsumer(Fork fork, SpanValidator validator,
+                                                     KafkaIngressConfigProperties properties,
+                                                     MetersProvider meters,
+                                                     MeterRegistry meterRegistry) {
+        return new KafkaRecordsConsumer(fork, validator, properties, meters, meterRegistry);
     }
 }
