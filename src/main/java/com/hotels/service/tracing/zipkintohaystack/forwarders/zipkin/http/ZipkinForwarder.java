@@ -22,8 +22,10 @@ import io.micrometer.core.instrument.Counter;
 import okhttp3.ConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zipkin2.Callback;
-import zipkin2.codec.SpanBytesEncoder;
+import zipkin2.Span;
+import zipkin2.codec.Encoding;
+import zipkin2.reporter.AsyncReporter;
+import zipkin2.reporter.Reporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
 import javax.net.ssl.SSLContext;
@@ -31,24 +33,29 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Collections.singletonList;
-
 /**
  * Implementation of a {@link SpanForwarder} that accepts a span in {@code Zipkin} format re-encodes it in {@code Zipkin V2} format and pushes it to a {@code Zipkin} server.
  */
 public class ZipkinForwarder implements SpanForwarder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZipkinForwarder.class);
+    private static final Logger logger = LoggerFactory.getLogger(ZipkinForwarder.class);
 
-    private final OkHttpSender sender;
-    private final Counter successCounter;
-    private final Counter failureCounter;
+    private final Reporter<Span> spanReporter;
 
-    public ZipkinForwarder(String endpoint, int maxInFlightRequests, int writeTimeoutMillis, boolean compressionEnabled, int maxIdleConnections, boolean ignoreSslErrors, MetersProvider metersProvider) {
+    public ZipkinForwarder(String endpoint,
+                           int maxInFlightRequests,
+                           int writeTimeoutMillis,
+                           boolean compressionEnabled,
+                           int maxIdleConnections,
+                           boolean ignoreSslErrors,
+                           int queuedMaxSpans,
+                           Encoding encoding,
+                           MetersProvider metersProvider) {
         try {
             OkHttpSender.Builder builder = OkHttpSender.newBuilder()
                     .endpoint(endpoint)
                     .maxRequests(maxInFlightRequests)
                     .writeTimeout(writeTimeoutMillis)
+                    .encoding(encoding)
                     .compressionEnabled(compressionEnabled);
 
             builder.clientBuilder()
@@ -66,43 +73,28 @@ public class ZipkinForwarder implements SpanForwarder {
                         .sslSocketFactory(sslContext.getSocketFactory(), trustAllCertsTrustManager)
                         .hostnameVerifier((hostname, session) -> true);
             }
-            this.sender = builder.build();
-            this.successCounter = metersProvider.forwarderCounter("zipkin", true);
-            this.failureCounter = metersProvider.forwarderCounter("zipkin", false);
+            var sender = builder.build();
+
+            var successCounter = metersProvider.forwarderCounter("zipkin", true);
+            var failureCounter = metersProvider.forwarderCounter("zipkin", false);
+
+            this.spanReporter = setupReporter(sender, queuedMaxSpans, successCounter, failureCounter);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void process(zipkin2.Span span) {
-        try {
-            LOGGER.debug("operation=process, spanId={}", span);
-            byte[] bytes = SpanBytesEncoder.JSON_V2.encode(span);
-            sender.sendSpans(singletonList(bytes)).enqueue(new ZipkinCallback(span));
-        } catch (Exception e) {
-            failureCounter.increment();
-            LOGGER.error("Unable to serialise span with span id {}", span.id());
-        }
+    public void process(zipkin2.Span input) {
+        logger.debug("operation=process, spanId={}", input);
+
+        spanReporter.report(input);
     }
 
-    class ZipkinCallback implements Callback<Void> {
-        final zipkin2.Span span;
-
-        ZipkinCallback(zipkin2.Span span) {
-            this.span = span;
-        }
-
-        @Override
-        public void onSuccess(Void value) {
-            successCounter.increment();
-            LOGGER.debug("Successfully wrote span {}", span.id());
-        }
-
-        @Override
-        public void onError(Throwable t) {
-            failureCounter.increment();
-            LOGGER.error("Unable to write span {}", span.id(), t);
-        }
+    private Reporter<Span> setupReporter(OkHttpSender sender, int queuedMaxSpans, Counter successCounter, Counter failureCounter) {
+        return AsyncReporter.builder(sender)
+                .metrics(new ZipkinForwarderMetrics(successCounter, failureCounter))
+                .queuedMaxSpans(queuedMaxSpans)
+                .build();
     }
 }

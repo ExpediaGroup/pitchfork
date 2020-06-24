@@ -21,6 +21,7 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValid
 import com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties.KafkaIngressConfigProperties;
 import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zipkin2.codec.SpanBytesDecoder;
@@ -39,15 +40,18 @@ public class KafkaRecordsConsumer {
     private final KafkaIngressConfigProperties properties;
     private final MetersProvider metersProvider;
     private final List<KafkaConsumerLoop> consumers = new ArrayList<>();
+    private final MeterRegistry meterRegistry;
 
     public KafkaRecordsConsumer(Fork fork,
                                 SpanValidator spanValidator,
                                 KafkaIngressConfigProperties properties,
-                                MetersProvider metersProvider) {
+                                MetersProvider metersProvider,
+                                MeterRegistry meterRegistry) {
         this.fork = fork;
         this.spanValidator = spanValidator;
         this.metersProvider = metersProvider;
         this.properties = properties;
+        this.meterRegistry = meterRegistry;
     }
 
     public void initialize() {
@@ -67,7 +71,8 @@ public class KafkaRecordsConsumer {
                     fork,
                     spanValidator,
                     decoder,
-                    spansCounter);
+                    spansCounter,
+                    meterRegistry);
 
             consumer.initialize();
             consumers.add(consumer);

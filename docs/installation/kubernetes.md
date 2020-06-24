@@ -54,9 +54,6 @@ spec:
             # If you are familiar with the JVM you can tune memory and settings here. If not, these should give you an overall decent experience.
             - name: JAVA_JVM_ARGS
               value: "-XX:MaxRAMPercentage=80.0"
-            # If you are not using Kafka or if you do not care about capturing metrics for the Kafka consumers/producers you can disable this option
-            - name: SPRING_JMX_ENABLED
-              value: "true"
             # You can enabled and configure more forwarders here.
             - name: PITCHFORK_FORWARDERS_LOGGING_ENABLED
               value: "true"
@@ -71,7 +68,7 @@ spec:
             - name: MANAGEMENT_METRICS_TAGS_INSTANCE
               value: $(POD_NAME)
             - name: MANAGEMENT_METRICS_EXPORT_GRAPHITE_TAGS_AS_PREFIX
-              value: "APP,INSTANCE"
+              value: "app,instance"
             # Isolating actuator endpoints. This allows Pitchfork to handle healthchecks even when under extremely high load.
             - name: MANAGEMENT_SERVER_PORT
               value: "8081"

@@ -26,13 +26,13 @@ import static java.util.Collections.emptyMap;
 public class KafkaForwarderConfigProperties {
     private String bootstrapServers;
     private String topic;
-    private Map<String, Object> overrides = emptyMap();
+    private Map<String, String> overrides = emptyMap();
 
-    public Map<String, Object> getOverrides() {
+    public Map<String, String> getOverrides() {
         return overrides;
     }
 
-    public void setOverrides(Map<String, Object> overrides) {
+    public void setOverrides(Map<String, String> overrides) {
         this.overrides = overrides;
     }
 

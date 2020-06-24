@@ -1,5 +1,6 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
+import org.awaitility.core.ConditionFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
+import java.time.Duration;
 import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -43,6 +45,10 @@ class ZipkinForwarderTest {
     private static final GenericContainer zipkinContainer = new GenericContainer("openzipkin/zipkin:2.12")
             .withExposedPorts(9411)
             .waitingFor(new HttpWaitStrategy().forPath("/health"));
+    private static final ConditionFactory AWAIT = await()
+            .atMost(Duration.ofSeconds(10))
+            .pollInterval(Duration.ofSeconds(1))
+            .pollDelay(Duration.ofSeconds(1));
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -80,7 +86,7 @@ class ZipkinForwarderTest {
         reporter.report(zipkinSpan);
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
-        await().atMost(10, SECONDS).untilAsserted(() -> {
+        AWAIT.untilAsserted(() -> {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
@@ -115,7 +121,7 @@ class ZipkinForwarderTest {
         reporter.report(zipkinSpan);
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
-        await().atMost(10, SECONDS).untilAsserted(() -> {
+        AWAIT.untilAsserted(() -> {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
@@ -150,7 +156,7 @@ class ZipkinForwarderTest {
         reporter.report(zipkinSpan);
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
-        await().atMost(10, SECONDS).untilAsserted(() -> {
+        AWAIT.untilAsserted(() -> {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
@@ -190,8 +196,7 @@ class ZipkinForwarderTest {
         assertThat(HttpStatus.OK).isEqualTo(responseFromVictim.getStatusCode()).withFailMessage("Expected a 200 status from pitchfork");
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
-        await().atMost(10, SECONDS).untilAsserted(() -> {
-
+        AWAIT.untilAsserted(() -> {
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate
                     .getForEntity(
@@ -225,7 +230,7 @@ class ZipkinForwarderTest {
         reporter.report(zipkinSpan);
 
         // proxy is async, and zipkin is async too, so we retry our assertions until they are true
-        await().atMost(10, SECONDS).untilAsserted(() -> {
+        AWAIT.untilAsserted(() -> {
 
             // assert that traces were forwarded to zipkin by asking which services it knows about
             ResponseEntity<String> responseFromZipkin = restTemplate

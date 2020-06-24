@@ -61,6 +61,9 @@ pitchfork:
         compression-enabled: true
         max-idle-connections: 50
         ignore-ssl-errors: false
+        queued-max-spans: 1000
+        encoding: JSON
+
 management:
   metrics:
     tags:
@@ -77,3 +80,9 @@ management:
         port: 2004
         tags-as-prefix:
           - "application"
+
+spring:
+  application:
+    name: pitchfork
+  codec:
+    max-in-memory-size: 1MB

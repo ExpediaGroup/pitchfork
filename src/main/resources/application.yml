@@ -50,9 +50,11 @@ pitchfork:
         enabled: false
         bootstrap-servers: kafka-service:9092
         topic: proto-spans
-        overrides: {} # No overrides
+        overrides:
+          batch.size: 256000
+          linger.ms: 500
     logging:
-      enabled: true
+      enabled: false
       log-full-span: false
     zipkin:
       http:
@@ -63,6 +65,8 @@ pitchfork:
         compression-enabled: true
         max-idle-connections: 50
         ignore-ssl-errors: false
+        queued-max-spans: 1000
+        encoding: JSON
 
 management:
   metrics:
@@ -106,3 +110,5 @@ info:
 spring:
   application:
     name: pitchfork
+  codec:
+    max-in-memory-size: 10MB

@@ -23,8 +23,8 @@ public class SpanValidatorTest {
     private static final boolean ACCEPT_NULL_TIMESTAMPS = true;
     private static final boolean REJECT_NULL_TIMESTAMPS = false;
     private static final int MAX_DRIFT_FOR_TIMESTAMPS_DISABLED = -1;
-    private MetersProvider metersProvider = mock(MetersProvider.class);
-    private Counter mockCounter = mock(Counter.class);
+    private final MetersProvider metersProvider = mock(MetersProvider.class);
+    private final Counter mockCounter = mock(Counter.class);
 
     @BeforeEach
     public void setup() {

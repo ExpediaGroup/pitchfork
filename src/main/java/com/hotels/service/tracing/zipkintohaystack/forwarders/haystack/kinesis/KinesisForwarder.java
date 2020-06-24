@@ -52,16 +52,15 @@ public class KinesisForwarder implements SpanForwarder {
     public void process(zipkin2.Span input) {
         logger.debug("operation=process, span={}", input);
 
-        Span span = fromZipkinV2(input);
-
-        byte[] value = span.toByteArray();
-
         try {
+            Span span = fromZipkinV2(input);
+            byte[] value = span.toByteArray();
+
             producer.putRecord(streamName, ByteBuffer.wrap(value), span.getTraceId());
             successCounter.increment();
         } catch (Exception e) {
             failureCounter.increment();
-            logger.error("Failed to send span to kinesis {}", input.id(), e);
+            logger.error("Unable to forward span with id {}", input.id());
         }
     }
 }
