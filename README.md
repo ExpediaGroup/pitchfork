@@ -6,7 +6,7 @@
 [![Release](https://img.shields.io/github/release/expediagroup/pitchfork.svg)](https://img.shields.io/github/release/expediagroup/pitchfork.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub site](https://img.shields.io/badge/GitHub-site-blue.svg)](https://expediagroup.github.io/pitchfork/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/expediagroup/pitchfork.svg)](https://hub.docker.com/r/expediagroup/pitchfork/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/expediagroup/pitchfork.svg?cacheSeconds=86400)](https://hub.docker.com/r/expediagroup/pitchfork/)
 
 # Pitchfork
 
