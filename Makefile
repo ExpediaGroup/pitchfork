@@ -1,7 +1,12 @@
-.PHONY: test build push release
+.PHONY: test package build push release
+
+MAVEN := ./mvnw
 
 test:
-	./mvnw clean verify
+	${MAVEN} clean verify
+
+package:
+	${MAVEN} clean package
 
 build:
 	docker build -t vthakurdocker/pitchfork:latest . -f Dockerfile
@@ -10,4 +15,4 @@ push:
 	docker push vthakurdocker/pitchfork
 
 # build all and release
-release: test build push
+release: package build push
