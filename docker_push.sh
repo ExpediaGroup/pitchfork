@@ -1,3 +1,10 @@
 #!/bin/bash
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-docker push vthakurdocker/pitchfork
+
+DOCKER_ORG=vthakurdocker
+DOCKER_IMAGE_NAME=pitchfork
+
+QUALIFIED_DOCKER_IMAGE_NAME=$DOCKER_ORG/$DOCKER_IMAGE_NAME
+
+docker tag $DOCKER_IMAGE_NAME $QUALIFIED_DOCKER_IMAGE_NAME:latest
+docker push $QUALIFIED_DOCKER_IMAGE_NAME
