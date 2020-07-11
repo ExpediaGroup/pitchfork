@@ -10,7 +10,7 @@ tag:
 	docker tag pitchfork vthakur/pitchfork:latest
 
 push:
-	docker push $QUALIFIED_DOCKER_IMAGE_NAME
+	docker push vthakur/pitchfork
 
 # build all and release
 release: test build tag push
