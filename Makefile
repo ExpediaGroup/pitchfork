@@ -1,16 +1,13 @@
-.PHONY: test build tag push release
+.PHONY: test build push release
 
 test:
 	./mvnw clean verify
 
 build:
-	docker build -t vthakur/pitchfork:latest . -f Dockerfile
-
-tag:
-	docker tag pitchfork vthakur/pitchfork:latest
+	docker build -t vthakurdocker/pitchfork:latest . -f Dockerfile
 
 push:
-	docker push vthakur/pitchfork
+	docker push vthakurdocker/pitchfork
 
 # build all and release
-release: test build tag push
+release: test build push
