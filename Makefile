@@ -4,7 +4,13 @@ test:
 	./mvnw clean verify
 
 build:
-	docker build -t expediagroup/pitchfork:test . -f Dockerfile
+	docker build -t vthakur/pitchfork:latest . -f Dockerfile
+
+tag:
+	docker tag pitchfork vthakur/pitchfork:latest
+
+push:
+	docker push $QUALIFIED_DOCKER_IMAGE_NAME
 
 # build all and release
-release: test build #docker_login docker_tag docker_push
+release: test build tag push
