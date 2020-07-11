@@ -1,26 +1,34 @@
 language: java
 
 jdk:
-  - openjdk14
+- openjdk14
 
 services:
-  - docker
+- docker
 
 env:
   global:
-    - BRANCH=${TRAVIS_BRANCH}
-    - TAG=${TRAVIS_TAG}
-    - SHA=${TRAVIS_COMMIT}
+  - BRANCH=${TRAVIS_BRANCH}
+  - TAG=${TRAVIS_TAG}
+  - SHA=${TRAVIS_COMMIT}
+  - secure: YoO23o+1joNqWltnUeWIoN3GggKPLKYwiaoA1Vd5+Rxe7QN+lgSDC/zdCqwqAMO5n4E2NNUHu3/JT2TDGAonWECbO9WLnKB5OpB8gubpLexBA1vWQ2Mb2quAQKAsMw0c1xwsqbNA2Zqwb1PCkh7diPEkvILcs3TfaEq2kjkx2YNFMG50wPZsiaVd8XOFBv/Lfals4C09T6RJleHiBBliY7mCiPcXW18wnU6Za/zTvkD9bd3h6Z4fN7/xIIj20BGmBcUS7dqF3ySVyZB7nPoqOKk7O9p8jDu/kJioTNq3T7sYBolxaUbkRwNUThUJ1U5+AW2QgobUagA/iy0M9lU0i8jaq7qZwENG01Do4NP2MZZIl1g/jJWtlfjVcuKtlAty1Fw/Ep0MBMprmc8GGb/S/a13A1OgHaT4pokn7xOZG+mXwQmj0jUv5w19oOXMbbdo5dHqub0/8icSSda4Tplg1jS/F6LPrMn72G82cyrm9EecY9oFxqgZn2sc7xRCZv6BZHgeVoF14MCh7A/P6q5/lAKwi89T4cJOdPfd6szJDA7vhTO+VwtkPfWYymUl49lyofrQ/w2X/t5ZK5C+X2f8PILe0mJDO/fSq4ghcwHPas7gvU7lFPpjcQoaNahOvRmVqI0SHqUfsMBJb6hT8MdIBL/Hytain5mnwHitppoLdk8=
 
 cache:
   directories:
-    - $HOME/.m2
+  - "$HOME/.m2"
+
+before_install:
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 script:
-  # build, create docker image
-  # upload to dockerhub only for master(non PR) and tag scenario
-  - if ([ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]) || [ -n "$TRAVIS_TAG" ]; then make release; else make test; fi
+- if ([ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]) || [ -n "$TRAVIS_TAG" ]; then make release; else make test; fi
+
+deploy:
+  provider: script
+  script: bash docker_push
+  on:
+    branch: master
 
 notifications:
   email:
-    - vthakur@expedia.com
+  - vthakur@expedia.com
