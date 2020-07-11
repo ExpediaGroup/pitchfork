@@ -1,0 +1,27 @@
+language: java
+
+jdk:
+  - oraclejdk14
+  - openjdk14
+
+services:
+  - docker
+
+env:
+  global:
+    - BRANCH=${TRAVIS_BRANCH}
+    - TAG=${TRAVIS_TAG}
+    - SHA=${TRAVIS_COMMIT}
+
+cache:
+  directories:
+    - $HOME/.m2
+
+script:
+  # build, create docker image
+  # upload to dockerhub only for master(non PR) and tag scenario
+  - if ([ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]) || [ -n "$TRAVIS_TAG" ]; then make test; else make build; fi
+
+notifications:
+  email:
+    - vthakur@expedia.com
