@@ -23,12 +23,6 @@ before_install:
 script:
 - if ([ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]) || [ -n "$TRAVIS_TAG" ]; then make release; else make test; fi
 
-deploy:
-  provider: script
-  script: bash docker_push
-  on:
-    branch: master
-
 notifications:
   email:
   - vthakur@expedia.com
