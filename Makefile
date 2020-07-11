@@ -9,7 +9,7 @@ package:
 	${MAVEN} clean package
 
 build:
-	docker build -t vthakurdocker/pitchfork:latest . -f Dockerfile
+	docker build -t vthakurdocker/pitchfork:latest -t vthakurdocker/pitchfork:1.24 . -f Dockerfile
 
 push:
 	docker push vthakurdocker/pitchfork
