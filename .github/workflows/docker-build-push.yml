@@ -1,0 +1,30 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish-docker:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - uses: AdoptOpenJDK/install-jdk@v1
+      with:
+        version: '14'
+        architecture: x64
+    - name: Build with Maven
+      run: ./mvnw clean package
+
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v1
+      with:
+        username: vthakurdocker
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: vthakurdocker/pitchfork
+        tags: latest_gh
