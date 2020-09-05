@@ -13,10 +13,15 @@ const users = [
   {
     caption: 'Hotels.com',
 
-    // You will need to prepend the image path with your baseUrl
-    // if it is not '/', like: '/test-site/img/image.jpg'.
     image: 'img/hotels_logo.svg',
     infoLink: 'https://www.hotels.com',
+    pinned: true,
+  },
+  {
+    caption: 'Expedia Group',
+
+    image: 'img/expedia_group_logo.png',
+    infoLink: 'https://www.expediagroup.com/',
     pinned: true,
   },
 ];
