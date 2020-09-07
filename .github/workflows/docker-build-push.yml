@@ -24,8 +24,8 @@ jobs:
       - name: Build and push Docker images on new git tags
         uses: docker/build-push-action@v1
         with:
-          username: egopensource
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           repository: expediagroup/pitchfork
           tag_with_ref: true
           tags: latest
