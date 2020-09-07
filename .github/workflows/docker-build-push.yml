@@ -24,7 +24,7 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v1
       with:
-        username: vthakurdocker
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        repository: vthakurdocker/pitchfork
-        tags: latest_gh
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        repository: expediagroup/pitchfork
+        tags: latest
