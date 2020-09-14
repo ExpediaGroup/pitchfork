@@ -13,7 +13,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <aws-java-sdk.version>1.11.852</aws-java-sdk.version>
-    <zipkin-reporter.version>2.15.0</zipkin-reporter.version>
+    <zipkin-reporter.version>2.15.2</zipkin-reporter.version>
     <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
     <testcontainers.version>1.14.3</testcontainers.version>
     <jackson.version>2.10.2</jackson.version>
