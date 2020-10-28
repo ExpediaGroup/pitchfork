@@ -24,7 +24,7 @@ You can find more detailed documentation at [expediagroup.github.io/pitchfork](h
 
 #### Build
 
-To build Pitchfork you need to have Java 14+ and Docker installed. Maven is optional as you can use the Maven Wrapper.
+To build Pitchfork you need to have Java 15+ and Docker installed. Maven is optional as you can use the Maven Wrapper.
 
 To compile and run unit tests (Linux or Mac):
 
@@ -69,7 +69,7 @@ Or as a Spring Boot application:
 
     mvn spring-boot:run
 
-You can find more info on how to configure Pitchfork in our [documentation](https://expediagroup.github.io/pitchfork/) page.
+You can find more info on how to configure Pitchfork in our [documentation](https://expediagroup.github.io/pitchfork/) page, including how to install it using alternative methods like Helm.
 
 ## Architecture
 
