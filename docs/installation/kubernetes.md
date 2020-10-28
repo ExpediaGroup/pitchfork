@@ -5,11 +5,24 @@ title: Kubernetes
 
 ## Kubernetes
 
-If you are using Kubernetes you may find the following scripts useful for a new installation of Pitchfork.
+If you are using Kubernetes you have two options to install Pitchfork: with Helm, or by manually creating all of the individual Kubernetes resources.
 
-They consist of a deployment, a service and a horizontal pod autoscaler that you can modify according to your needs.
+### Helm
 
-### Deployment
+To install Pitchfork with Helm you need to add a new repository for Expedia Group and then you can simply run a helm install.
+
+```bash
+helm repo add expediagroup http://expediagroup.github.io/helm-charts/repo
+helm install pitchfork expediagroup/pitchfork
+```
+
+If you need to override the default options you can find the available settings [here](https://github.com/ExpediaGroup/helm-charts/blob/master/charts/pitchfork/values.yaml).
+
+### Individual resources
+
+To install the individual Pitchfork resources you can use the following scripts.
+
+#### Deployment
 
 ```yaml
 apiVersion: apps/v1
@@ -100,7 +113,7 @@ spec:
                 command: [ "/bin/sleep", "20"]
 ```
 
-### Service
+#### Service
 
 ```yaml
 apiVersion: v1
@@ -118,7 +131,7 @@ spec:
       targetPort: 9411
 ```
 
-### Horizontal Pod Autoscaler
+#### Horizontal Pod Autoscaler
 
 ```yaml
 apiVersion: autoscaling/v2beta2
