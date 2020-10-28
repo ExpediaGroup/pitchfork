@@ -25,4 +25,4 @@ Or as a Spring Boot application:
 
     mvn spring-boot:run
 
-You can find more info on how to configure Pitchfork in our [documentation](https://expediagroup.github.io/pitchfork/) page.
+You can find more info on how to configure Pitchfork in our [documentation](https://expediagroup.github.io/pitchfork/) page, including how to install it using alternative methods like Helm.
