@@ -3,7 +3,7 @@ id: building
 title: How to Build
 ---
 
-To build Pitchfork you need to have Java 14+ and Docker installed. Maven is optional as you can use the Maven Wrapper.
+To build Pitchfork you need to have Java 15+ and Docker installed. Maven is optional as you can use the Maven Wrapper.
 
 ### Using the Maven Wrapper
 
