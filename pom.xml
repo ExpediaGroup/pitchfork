@@ -12,7 +12,7 @@
     <java.version>15</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <aws-java-sdk.version>1.11.860</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.873</aws-java-sdk.version>
     <zipkin-reporter.version>2.15.2</zipkin-reporter.version>
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
     <testcontainers.version>1.14.3</testcontainers.version>
