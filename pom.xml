@@ -324,7 +324,7 @@
           <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>8.0.1</version> <!-- Use newer version of ASM -->
+            <version>9.0</version> <!-- Use newer version of ASM -->
           </dependency>
         </dependencies>
       </plugin>
