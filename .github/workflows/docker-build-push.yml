@@ -16,7 +16,7 @@ jobs:
 
       - uses: AdoptOpenJDK/install-jdk@v1
         with:
-          version: '14'
+          version: '15'
           architecture: x64
       - name: Build with Maven (no tests)
         run: ./mvnw clean package -DskipTests
