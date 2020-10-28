@@ -22,7 +22,7 @@ jobs:
       # We need to run this with Java 14
       - uses: AdoptOpenJDK/install-jdk@v1
         with:
-          version: '14'
+          version: '15'
           architecture: x64
 
       # If this run was triggered by a pull request event, then checkout
