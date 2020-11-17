@@ -16,7 +16,7 @@ You can find more detailed documentation at [expediagroup.github.io/pitchfork](h
 
 ## Overview
 
-[Haystack](https://github.com/ExpediaGroup/haystack) is an [Expedia](https://www.expedia.com/) backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like [Zipkin](https://github.com/openzipkin/zipkin), its primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
+[Haystack](https://github.com/ExpediaDotCom/haystack) is an [Expedia](https://www.expedia.com/) backed project to facilitate detection and remediation of problems with enterprise-level web services and websites. Much like [Zipkin](https://github.com/openzipkin/zipkin), its primary goal is to provide an easy to use UI to analyse distributed tracing data, but it offers other features like trend analysis or adaptive alerting.
 
 [Zipkin](https://github.com/openzipkin/zipkin) is the de facto standard for distributed tracing. We understand that migrating to a new system can be difficult and you may want to go back. Pitchfork can help you with this.
 
