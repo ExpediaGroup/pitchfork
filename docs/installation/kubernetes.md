@@ -16,7 +16,7 @@ helm repo add expediagroup http://expediagroup.github.io/helm-charts/repo
 helm install pitchfork expediagroup/pitchfork
 ```
 
-If you need to override the default options you can find the available settings [here](https://github.com/ExpediaGroup/helm-charts/blob/master/charts/pitchfork/values.yaml).
+If you need to override the default options you can find the available settings [here](https://github.com/ExpediaGroup/helm-charts/blob/main/charts/pitchfork/values.yaml).
 
 ### Individual resources
 
