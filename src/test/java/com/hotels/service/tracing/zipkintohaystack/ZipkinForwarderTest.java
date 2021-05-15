@@ -42,7 +42,7 @@ class ZipkinForwarderTest {
     private int localServerPort;
 
     @Container
-    private static final GenericContainer zipkinContainer = new GenericContainer("openzipkin/zipkin:2.12")
+    private static final GenericContainer zipkinContainer = new GenericContainer("openzipkin/zipkin:2.23")
             .withExposedPorts(9411)
             .waitingFor(new HttpWaitStrategy().forPath("/health"));
     private static final ConditionFactory AWAIT = await()

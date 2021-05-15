@@ -9,14 +9,14 @@
   <version>1.0-SNAPSHOT</version>
 
   <properties>
-    <java.version>15</java.version>
+    <java.version>16</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <aws-java-sdk.version>1.11.940</aws-java-sdk.version>
     <zipkin-reporter.version>2.16.3</zipkin-reporter.version>
     <spring-boot.version>2.4.2</spring-boot.version>
     <testcontainers.version>1.15.1</testcontainers.version>
-    <jackson.version>2.10.2</jackson.version>
+    <jackson.version>2.12.3</jackson.version>
     <amazon-kinesis-producer.version>0.14.3</amazon-kinesis-producer.version>
     <amazon-kinesis-client.version>1.14.0</amazon-kinesis-client.version>
     <rabbitmq-client.version>5.10.0</rabbitmq-client.version>
@@ -50,6 +50,15 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- FIXME: this is just here until spring boot catches up. we need it to serialize java 16 records -->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
       <dependency>
         <!-- Import dependency management from Spring Boot -->
         <groupId>org.springframework.boot</groupId>
@@ -57,6 +66,13 @@
         <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <!-- FIXME: hack for java 16 -->
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.20</version>
       </dependency>
 
       <dependency>

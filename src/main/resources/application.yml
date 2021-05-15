@@ -30,6 +30,8 @@ pitchfork:
       queue-name: zipkin
       source-format: JSON_V2
   forwarders:
+    datadog:
+      enabled: true
     haystack:
       kinesis:
         enabled: false
