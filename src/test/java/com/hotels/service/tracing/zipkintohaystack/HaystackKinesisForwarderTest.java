@@ -6,7 +6,6 @@ import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.model.Record;
 import com.amazonaws.services.kinesis.model.*;
 import com.expedia.open.tracing.Span;
-import org.awaitility.core.ConditionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,16 +23,14 @@ import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
-import java.time.Duration;
 import java.util.Optional;
 
 import static com.amazonaws.services.kinesis.model.ShardIteratorType.TRIM_HORIZON;
+import static com.hotels.service.tracing.zipkintohaystack.TestUtils.AWAIT;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.awaitility.Awaitility.await;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.KINESIS;
 
 @Testcontainers
@@ -44,10 +41,6 @@ class HaystackKinesisForwarderTest {
 
     @Container
     private static final LocalStackContainer kinesisContainer = new LocalStackContainer().withServices(KINESIS);
-    private static final ConditionFactory AWAIT = await()
-            .atMost(Duration.ofSeconds(10))
-            .pollInterval(Duration.ofSeconds(1))
-            .pollDelay(Duration.ofSeconds(1));
 
     private static String KINESIS_SERVICE_ENDPOINT;
     private static AmazonKinesis kinesisClient;
@@ -64,16 +57,31 @@ class HaystackKinesisForwarderTest {
         kinesisClient.createStream("proto-spans", 1);
     }
 
-    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        public void initialize(ConfigurableApplicationContext context) {
-            var values = TestPropertyValues.of(
-                    "pitchfork.forwarders.haystack.kinesis.enabled=true",
-                    "pitchfork.forwarders.haystack.kinesis.auth.config-type=BASIC",
-                    "pitchfork.forwarders.haystack.kinesis.client.config-type=ENDPOINT",
-                    "pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint=" + KINESIS_SERVICE_ENDPOINT
-            );
+    private static void setKinesisServiceEndpoint() {
+        // https://github.com/localstack/localstack/blob/e479afa41df908305c4177276237925accc77e10/localstack/ext/java/src/test/java/cloud/localstack/BasicFunctionalityTest.java#L54
+        System.setProperty("com.amazonaws.sdk.disableCbor", "true");
 
-            values.applyTo(context);
+        var serviceEndpoint = kinesisContainer.getEndpointConfiguration(KINESIS).getServiceEndpoint();
+        var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, "us-west-1");
+
+        KINESIS_SERVICE_ENDPOINT = endpointConfiguration.getServiceEndpoint();
+    }
+
+    private static AmazonKinesis setupKinesisClient() {
+        var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(KINESIS_SERVICE_ENDPOINT, "us-west-1");
+
+        return AmazonKinesisClientBuilder.standard()
+                .withCredentials(kinesisContainer.getDefaultCredentialsProvider())
+                .withEndpointConfiguration(endpointConfiguration)
+                .build();
+    }
+
+    private static Optional<Span> deserialize(byte[] data) {
+        try {
+            return ofNullable(Span.parseFrom(data));
+        } catch (Exception e) {
+            fail("Failed to deserialise span from data");
+            return empty();
         }
     }
 
@@ -133,34 +141,6 @@ class HaystackKinesisForwarderTest {
         return streamResult.getStreamDescription().getStreamStatus();
     }
 
-    private static void setKinesisServiceEndpoint() {
-        // https://github.com/localstack/localstack/blob/e479afa41df908305c4177276237925accc77e10/localstack/ext/java/src/test/java/cloud/localstack/BasicFunctionalityTest.java#L54
-        System.setProperty("com.amazonaws.sdk.disableCbor", "true");
-
-        var serviceEndpoint = kinesisContainer.getEndpointConfiguration(KINESIS).getServiceEndpoint();
-        var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, "us-west-1");
-
-        KINESIS_SERVICE_ENDPOINT = endpointConfiguration.getServiceEndpoint();
-    }
-
-    private static AmazonKinesis setupKinesisClient() {
-        var endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(KINESIS_SERVICE_ENDPOINT, "us-west-1");
-
-        return AmazonKinesisClientBuilder.standard()
-                .withCredentials(kinesisContainer.getDefaultCredentialsProvider())
-                .withEndpointConfiguration(endpointConfiguration)
-                .build();
-    }
-
-    private static Optional<Span> deserialize(byte[] data) {
-        try {
-            return ofNullable(Span.parseFrom(data));
-        } catch (Exception e) {
-            fail("Failed to deserialise span from data");
-            return empty();
-        }
-    }
-
     /**
      * Create reporter.
      */
@@ -170,5 +150,18 @@ class HaystackKinesisForwarderTest {
                 .endpoint("http://localhost:" + localServerPort + "/api/v2/spans")
                 .build();
         return AsyncReporter.create(sender);
+    }
+
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext context) {
+            var values = TestPropertyValues.of(
+                    "pitchfork.forwarders.haystack.kinesis.enabled=true",
+                    "pitchfork.forwarders.haystack.kinesis.auth.config-type=BASIC",
+                    "pitchfork.forwarders.haystack.kinesis.client.config-type=ENDPOINT",
+                    "pitchfork.forwarders.haystack.kinesis.client.endpoint.service-endpoint=" + KINESIS_SERVICE_ENDPOINT
+            );
+
+            values.applyTo(context);
+        }
     }
 }

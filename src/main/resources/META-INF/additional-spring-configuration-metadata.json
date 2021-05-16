@@ -151,6 +151,36 @@
       "description": "Overrides for the kafka forwarder."
     },
     {
+      "name": "pitchfork.forwarders.datadog.enabled",
+      "type": "java.lang.Boolean",
+      "description": "When true, creates a forwarder to Datadog."
+    },
+    {
+      "name": "pitchfork.forwarders.datadog.host",
+      "type": "java.lang.String",
+      "description": "The host for the datadog collector. Defaults to localhost."
+    },
+    {
+      "name": "pitchfork.forwarders.datadog.port",
+      "type": "java.lang.Integer",
+      "description": "The port for the datadog collector. Defaults 8216."
+    },
+    {
+      "name": "pitchfork.forwarders.datadog.connect-timeout-ms",
+      "type": "java.lang.Integer",
+      "description": "The connection timeout in milliseconds for the Datadog reporter. Defaults to 10s."
+    },
+    {
+      "name": "pitchfork.forwarders.datadog.read-timeout-ms",
+      "type": "java.lang.Integer",
+      "description": "The read timeout in milliseconds for the Datadog reporter. Defaults to 10s."
+    },
+    {
+      "name": "pitchfork.forwarders.datadog.max-connections",
+      "type": "java.lang.Integer",
+      "description": "The number of maximum connections for the Datadog reporter. Defaults to 10."
+    },
+    {
       "name": "pitchfork.forwarders.logging.enabled",
       "type": "java.lang.Boolean",
       "description": "When true, creates a forwarder that simply logs incoming spans."

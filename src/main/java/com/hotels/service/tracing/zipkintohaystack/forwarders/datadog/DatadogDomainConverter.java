@@ -16,61 +16,75 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.datadog;
 
-import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogTrace;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.TypeEnum;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogSpan;
+import zipkin2.Annotation;
+import zipkin2.Span;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.emptyMap;
 
 /**
  * Converter between {@code Zipkin} and {@code Datadog} domains.
  */
 public class DatadogDomainConverter {
 
+    public static final Long MILLIS_TO_NANOS = 1_000_000L;
+    private static final Integer ERROR = 1;
+
     /**
-     * Accepts a span in {@code Zipkin V2} format and returns a span in {@code Haystack} format.
+     * Accepts a span in {@code Zipkin V2} format and returns a span in {@code Datadog} format.
      */
-    public static DatadogTrace fromZipkinV2(zipkin2.Span zipkin) {
-        Integer error = null;
-        Map<String, String> meta = null;
-        Map<String, Double> metrics = null;
-        BigInteger parentId = null;//convertId(zipkin.parentId());
+    public static DatadogSpan fromZipkinV2(zipkin2.Span zipkin) {
+        Integer error = isError(zipkin);
+        BigInteger parentId = convertId(zipkin.parentId());
         var spanId = convertId(zipkin.id());
         var traceId = convertId(zipkin.traceId());
 
-        DatadogTrace trace = new DatadogTrace(
-                zipkin.duration(),
+        return new DatadogSpan(
+                toNanos(zipkin.duration()),
                 error,
-                meta,
-                metrics,
+                tags(zipkin.tags(), zipkin.annotations()), // TODO: add 'kind' to tag?
+                emptyMap(),
                 valueOrDefault(zipkin.name(), "span"),
                 parentId,
-                valueOrDefault(zipkin.name(), "span"),
+                valueOrDefault(zipkin.name(), "resource"), // TODO: maybe derive resource from tags? http.method + http.path?
                 zipkin.localServiceName(),
                 spanId,
                 toNanos(zipkin.timestamp()),
                 traceId,
-                null//TypeEnum.custom
+                null // TODO: TypeEnum.web
         );
-        return trace;
+    }
+
+    private static Integer isError(Span zipkin) {
+        return zipkin.tags().containsKey("error") ? ERROR : null;
+    }
+
+    private static Map<String, String> tags(Map<String, String> tags, List<Annotation> annotations) {
+        // TODO: add annotations?
+        return tags;
     }
 
     private static String valueOrDefault(String input, String defaultValue) {
         return input != null ? input : defaultValue;
     }
 
-    private static BigInteger toNanos(Long timestamp) {
-        return BigInteger.valueOf(timestamp).multiply(BigInteger.valueOf(1000000));
+    private static Long toNanos(Long timestamp) {
+        return timestamp != null ? timestamp * MILLIS_TO_NANOS : null;
     }
 
     private static BigInteger convertId(String input) {
         // B3 accepts ids with different sizes (64 or 128 bits).
-        // To keep it simple we just assume they are 64. If they were 128 we would not be able to map them to Datadog
-        // ids anyway.
-        if (input != null) {
-            return new BigInteger(input, 16);
-        } else {
+        // To make this work we truncate larger than 64 bit ones (16 chars).
+        if (input == null) {
             return null;
+        } else if (input.length() > 16) {
+            return new BigInteger(input.substring(16), 16);
+        } else {
+            return new BigInteger(input, 16);
         }
     }
 }

@@ -20,19 +20,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogTrace;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogSpan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 import zipkin2.Span;
 
 import java.util.List;
+import java.util.Optional;
 
+import static org.springframework.web.reactive.function.BodyInserters.fromValue;
+
+/**
+ * Forwarder of spans to an HTTP {@code Datadog} collector.
+ */
 @ConditionalOnProperty(name = "pitchfork.forwarders.datadog.enabled", havingValue = "true")
 @Component
 public class DatadogForwarder implements SpanForwarder {
@@ -50,31 +53,26 @@ public class DatadogForwarder implements SpanForwarder {
     public void process(Span span) {
         logger.info("operation=process, span={}", span);
 
-        DatadogTrace abc = DatadogDomainConverter.fromZipkinV2(span);
-        // list of spans
+        DatadogSpan datadogSpan = DatadogDomainConverter.fromZipkinV2(span);
+        Optional<String> body = getBody(datadogSpan);
 
-        String s = null;
+        body.ifPresent(it -> {
+            datadogClient.put()
+                    .uri("/v0.3/traces")
+                    .body(fromValue(it))
+                    .retrieve()
+                    .toBodilessEntity()
+                    .subscribe(); // FIXME: reactive
+        });
+    }
+
+    private Optional<String> getBody(DatadogSpan datadogSpan) {
         try {
-            s = mapper.writeValueAsString(List.of(List.of(abc)));
+            var body = mapper.writeValueAsString(List.of(List.of(datadogSpan)));
+            return Optional.ofNullable(body);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.error("operation=getBody", e);
+            return Optional.empty();
         }
-
-        var urlBuilder = UriComponentsBuilder
-                .fromUriString("http://localhost:8126")
-//                .fromUriString("http://www.example.com")
-                .path("/v0.3/traces");
-
-
-
-        datadogClient.put()
-                .uri(urlBuilder.build().toUri())
-                .body(BodyInserters.fromValue(s))
-                .retrieve()
-                .bodyToMono(String.class)
-                .subscribe();
-
-
-        System.out.println("sss");
     }
 }

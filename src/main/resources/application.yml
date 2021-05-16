@@ -31,7 +31,12 @@ pitchfork:
       source-format: JSON_V2
   forwarders:
     datadog:
-      enabled: true
+      enabled: false
+      host: localhost
+      port: 8126
+      connect-timeout-ms: 10000
+      read-timeout-ms: 1000
+      max-connections: 10
     haystack:
       kinesis:
         enabled: false

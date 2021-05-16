@@ -1,43 +1,43 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.client;
 
-import io.netty.channel.ChannelOption;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.properties.DatadogForwarderConfigProperties;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.http.HttpHeaders.*;
+import static io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static reactor.netty.resources.ConnectionProvider.DEFAULT_POOL_LEASING_STRATEGY;
 
+@EnableConfigurationProperties(DatadogForwarderConfigProperties.class)
+@ConditionalOnProperty(name = "pitchfork.forwarders.datadog.enabled", havingValue = "true")
 @Configuration
 public class HttpClientSpringConfig {
 
     @Bean("datadogClient")
-    public WebClient createWebClient(WebClient.Builder webClientBuilder) {
-        Integer connectTimeoutMillis = 10000;
-        int readTimeoutMillis = 10000;
+    public WebClient createWebClient(WebClient.Builder webClientBuilder, DatadogForwarderConfigProperties properties) {
         HttpClient httpClient =
-                HttpClient.create(ConnectionProvider.builder(ConnectionProvider.DEFAULT_POOL_LEASING_STRATEGY)
-                        .maxConnections(10).build())
+                HttpClient.create(ConnectionProvider.builder(DEFAULT_POOL_LEASING_STRATEGY)
+                        .maxConnections(properties.getMaxConnections()).build())
                         .tcpConfiguration(client ->
-                                client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMillis)
+                                client.option(CONNECT_TIMEOUT_MILLIS, properties.getConnectTimeoutMs())
                                         .doOnConnected(conn -> conn
-                                                .addHandlerLast(new ReadTimeoutHandler(readTimeoutMillis))));
+                                                .addHandlerLast(new ReadTimeoutHandler(properties.getReadTimeoutMs()))));
 
         ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
 
         return webClientBuilder
                 .clientConnector(connector)
-                //.baseUrl("http://localhost:8126")
-//                .baseUrl("http://www.example.com:80")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .baseUrl("http://" + properties.getHost() + ":" + properties.getPort())
+                .defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .build();
     }
 }

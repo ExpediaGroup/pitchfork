@@ -7,7 +7,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.awaitility.core.ConditionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,17 +27,15 @@ import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.amqp.RabbitMQSender;
 
-import java.time.Duration;
 import java.util.Optional;
 
+import static com.hotels.service.tracing.zipkintohaystack.TestUtils.AWAIT;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.awaitility.Awaitility.await;
 
 @Testcontainers
 @DirtiesContext
@@ -53,28 +50,40 @@ class RabbitMqIngressTest {
             .withExposedPorts(5672)
             .withNetworkAliases("rabbitmq")
             .waitingFor(new HostPortWaitStrategy());
-    private static final ConditionFactory AWAIT = await()
-            .atMost(Duration.ofSeconds(10))
-            .pollInterval(Duration.ofSeconds(1))
-            .pollDelay(Duration.ofSeconds(1));
 
     @BeforeAll
     static void setup() throws Exception {
         setupRabbitMqQueue();
     }
 
-    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        public void initialize(ConfigurableApplicationContext context) {
-            var values = TestPropertyValues.of(
-                    "pitchfork.ingress.rabbitmq.enabled=true",
-                    "pitchfork.ingress.rabbitmq.host=" + rabbitMqContainer.getContainerIpAddress(),
-                    "pitchfork.ingress.rabbitmq.port=" + rabbitMqContainer.getFirstMappedPort(),
-                    "pitchfork.ingress.rabbitmq.queue-name=zipkin",
-                    "pitchfork.ingress.rabbitmq.source-format=PROTO3",
-                    "pitchfork.forwarders.haystack.kafka.enabled=true",
-                    "pitchfork.forwarders.haystack.kafka.bootstrap-servers=" + kafkaContainer.getBootstrapServers()
-            );
-            values.applyTo(context);
+    private static void setupRabbitMqQueue() throws Exception {
+        var channel = getRabbitMqChannel();
+        var exchangeName = "pitchforkExchange";
+        var routingKey = "pitchforkExchange";
+        channel.exchangeDeclare(exchangeName, "direct", true);
+        channel.queueDeclare("zipkin", true, false, true, null);
+        channel.queueBind("zipkin", exchangeName, routingKey);
+    }
+
+    private static Channel getRabbitMqChannel() throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setUsername("guest");
+        factory.setPassword("guest");
+        factory.setVirtualHost("/");
+        factory.setHost(rabbitMqContainer.getContainerIpAddress());
+        factory.setPort(rabbitMqContainer.getFirstMappedPort());
+
+        var connection = factory.newConnection();
+
+        return connection.createChannel();
+    }
+
+    private static Optional<com.expedia.open.tracing.Span> deserialize(byte[] data) {
+        try {
+            return ofNullable(com.expedia.open.tracing.Span.parseFrom(data));
+        } catch (Exception e) {
+            fail("Failed to deserialise span from data");
+            return empty();
         }
     }
 
@@ -134,37 +143,6 @@ class RabbitMqIngressTest {
         return AsyncReporter.create(sender);
     }
 
-    private static void setupRabbitMqQueue() throws Exception {
-        var channel = getRabbitMqChannel();
-        var exchangeName = "pitchforkExchange";
-        var routingKey = "pitchforkExchange";
-        channel.exchangeDeclare(exchangeName, "direct", true);
-        channel.queueDeclare("zipkin", true, false, true, null);
-        channel.queueBind("zipkin", exchangeName, routingKey);
-    }
-
-    private static Channel getRabbitMqChannel() throws Exception {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setUsername("guest");
-        factory.setPassword("guest");
-        factory.setVirtualHost("/");
-        factory.setHost(rabbitMqContainer.getContainerIpAddress());
-        factory.setPort(rabbitMqContainer.getFirstMappedPort());
-
-        var connection = factory.newConnection();
-
-        return connection.createChannel();
-    }
-
-    private static Optional<com.expedia.open.tracing.Span> deserialize(byte[] data) {
-        try {
-            return ofNullable(com.expedia.open.tracing.Span.parseFrom(data));
-        } catch (Exception e) {
-            fail("Failed to deserialise span from data");
-            return empty();
-        }
-    }
-
     /**
      * Create consumer and subscribe to spans topic.
      */
@@ -181,5 +159,20 @@ class RabbitMqIngressTest {
         consumer.subscribe(singletonList("proto-spans"));
 
         return consumer;
+    }
+
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext context) {
+            var values = TestPropertyValues.of(
+                    "pitchfork.ingress.rabbitmq.enabled=true",
+                    "pitchfork.ingress.rabbitmq.host=" + rabbitMqContainer.getContainerIpAddress(),
+                    "pitchfork.ingress.rabbitmq.port=" + rabbitMqContainer.getFirstMappedPort(),
+                    "pitchfork.ingress.rabbitmq.queue-name=zipkin",
+                    "pitchfork.ingress.rabbitmq.source-format=PROTO3",
+                    "pitchfork.forwarders.haystack.kafka.enabled=true",
+                    "pitchfork.forwarders.haystack.kafka.bootstrap-servers=" + kafkaContainer.getBootstrapServers()
+            );
+            values.applyTo(context);
+        }
     }
 }

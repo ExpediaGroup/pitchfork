@@ -1,5 +1,5 @@
 # Builder image
-FROM adoptopenjdk:15_36-jdk-hotspot as build
+FROM adoptopenjdk/openjdk16:jdk-16.0.1_9-debian as build
 
 RUN jlink \
      --module-path /opt/java/jmods \
@@ -10,7 +10,7 @@ RUN jlink \
      --output /opt/jdk-mini
 
 # Start a new image and copy just the minimal java distribution from the previous one
-FROM debian:10.6-slim
+FROM debian:stable-slim
 COPY --from=build /opt/jdk-mini /opt/jdk-mini
 
 # Create some dirs and copy pitchfork jar

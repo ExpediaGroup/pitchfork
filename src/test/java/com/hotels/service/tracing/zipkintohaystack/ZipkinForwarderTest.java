@@ -1,6 +1,5 @@
 package com.hotels.service.tracing.zipkintohaystack;
 
-import org.awaitility.core.ConditionFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,12 +23,10 @@ import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.okhttp3.OkHttpSender;
 
-import java.time.Duration;
 import java.util.List;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static com.hotels.service.tracing.zipkintohaystack.TestUtils.AWAIT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 import static zipkin2.codec.SpanBytesEncoder.JSON_V1;
 
 @Testcontainers
@@ -38,31 +35,14 @@ import static zipkin2.codec.SpanBytesEncoder.JSON_V1;
 @ContextConfiguration(initializers = {ZipkinForwarderTest.Initializer.class})
 class ZipkinForwarderTest {
 
-    @LocalServerPort
-    private int localServerPort;
-
     @Container
     private static final GenericContainer zipkinContainer = new GenericContainer("openzipkin/zipkin:2.23")
             .withExposedPorts(9411)
             .waitingFor(new HttpWaitStrategy().forPath("/health"));
-    private static final ConditionFactory AWAIT = await()
-            .atMost(Duration.ofSeconds(10))
-            .pollInterval(Duration.ofSeconds(1))
-            .pollDelay(Duration.ofSeconds(1));
-
+    @LocalServerPort
+    private int localServerPort;
     @Autowired
     private TestRestTemplate restTemplate;
-
-    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        public void initialize(ConfigurableApplicationContext context) {
-            var values = TestPropertyValues.of(
-                    "pitchfork.forwarders.zipkin.http.enabled=true",
-                    "pitchfork.forwarders.zipkin.http.endpoint=http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer
-                            .getFirstMappedPort() + "/api/v2/spans"
-            );
-            values.applyTo(context);
-        }
-    }
 
     @Test
     void shouldAcceptJsonV2AndForwardToZipkin() {
@@ -253,5 +233,16 @@ class ZipkinForwarderTest {
                 .endpoint("http://localhost:" + localServerPort + "/api/v2/spans")
                 .build();
         return AsyncReporter.create(sender);
+    }
+
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext context) {
+            var values = TestPropertyValues.of(
+                    "pitchfork.forwarders.zipkin.http.enabled=true",
+                    "pitchfork.forwarders.zipkin.http.endpoint=http://" + zipkinContainer.getContainerIpAddress() + ":" + zipkinContainer
+                            .getFirstMappedPort() + "/api/v2/spans"
+            );
+            values.applyTo(context);
+        }
     }
 }
