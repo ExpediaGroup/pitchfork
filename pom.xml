@@ -12,21 +12,21 @@
     <java.version>16</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <aws-java-sdk.version>1.11.940</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.1009</aws-java-sdk.version>
     <zipkin-reporter.version>2.16.3</zipkin-reporter.version>
-    <spring-boot.version>2.4.2</spring-boot.version>
-    <testcontainers.version>1.15.1</testcontainers.version>
+    <spring-boot.version>2.4.5</spring-boot.version>
+    <testcontainers.version>1.15.3</testcontainers.version>
     <jackson.version>2.12.3</jackson.version>
-    <amazon-kinesis-producer.version>0.14.3</amazon-kinesis-producer.version>
-    <amazon-kinesis-client.version>1.14.0</amazon-kinesis-client.version>
-    <rabbitmq-client.version>5.10.0</rabbitmq-client.version>
+    <amazon-kinesis-producer.version>0.14.6</amazon-kinesis-producer.version>
+    <amazon-kinesis-client.version>1.14.2</amazon-kinesis-client.version>
+    <rabbitmq-client.version>5.12.0</rabbitmq-client.version>
     <haystack-idl.version>1.0.66</haystack-idl.version>
     <zipkin-proto.version>1.0.0</zipkin-proto.version>
-    <kafka.version>2.7.0</kafka.version>
-    <protobuf-java.version>3.14.0</protobuf-java.version>
+    <kafka.version>2.8.0</kafka.version>
+    <protobuf-java.version>3.15.8</protobuf-java.version>
     <javax-annotation.version>1.3.2</javax-annotation.version>
     <awaitility.version>4.0.3</awaitility.version>
-    <assertj-core.version>3.18.1</assertj-core.version>
+    <assertj-core.version>3.19.0</assertj-core.version>
   </properties>
 
   <organization>
@@ -352,7 +352,7 @@
           <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.0</version> <!-- Use newer version of ASM -->
+            <version>9.1</version> <!-- Use newer version of ASM -->
           </dependency>
         </dependencies>
       </plugin>
