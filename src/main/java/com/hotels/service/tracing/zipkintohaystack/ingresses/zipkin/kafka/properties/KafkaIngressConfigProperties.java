@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.ingresses.kafka.properties;
+package com.hotels.service.tracing.zipkintohaystack.ingresses.zipkin.kafka.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

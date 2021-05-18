@@ -16,13 +16,9 @@
  */
 package com.hotels.service.tracing.zipkintohaystack;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
-import static org.springframework.web.reactive.function.server.RequestPredicates.method;
-import static org.springframework.web.reactive.function.server.RequestPredicates.path;
-import static org.springframework.web.reactive.function.server.RouterFunctions.nest;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
-
+import com.hotels.service.tracing.zipkintohaystack.ingresses.datadog.DatadogSpansDecoder;
+import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
+import io.netty.handler.codec.http.HttpContentDecompressor;
 import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory;
 import org.springframework.context.annotation.Bean;
@@ -33,9 +29,11 @@ import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import com.hotels.service.tracing.zipkintohaystack.metrics.MetersProvider;
-import io.netty.handler.codec.http.HttpContentDecompressor;
-import zipkin2.codec.SpanBytesDecoder;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RouterFunctions.nest;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static zipkin2.codec.SpanBytesDecoder.*;
 
 @Configuration
 public class RoutingConfig {
@@ -48,18 +46,22 @@ public class RoutingConfig {
      * At this moment we support {@code POST}s for the v1 api encoded in Json or Thrift, or for the v2 api in Json.
      */
     @Bean
-    public RouterFunction<ServerResponse> myRoutes(ZipkinController zipkinController, MetersProvider metersProvider) {
+    public RouterFunction<ServerResponse> myRoutes(ZipkinController zipkinController, MetersProvider metersProvider, DatadogSpansDecoder datadogSpansDecoder) {
         var counterJsonV1 = metersProvider.getSpansCounter("http", "jsonv1");
         var counterJsonV2 = metersProvider.getSpansCounter("http", "jsonv2");
         var counterThrift = metersProvider.getSpansCounter("http", "thrift");
         var counterProtobuf = metersProvider.getSpansCounter("http", "protobuf");
+        var counterDatadog = metersProvider.getSpansCounter("http", "datadog");
 
         return nest(method(HttpMethod.POST),
                 nest(contentType(APPLICATION_JSON),
-                        route(path("/api/v1/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V1, counterJsonV1))
-                                .andRoute(path("/api/v2/spans"), request -> zipkinController.addSpans(request, SpanBytesDecoder.JSON_V2, counterJsonV2)))
-                        .andRoute(contentType(APPLICATION_THRIFT), request -> zipkinController.addSpans(request, SpanBytesDecoder.THRIFT, counterThrift))
-                        .andRoute(contentType(APPLICATION_PROTOBUF), request -> zipkinController.addSpans(request, SpanBytesDecoder.PROTO3, counterProtobuf)))
+                        route(path("/api/v1/spans"), request -> zipkinController.addSpans(request, JSON_V1::decodeList, counterJsonV1))
+                                .andRoute(path("/api/v2/spans"), request -> zipkinController.addSpans(request, JSON_V2::decodeList, counterJsonV2)))
+                        .andRoute(contentType(APPLICATION_THRIFT), request -> zipkinController.addSpans(request, THRIFT::decodeList, counterThrift))
+                        .andRoute(contentType(APPLICATION_PROTOBUF), request -> zipkinController.addSpans(request, PROTO3::decodeList, counterProtobuf)))
+                .andNest(method(HttpMethod.PUT),
+                        nest(contentType(APPLICATION_JSON),
+                                route(path("/v0.3/traces"), request -> zipkinController.addSpans(request, datadogSpansDecoder, counterDatadog))))
                 .andRoute(RequestPredicates.all(), zipkinController::unmatched);
     }
 

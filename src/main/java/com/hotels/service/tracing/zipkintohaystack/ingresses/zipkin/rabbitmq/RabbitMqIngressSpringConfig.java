@@ -14,7 +14,7 @@
  *       limitations under the License.
  *
  */
-package com.hotels.service.tracing.zipkintohaystack.ingresses.rabbitmq;
+package com.hotels.service.tracing.zipkintohaystack.ingresses.zipkin.rabbitmq;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
-import com.hotels.service.tracing.zipkintohaystack.ingresses.rabbitmq.properties.RabbitMqIngressConfigProperties;
+import com.hotels.service.tracing.zipkintohaystack.ingresses.zipkin.rabbitmq.properties.RabbitMqIngressConfigProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
