@@ -17,7 +17,6 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.datadog;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogSpan;
-import org.springframework.util.StringUtils;
 import zipkin2.Annotation;
 import zipkin2.Endpoint;
 import zipkin2.Span;
@@ -47,17 +46,17 @@ public class DatadogDomainConverter {
         var traceId = hexadecimalToDecimal(zipkin.traceId());
 
         return new DatadogSpan(
+                traceId,
+                spanId,
+                parentId,
+                toNanos(zipkin.timestamp()),
                 toNanos(zipkin.duration()),
                 error,
                 tags(zipkin.tags(), zipkin.annotations()), // TODO: add 'kind' to tag?
                 emptyMap(),
                 valueOrDefault(zipkin.name(), "span"),
-                parentId,
                 valueOrDefault(zipkin.name(), "resource"), // TODO: maybe derive resource from tags? http.method + http.path?
                 zipkin.localServiceName(),
-                spanId,
-                toNanos(zipkin.timestamp()),
-                traceId,
                 null // TODO: TypeEnum.web
         );
     }
@@ -90,10 +89,6 @@ public class DatadogDomainConverter {
         } else {
             return new BigInteger(input, 16);
         }
-    }
-
-    private static String decimalToHexadecimal(BigInteger traceId) {
-        return traceId.toString(16);
     }
 
     private static Integer isError(Span zipkin) {
@@ -139,5 +134,13 @@ public class DatadogDomainConverter {
         // TODO: annotations, resource_name, ...
 
         return builder.build();
+    }
+
+    /**
+     * Zipkin trace ids are 64 or 128 bits represented as 16 or 32 hex characters with '0' left padding
+     * We always use 64 bits (16 chars) to maintain compatibility with Datadog.
+     */
+    private static String decimalToHexadecimal(BigInteger id) {
+        return String.format("%016x", id);
     }
 }
