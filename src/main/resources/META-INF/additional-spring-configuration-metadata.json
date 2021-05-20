@@ -92,7 +92,7 @@
     },
     {
       "name": "pitchfork.forwarders.haystack.kinesis.client.config-type",
-      "type": "com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties.ClientConfigurationEnum",
+      "type": "com.expedia.pitchfork.systems.haystack.forwarder.kinesis.properties.ClientConfigurationEnum",
       "description": "Configuration type to be used for the Kinesis client. Possible values are REGION (requires region-name) or ENDPOINT (requires service-endpoint and signing-region-name)."
     },
     {
@@ -127,7 +127,7 @@
     },
     {
       "name": "pitchfork.forwarders.haystack.kinesis.auth.config-type",
-      "type": "com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.kinesis.properties.AwsAuthenticationTypeEnum",
+      "type": "com.expedia.pitchfork.systems.haystack.forwarder.kinesis.properties.AwsAuthenticationTypeEnum",
       "description": "Authentication method for AWS. Possible values are DEFAULT or BASIC."
     },
     {
