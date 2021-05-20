@@ -17,7 +17,6 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.datadog;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogSpan;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.TypeEnum;
 import zipkin2.Annotation;
 import zipkin2.Endpoint;
 import zipkin2.Span;
@@ -59,7 +58,7 @@ public class DatadogDomainConverter {
                 valueOrDefault(zipkin.name(), "span"),
                 valueOrDefault(zipkin.name(), "resource"), // TODO: maybe derive resource from tags? http.method + http.path?
                 zipkin.localServiceName(),
-                TypeEnum.web
+                "web"
         );
     }
 
@@ -126,7 +125,7 @@ public class DatadogDomainConverter {
         }
 
         if (datadogSpan.type() != null) {
-            builder.putTag("type", datadogSpan.type().name());
+            builder.putTag("type", datadogSpan.type());
         }
         if (datadogSpan.traceId() != null) {
             builder.traceId(decimalToHexadecimal(datadogSpan.traceId()));

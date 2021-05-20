@@ -7,11 +7,13 @@ import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.DatadogDom
 import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogSpan;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.zipkin.http.ZipkinForwarder;
 import com.hotels.service.tracing.zipkintohaystack.ingresses.Decoder;
+import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import zipkin2.Span;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,12 +21,15 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 @Component
-public class DatadogSpansDecoder implements Decoder {
+public class DatadogSpansMessagePackDecoder implements Decoder {
 
     private static final Logger logger = LoggerFactory.getLogger(ZipkinForwarder.class);
-    private final ObjectReader reader;
+    private ObjectReader reader;
 
-    public DatadogSpansDecoder(ObjectMapper mapper) {
+    @PostConstruct
+    public void initialize() {
+        // Instantiate ObjectMapper for MessagePack
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         this.reader = mapper.readerFor(new TypeReference<List<List<DatadogSpan>>>() {
         });
     }

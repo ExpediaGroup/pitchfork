@@ -24,5 +24,5 @@ public record DatadogSpan(@JsonProperty("trace_id")
                           String name,
                           String resource,
                           String service,
-                          TypeEnum type) {
+                          String type) {
 }

@@ -1,7 +1,6 @@
 package com.hotels.service.tracing.zipkintohaystack.forwarders.datadog;
 
 import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogSpan;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.TypeEnum;
 import org.junit.jupiter.api.Test;
 import zipkin2.Endpoint;
 import zipkin2.Span;
@@ -37,7 +36,7 @@ class DatadogDomainConverterTest {
                 name,
                 null,
                 serviceName,
-                TypeEnum.web
+                "web"
         );
 
         Span zipkinSpan = DatadogDomainConverter.toZipkin(datadogSpan);
@@ -46,7 +45,7 @@ class DatadogDomainConverterTest {
         assertThat(zipkinSpan.id()).isEqualTo("0000000000000315");
         assertThat(zipkinSpan.parentId()).isEqualTo("00000000000001c8");
         assertThat(zipkinSpan.name()).isEqualTo(name);
-        assertThat(zipkinSpan.tags().get("type")).isEqualTo(TypeEnum.web.name());
+        assertThat(zipkinSpan.tags().get("type")).isEqualTo("web");
         assertThat(zipkinSpan.localServiceName()).isEqualTo(serviceName);
         assertThat(zipkinSpan.duration()).isEqualTo(100);
         assertThat(zipkinSpan.timestamp()).isEqualTo(1621233762447L);
