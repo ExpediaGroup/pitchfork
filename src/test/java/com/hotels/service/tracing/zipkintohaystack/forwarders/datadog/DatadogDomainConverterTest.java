@@ -16,7 +16,7 @@ class DatadogDomainConverterTest {
     @Test
     public void shouldCreateZipkinSpanFromDatadog() {
         String name = "name";
-        String serviceName = "serviceName";
+        String serviceName = "service_name";
         long traceId = 123L; // 7b hexadecimal
         long parentId = 456L; // 1c8 hexadecimal
         long spanId = 789L; // 315 hexadecimal
@@ -61,7 +61,7 @@ class DatadogDomainConverterTest {
     @Test
     public void shouldCreateDatadogSpanFromZipkinSpan() {
         String name = "name";
-        String serviceName = "serviceName";
+        String serviceName = "service_name";
         String traceId = "7b"; // 123 decimal
         String parentId = "1c8"; // 456 decimal
         String spanId = "315"; // 789 decimal
