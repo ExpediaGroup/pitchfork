@@ -19,6 +19,7 @@ package com.hotels.service.tracing.zipkintohaystack;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.Fork;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.haystack.SpanValidator;
+import com.hotels.service.tracing.zipkintohaystack.ingresses.Decoder;
 import io.micrometer.core.instrument.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,6 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import zipkin2.Span;
-import zipkin2.codec.SpanBytesDecoder;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -67,7 +67,7 @@ public class ZipkinController {
      * Valid requests made to this service will be handled by this function.
      * It submits the reported spans to the registered {@link SpanForwarder} asynchronously and waits until they all complete.
      */
-    public Mono<ServerResponse> addSpans(ServerRequest serverRequest, SpanBytesDecoder decoder, Counter counter) {
+    public Mono<ServerResponse> addSpans(ServerRequest serverRequest, Decoder decoder, Counter counter) {
         return serverRequest
                 .bodyToMono(byte[].class)
                 .flatMapIterable(decodeList(decoder))
@@ -78,7 +78,7 @@ public class ZipkinController {
                 .then(ok().body(BodyInserters.empty()));
     }
 
-    private Function<byte[], Iterable<Span>> decodeList(SpanBytesDecoder decoder) {
+    private Function<byte[], Iterable<Span>> decodeList(Decoder decoder) {
         return bytes -> (Collection<Span>) decoder.decodeList(bytes);
     }
 }
