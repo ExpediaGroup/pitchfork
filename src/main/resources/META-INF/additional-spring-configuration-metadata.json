@@ -163,7 +163,7 @@
     {
       "name": "pitchfork.forwarders.datadog.port",
       "type": "java.lang.Integer",
-      "description": "The port for the datadog collector. Defaults 8216."
+      "description": "The port for the datadog collector. Defaults to 8216."
     },
     {
       "name": "pitchfork.forwarders.datadog.connect-timeout-ms",
@@ -237,4 +237,3 @@
     }
   ]
 }
-
