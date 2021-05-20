@@ -156,6 +156,11 @@
       "description": "When true, creates a forwarder to Datadog."
     },
     {
+      "name": "pitchfork.forwarders.datadog.queued-max-spans",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of spans on the backlog queue waiting to be reported."
+    },
+    {
       "name": "pitchfork.forwarders.datadog.host",
       "type": "java.lang.String",
       "description": "The host for the datadog collector. Defaults to localhost."

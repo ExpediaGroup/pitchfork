@@ -35,6 +35,7 @@ pitchfork:
       connect-timeout-ms: 10000
       read-timeout-ms: 1000
       max-connections: 10
+      queued-max-spans: 1000
     haystack:
       kinesis:
         enabled: false

@@ -16,63 +16,43 @@
  */
 package com.hotels.service.tracing.zipkintohaystack.forwarders.datadog;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.hotels.service.tracing.zipkintohaystack.forwarders.SpanForwarder;
-import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.model.DatadogSpan;
+import com.hotels.service.tracing.zipkintohaystack.forwarders.datadog.properties.DatadogForwarderConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 import zipkin2.Span;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.springframework.web.reactive.function.BodyInserters.fromValue;
+import javax.annotation.PostConstruct;
+import java.util.concurrent.CompletableFuture;
 
 /**
- * Forwarder of spans to an HTTP {@code Datadog} collector.
+ * Forwarder of spans to an async {@code Datadog} collector.
+ * Spans are sent to a dispatcher that will process them in the background.
  */
+@EnableConfigurationProperties(DatadogForwarderConfigProperties.class)
 @ConditionalOnProperty(name = "pitchfork.forwarders.datadog.enabled", havingValue = "true")
 @Component
 public class DatadogForwarder implements SpanForwarder {
 
     private final Logger logger = LoggerFactory.getLogger(DatadogForwarder.class);
-    private final WebClient datadogClient;
-    private final ObjectWriter mapper;
+    private final DatadogSpansDispatcher spansDispatcher;
 
-    public DatadogForwarder(WebClient datadogClient, ObjectMapper mapper) {
-        this.datadogClient = datadogClient;
-        this.mapper = mapper.writer();
+    public DatadogForwarder(DatadogSpansDispatcher spansDispatcher) {
+        this.spansDispatcher = spansDispatcher;
+    }
+
+    @PostConstruct
+    public void initialize() {
+        CompletableFuture.runAsync(spansDispatcher);
     }
 
     @Override
     public void process(Span span) {
         logger.info("operation=process, span={}", span);
 
-        DatadogSpan datadogSpan = DatadogDomainConverter.fromZipkinV2(span);
-        Optional<String> body = getBody(datadogSpan);
-
-        body.ifPresent(it -> {
-            datadogClient.put()
-                    .uri("/v0.3/traces")
-                    .body(fromValue(it))
-                    .retrieve()
-                    .toBodilessEntity()
-                    .subscribe(); // FIXME: reactive
-        });
-    }
-
-    private Optional<String> getBody(DatadogSpan datadogSpan) {
-        try {
-            var body = mapper.writeValueAsString(List.of(List.of(datadogSpan)));
-            return Optional.ofNullable(body);
-        } catch (JsonProcessingException e) {
-            logger.error("operation=getBody", e);
-            return Optional.empty();
-        }
+        spansDispatcher.addSpan(span);
     }
 }

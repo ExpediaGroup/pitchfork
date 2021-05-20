@@ -25,6 +25,15 @@ public class DatadogForwarderConfigProperties {
     private Integer connectTimeoutMs;
     private Integer readTimeoutMs;
     private Integer maxConnections;
+    private Integer queuedMaxSpans;
+
+    public Integer getQueuedMaxSpans() {
+        return queuedMaxSpans;
+    }
+
+    public void setQueuedMaxSpans(Integer queuedMaxSpans) {
+        this.queuedMaxSpans = queuedMaxSpans;
+    }
 
     public String getHost() {
         return host;

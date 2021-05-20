@@ -23,6 +23,7 @@ import zipkin2.Endpoint;
 import zipkin2.Span;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +54,7 @@ public class DatadogDomainConverter {
                 toNanos(zipkin.timestamp()),
                 toNanos(zipkin.duration()),
                 error,
-                tags(zipkin.tags(), zipkin.annotations()), // TODO: add 'kind' to tag?
+                tags(zipkin.tags(), zipkin.annotations(), zipkin.kind()),
                 emptyMap(),
                 valueOrDefault(zipkin.name(), "span"),
                 valueOrDefault(zipkin.name(), "resource"), // TODO: maybe derive resource from tags? http.method + http.path?
@@ -62,10 +63,16 @@ public class DatadogDomainConverter {
         );
     }
 
+    private static Map<String, String> tags(Map<String, String> tags, List<Annotation> annotations, Span.Kind kind) {
+        Map<String, String> collected = new HashMap<>();
 
-    private static Map<String, String> tags(Map<String, String> tags, List<Annotation> annotations) {
-        // TODO: add annotations?
-        return tags;
+        if (kind != null) {
+            collected.put("span.kind", kind.name());
+        }
+
+        tags.forEach(collected::put);
+
+        return collected;
     }
 
     private static String valueOrDefault(String input, String defaultValue) {
