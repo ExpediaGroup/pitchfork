@@ -19,8 +19,8 @@ jobs:
           version: '16'
           architecture: x64
 
-      - name: Build with Maven (no tests)
-        run: ./mvnw clean package -DskipTests
+      - name: Build with Maven
+        run: ./mvnw clean package
 
       - name: Docker meta
         id: meta
