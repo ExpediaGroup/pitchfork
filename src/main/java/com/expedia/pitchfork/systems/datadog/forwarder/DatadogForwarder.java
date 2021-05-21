@@ -51,7 +51,7 @@ public class DatadogForwarder implements SpanForwarder {
 
     @Override
     public void process(Span span) {
-        logger.info("operation=process, span={}", span);
+        logger.debug("operation=process, span={}", span);
 
         spansDispatcher.addSpan(span);
     }
