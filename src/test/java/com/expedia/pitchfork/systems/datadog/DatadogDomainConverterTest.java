@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Map;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DatadogDomainConverterTest {
@@ -20,15 +21,15 @@ class DatadogDomainConverterTest {
         long traceId = 123L; // 7b hexadecimal
         long parentId = 456L; // 1c8 hexadecimal
         long spanId = 789L; // 315 hexadecimal
-        long timestamp = 1621233762447000000L;
-        long duration = 100000000L;
+        long timestampMs = 1621233762447L;
+        long durationMs = 150;
 
         DatadogSpan datadogSpan = new DatadogSpan(
                 BigInteger.valueOf(traceId),
                 BigInteger.valueOf(spanId),
                 BigInteger.valueOf(parentId),
-                timestamp,
-                duration,
+                MILLISECONDS.toNanos(timestampMs),
+                MILLISECONDS.toNanos(durationMs),
                 1,
                 Map.of("tag1", "value1",
                         "tag2", "value2"),
@@ -47,8 +48,8 @@ class DatadogDomainConverterTest {
         assertThat(zipkinSpan.name()).isEqualTo(name);
         assertThat(zipkinSpan.tags().get("type")).isEqualTo("web");
         assertThat(zipkinSpan.localServiceName()).isEqualTo(serviceName);
-        assertThat(zipkinSpan.duration()).isEqualTo(100);
-        assertThat(zipkinSpan.timestamp()).isEqualTo(1621233762447L);
+        assertThat(zipkinSpan.duration()).isEqualTo(MILLISECONDS.toMicros(durationMs));
+        assertThat(zipkinSpan.timestamp()).isEqualTo(MILLISECONDS.toMicros(timestampMs));
 
         // No error
         assertThat(zipkinSpan.tags().get("error")).isNotBlank();
@@ -66,9 +67,9 @@ class DatadogDomainConverterTest {
         String traceId = "7b"; // 123 decimal
         String parentId = "1c8"; // 456 decimal
         String spanId = "315"; // 789 decimal
-        long timestamp = 1621233762447L;
         var kind = Span.Kind.CLIENT;
-        long duration = 100L;
+        long timestampMs = 1621233762447L;
+        long durationMs = 150;
 
         zipkin2.Span zipkinSpan = Span.newBuilder()
                 .traceId(traceId)
@@ -76,8 +77,8 @@ class DatadogDomainConverterTest {
                 .parentId(parentId)
                 .name(name)
                 .localEndpoint(Endpoint.newBuilder().serviceName(serviceName).build())
-                .timestamp(timestamp)
-                .duration(duration)
+                .timestamp(MILLISECONDS.toMicros(timestampMs))
+                .duration(MILLISECONDS.toMicros(durationMs))
                 .kind(kind)
                 .putTag("tag1", "value1")
                 .putTag("tag2", "value2")
@@ -91,16 +92,12 @@ class DatadogDomainConverterTest {
         assertThat(datadogSpan.parentId()).isEqualTo(456L);
         assertThat(datadogSpan.name()).isEqualTo(name);
         assertThat(datadogSpan.service()).isEqualTo(serviceName);
-        assertThat(datadogSpan.duration()).isEqualTo(100_000_000);
-        assertThat(datadogSpan.start()).isEqualTo(1621233762447000000L);
+        assertThat(datadogSpan.start()).isEqualTo(MILLISECONDS.toNanos(timestampMs));
+        assertThat(datadogSpan.duration()).isEqualTo(MILLISECONDS.toNanos(durationMs));
 
         // No error
         assertThat(datadogSpan.error()).isNull();
 
-        // 2 user defined tags
-        assertThat(datadogSpan.meta()).hasSize(3); // 2 user tags + span.kind tag
-        assertThat(datadogSpan.meta().get("tag1")).isEqualTo("value1");
-        assertThat(datadogSpan.meta().get("tag2")).isEqualTo("value2");
     }
 
     @Test

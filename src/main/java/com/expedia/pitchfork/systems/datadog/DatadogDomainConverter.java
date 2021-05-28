@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
+import static java.util.concurrent.TimeUnit.MICROSECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -34,7 +36,6 @@ import static org.springframework.util.StringUtils.hasText;
  */
 public class DatadogDomainConverter {
 
-    public static final Long MILLIS_TO_NANOS = 1_000_000L;
     private static final Integer ERROR = 1;
 
     /**
@@ -78,12 +79,12 @@ public class DatadogDomainConverter {
         return input != null ? input : defaultValue;
     }
 
-    private static Long toNanos(Long timestamp) {
-        return timestamp != null ? timestamp * MILLIS_TO_NANOS : null;
+    private static Long toNanos(Long microseconds) {
+        return microseconds != null ? MICROSECONDS.toNanos(microseconds) : null;
     }
 
-    private static Long toMillis(Long timestamp) {
-        return timestamp != null ? timestamp / MILLIS_TO_NANOS : null;
+    private static Long toMicros(Long nanoseconds) {
+        return nanoseconds != null ? NANOSECONDS.toMicros(nanoseconds) : null;
     }
 
     private static BigInteger hexadecimalToDecimal(String input) {
@@ -137,10 +138,10 @@ public class DatadogDomainConverter {
             builder.parentId(decimalToHexadecimal(datadogSpan.parentId()));
         }
         if (datadogSpan.start() != null) {
-            builder.timestamp(toMillis(datadogSpan.start()));
+            builder.timestamp(toMicros(datadogSpan.start()));
         }
         if (datadogSpan.duration() != null) {
-            builder.duration(toMillis(datadogSpan.duration()));
+            builder.duration(toMicros(datadogSpan.duration()));
         }
         // TODO: annotations, resource_name, ...
 

@@ -11,6 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: AdoptOpenJDK/install-jdk@v1
+        with:
+          version: '16'
+          architecture: x64
+
+      - name: Build with Maven
+        run: ./mvnw clean package
+
       - name: Docker meta
         id: meta
         uses: crazy-max/ghaction-docker-meta@v2
@@ -23,7 +34,7 @@ jobs:
             type=ref,event=tag
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -31,7 +42,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
+          context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          
+
