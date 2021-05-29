@@ -19,6 +19,7 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
+import org.testcontainers.utility.DockerImageName;
 import zipkin2.Endpoint;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.AsyncReporter;
@@ -40,7 +41,7 @@ import static org.assertj.core.api.Assertions.fail;
 class HaystackKafkaForwarderTest {
 
     @Container
-    private static final KafkaContainer kafkaContainer = new KafkaContainer();
+    private static final KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka").withTag("5.4.3"));
 
     @LocalServerPort
     private int localServerPort;

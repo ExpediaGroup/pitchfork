@@ -18,7 +18,7 @@ package com.expedia.pitchfork;
 
 import com.expedia.pitchfork.systems.common.Fork;
 import com.expedia.pitchfork.systems.common.SpanForwarder;
-import com.expedia.pitchfork.systems.haystack.SpanValidator;
+import com.expedia.pitchfork.systems.common.SpanValidator;
 import com.expedia.pitchfork.systems.common.IngressDecoder;
 import io.micrometer.core.instrument.Counter;
 import org.slf4j.Logger;

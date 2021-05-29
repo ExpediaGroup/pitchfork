@@ -11,6 +11,11 @@
       "description": "Max allowed difference between now and the timestamp of a given span. If a span has a timestamp outside of this range it will be discarded. Use -1 to disable this validation."
     },
     {
+      "name": "pitchfork.validators.invalid-service-names",
+      "type": "java.util.List",
+      "description": "Array with disallowed service names."
+    },
+    {
       "name": "pitchfork.ingress.rabbitmq.enabled",
       "type": "java.lang.Boolean",
       "description": "When true, uses RabbitMq as a source for Zipkin spans."

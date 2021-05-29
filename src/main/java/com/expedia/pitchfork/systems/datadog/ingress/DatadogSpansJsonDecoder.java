@@ -1,5 +1,6 @@
 package com.expedia.pitchfork.systems.datadog.ingress;
 
+import com.expedia.pitchfork.systems.common.SpanValidator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -22,9 +23,11 @@ import static java.util.stream.Collectors.toList;
 public class DatadogSpansJsonDecoder implements IngressDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(ZipkinForwarder.class);
+    private final SpanValidator validator;
     private final ObjectReader reader;
 
-    public DatadogSpansJsonDecoder(ObjectMapper mapper) {
+    public DatadogSpansJsonDecoder(SpanValidator validator, ObjectMapper mapper) {
+        this.validator = validator;
         this.reader = mapper.readerFor(new TypeReference<List<List<DatadogSpan>>>() {
         });
     }
@@ -37,6 +40,7 @@ public class DatadogSpansJsonDecoder implements IngressDecoder {
             return traces.stream()
                     .flatMap(Collection::stream)
                     .map(DatadogDomainConverter::toZipkin)
+                    .filter(validator::isSpanValid)
                     .collect(toList());
         } catch (Exception e) {
             logger.error("operation=readList", e);

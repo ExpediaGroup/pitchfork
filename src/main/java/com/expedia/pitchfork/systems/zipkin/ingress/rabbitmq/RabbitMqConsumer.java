@@ -17,7 +17,7 @@
 package com.expedia.pitchfork.systems.zipkin.ingress.rabbitmq;
 
 import com.expedia.pitchfork.systems.common.Fork;
-import com.expedia.pitchfork.systems.haystack.SpanValidator;
+import com.expedia.pitchfork.systems.common.SpanValidator;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
