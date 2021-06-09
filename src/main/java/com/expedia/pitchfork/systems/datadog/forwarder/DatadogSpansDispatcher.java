@@ -106,9 +106,9 @@ public class DatadogSpansDispatcher implements Runnable {
 
                 successCounter.increment(spans.size());
             });
-        } catch (Exception e) {
+        } catch (RuntimeException up) {
             failureCounter.increment(spans.size());
-            throw new RuntimeException(e);
+            throw up;
         } finally {
             spans.clear();
         }
