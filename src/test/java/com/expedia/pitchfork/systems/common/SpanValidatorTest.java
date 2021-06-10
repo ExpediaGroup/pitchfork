@@ -26,6 +26,9 @@ public class SpanValidatorTest {
     private static final boolean ACCEPT_NULL_TIMESTAMPS = true;
     private static final boolean REJECT_NULL_TIMESTAMPS = false;
     private static final int MAX_DRIFT_FOR_TIMESTAMPS_DISABLED = -1;
+    private static final boolean DISABLE_NULL_TIMESTAMPS_VALIDATION = false;
+    private static final int DISABLE_TIMESTAMP_DRIFT_VALIDATION = -1;
+    private static final String[] DISABLE_INVALID_SERVICE_NAMES = new String[]{};
     private final MetersProvider metersProvider = mock(MetersProvider.class);
     private final Counter mockCounter = mock(Counter.class);
 
@@ -38,7 +41,7 @@ public class SpanValidatorTest {
 
     @ParameterizedTest
     @MethodSource("timestamps")
-    public void shouldDiscardSpanIfTimestampIsInvalid(boolean rejectNullTimestamps, int maxDrift, Long timestamp, boolean spanIsKept, String[] invalidServiceNames) {
+    public void shouldDiscardSpanIfTimestampIsInvalid(boolean rejectNullTimestamps, int maxDrift, Long timestamp, boolean spanIsKept) {
         zipkin2.Span zipkinSpan = Span.newBuilder()
                 .traceId(zipkinTraceId(123L))
                 .id(zipkinSpanId(456L))
@@ -46,7 +49,7 @@ public class SpanValidatorTest {
                 .timestamp(timestamp != null ? timestamp * 1000 : null) // millis to micros
                 .build();
 
-        var victim = new SpanValidator(rejectNullTimestamps, maxDrift, invalidServiceNames, metersProvider);
+        var victim = new SpanValidator(rejectNullTimestamps, maxDrift, DISABLE_INVALID_SERVICE_NAMES, metersProvider);
         victim.initialize();
 
         boolean isSpanValid = victim.isSpanValid(zipkinSpan);
@@ -54,17 +57,40 @@ public class SpanValidatorTest {
         assertEquals(isSpanValid, spanIsKept);
     }
 
+    @ParameterizedTest
+    @MethodSource("serviceNames")
+    public void shouldDiscardSpanIfServiceNameIsInvalid(boolean spanIsKept, String serviceName, String[] invalidServiceNames) {
+        zipkin2.Span zipkinSpan = Span.newBuilder()
+                .traceId(zipkinTraceId(123L))
+                .id(zipkinSpanId(456L))
+                .localEndpoint(Endpoint.newBuilder().serviceName(serviceName).build())
+                .timestamp(System.currentTimeMillis())
+                .build();
+
+        var victim = new SpanValidator(DISABLE_NULL_TIMESTAMPS_VALIDATION, DISABLE_TIMESTAMP_DRIFT_VALIDATION, invalidServiceNames, metersProvider);
+        victim.initialize();
+
+        boolean isSpanValid = victim.isSpanValid(zipkinSpan);
+
+        assertEquals(isSpanValid, spanIsKept);
+    }
+
+    private static Stream<Arguments> serviceNames() {
+        return Stream.of(
+                Arguments.of(true, "unknown", new String[]{""}), // accept if invalid service names list is empty
+                Arguments.of(false, "unknown", new String[]{"unknown"}) // accept if service name is in the list of invalid names
+        );
+    }
+
     private static Stream<Arguments> timestamps() {
         return Stream.of(
-                Arguments.of(REJECT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, null, false, new String[]{""}), // reject null timestamp
-                Arguments.of(ACCEPT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, null, true, new String[]{""}), // accept null timestamp
-                Arguments.of(REJECT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, 123L, true, new String[]{""}), // accept non null timestamp
-                Arguments.of(REJECT_NULL_TIMESTAMPS, 5, currentTimeMillis() - SECONDS.toMillis(10), false, new String[]{""}), // reject span if too old
-                Arguments.of(REJECT_NULL_TIMESTAMPS, 5, currentTimeMillis() + SECONDS.toMillis(10), false, new String[]{""}), // reject span if too recent
-                Arguments.of(REJECT_NULL_TIMESTAMPS, 10, currentTimeMillis() + SECONDS.toMillis(5), true, new String[]{""}), // accept if only 5 sec in the future
-                Arguments.of(REJECT_NULL_TIMESTAMPS, 10, currentTimeMillis() - SECONDS.toMillis(5), true, new String[]{""}), // accept if only 5 sec in the past
-                Arguments.of(ACCEPT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, null, true, new String[]{""}), // accept if invalid service names list is empty
-                Arguments.of(ACCEPT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, null, false, new String[]{"unknown"}) // accept if invalid service name list contains list of service
+                Arguments.of(REJECT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, null, false), // reject null timestamp
+                Arguments.of(ACCEPT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, null, true), // accept null timestamp
+                Arguments.of(REJECT_NULL_TIMESTAMPS, MAX_DRIFT_FOR_TIMESTAMPS_DISABLED, 123L, true), // accept non null timestamp
+                Arguments.of(REJECT_NULL_TIMESTAMPS, 5, currentTimeMillis() - SECONDS.toMillis(10), false), // reject span if too old
+                Arguments.of(REJECT_NULL_TIMESTAMPS, 5, currentTimeMillis() + SECONDS.toMillis(10), false), // reject span if too recent
+                Arguments.of(REJECT_NULL_TIMESTAMPS, 10, currentTimeMillis() + SECONDS.toMillis(5), true), // accept if only 5 sec in the future
+                Arguments.of(REJECT_NULL_TIMESTAMPS, 10, currentTimeMillis() - SECONDS.toMillis(5), true)
         );
     }
 
