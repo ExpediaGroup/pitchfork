@@ -14,17 +14,20 @@
  *       limitations under the License.
  *
  */
-package com.expedia.pitchfork.systems.haystack;
-
-import javax.annotation.PostConstruct;
+package com.expedia.pitchfork.systems.common;
 
 import com.expedia.pitchfork.monitoring.metrics.MetersProvider;
+import io.micrometer.core.instrument.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.micrometer.core.instrument.Counter;
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Validator for spans.
@@ -40,14 +43,17 @@ public class SpanValidator {
     private final boolean acceptNullTimestamps;
     private final int maxTimestampDriftSeconds;
     private final MetersProvider metersProvider;
+    private final Set<String> invalidServiceNames;
     private Counter invalidSpansCounter;
 
     public SpanValidator(@Value("${pitchfork.validators.accept-null-timestamps}") boolean acceptNullTimestamps,
                          @Value("${pitchfork.validators.max-timestamp-drift-seconds}") int maxTimestampDriftSeconds,
+                         @Value("${pitchfork.validators.invalid-service-names}") String[] invalidServiceNames,
                          MetersProvider metersProvider) {
         this.acceptNullTimestamps = acceptNullTimestamps;
         this.maxTimestampDriftSeconds = maxTimestampDriftSeconds;
         this.metersProvider = metersProvider;
+        this.invalidServiceNames = Arrays.stream(invalidServiceNames).map(String::toLowerCase).collect(toSet());
     }
 
     @PostConstruct
@@ -56,6 +62,15 @@ public class SpanValidator {
     }
 
     public boolean isSpanValid(zipkin2.Span span) {
+        if (span.localServiceName() == null || invalidServiceNames.contains(span.localServiceName().toLowerCase())) {
+            invalidSpansCounter.increment();
+            logger.error("operation=isSpanValid, error='invalid service name', service={}, spanId={}",
+                    span.localServiceName(),
+                    span.id());
+
+            return false;
+        }
+
         if (span.traceId() == null) {
             invalidSpansCounter.increment();
             logger.error("operation=isSpanValid, error='null traceId', service={}, spanId={}",

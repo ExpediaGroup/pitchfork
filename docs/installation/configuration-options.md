@@ -155,7 +155,15 @@ Or to discard spans if the difference between the timestamp of the span and the 
 Example for 60 seconds (-1 to disable):
 
 ```
-MAX_TIMESTAMP_DRIFT_SECONDS=60
+PITCHFORK_VALIDATORS_MAX_TIMESTAMP_DRIFT_SECONDS=60
+```
+
+Or even to discard spans from specific services.
+
+Example for two disallowed service names:
+
+```
+PITCHFORK_VALIDATORS_INVALID_SERVICE_NAMES=unknown,empty
 ```
 
 ## Overriding JVM Options with Docker

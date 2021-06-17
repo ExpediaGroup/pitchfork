@@ -2,6 +2,7 @@ server:
   port: 9411
 pitchfork:
   validators:
+    invalid-service-names: "unknown"
     accept-null-timestamps: true
     max-timestamp-drift-seconds: -1
   ingress:
