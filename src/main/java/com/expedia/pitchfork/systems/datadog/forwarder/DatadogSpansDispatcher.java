@@ -1,11 +1,13 @@
 package com.expedia.pitchfork.systems.datadog.forwarder;
 
+import com.expedia.pitchfork.monitoring.metrics.MetersProvider;
 import com.expedia.pitchfork.systems.datadog.DatadogDomainConverter;
-import com.expedia.pitchfork.systems.datadog.model.DatadogSpan;
 import com.expedia.pitchfork.systems.datadog.forwarder.properties.DatadogForwarderConfigProperties;
+import com.expedia.pitchfork.systems.datadog.model.DatadogSpan;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import io.micrometer.core.instrument.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,13 +38,18 @@ public class DatadogSpansDispatcher implements Runnable {
     private final WebClient datadogClient;
     private final ObjectWriter mapper;
     private final ArrayBlockingQueue<Span> pending;
+    private final Counter successCounter;
+    private final Counter failureCounter;
 
     public DatadogSpansDispatcher(WebClient datadogClient,
                                   ObjectMapper mapper,
-                                  DatadogForwarderConfigProperties properties) {
+                                  DatadogForwarderConfigProperties properties,
+                                  MetersProvider metersProvider) {
         this.datadogClient = datadogClient;
         this.mapper = mapper.writer();
         this.pending = new ArrayBlockingQueue<>(properties.getQueuedMaxSpans());
+        this.successCounter = metersProvider.forwarderCounter("datadog", true);
+        this.failureCounter = metersProvider.forwarderCounter("datadog", false);
     }
 
     @Override
@@ -88,16 +95,23 @@ public class DatadogSpansDispatcher implements Runnable {
 
         Optional<String> body = serialize(datadogSpans);
 
-        body.ifPresent(it -> {
-            datadogClient.put()
-                    .uri("/v0.3/traces")
-                    .body(fromValue(it))
-                    .retrieve()
-                    .toBodilessEntity()
-                    .subscribe(); // FIXME: reactive
-        });
+        try {
+            body.ifPresent(it -> {
+                datadogClient.put()
+                        .uri("/v0.3/traces")
+                        .body(fromValue(it))
+                        .retrieve()
+                        .toBodilessEntity()
+                        .subscribe(); // FIXME: reactive
 
-        spans.clear();
+                successCounter.increment(spans.size());
+            });
+        } catch (RuntimeException up) {
+            failureCounter.increment(spans.size());
+            throw up;
+        } finally {
+            spans.clear();
+        }
     }
 
     private Optional<String> serialize(List<DatadogSpan> spans) {
@@ -106,6 +120,7 @@ public class DatadogSpansDispatcher implements Runnable {
             return Optional.ofNullable(body);
         } catch (JsonProcessingException e) {
             logger.error("operation=serialize", e);
+            failureCounter.increment(spans.size());
             return Optional.empty();
         }
     }
@@ -116,8 +131,9 @@ public class DatadogSpansDispatcher implements Runnable {
     public void addSpan(Span span) {
         try {
             this.pending.add(span);
-        } catch (Exception e) {
-            logger.error("operation=addSpan", e);
+        } catch (IllegalStateException e) {
+            failureCounter.increment();
+            logger.error("Unable to add span with id {} to queue. Queue full.", span.id());
         }
     }
 }

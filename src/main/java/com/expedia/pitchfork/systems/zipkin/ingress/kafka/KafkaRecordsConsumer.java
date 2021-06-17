@@ -17,7 +17,7 @@
 package com.expedia.pitchfork.systems.zipkin.ingress.kafka;
 
 import com.expedia.pitchfork.systems.common.Fork;
-import com.expedia.pitchfork.systems.haystack.SpanValidator;
+import com.expedia.pitchfork.systems.common.SpanValidator;
 import com.expedia.pitchfork.systems.zipkin.ingress.kafka.properties.KafkaIngressConfigProperties;
 import com.expedia.pitchfork.monitoring.metrics.MetersProvider;
 import io.micrometer.core.instrument.Counter;
