@@ -4,7 +4,7 @@ title: Introduction
 ---
 
 <h1 align="left">
-  <img width="300" alt="Pitchfork" src="../assets/pitchfork_logo.svg">
+  <img width="300" alt="Pitchfork" src="../assets/pitchfork_logo.svg" />
 </h1>
 
 Pitchfork lifts Zipkin tracing data into Haystack.
