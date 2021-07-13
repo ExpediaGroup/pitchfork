@@ -18,7 +18,7 @@
     <testcontainers.version>1.15.3</testcontainers.version>
     <jackson.version>2.12.3</jackson.version>
     <amazon-kinesis-producer.version>0.14.7</amazon-kinesis-producer.version>
-    <amazon-kinesis-client.version>1.14.3</amazon-kinesis-client.version>
+    <amazon-kinesis-client.version>1.14.4</amazon-kinesis-client.version>
     <rabbitmq-client.version>5.12.0</rabbitmq-client.version>
     <haystack-idl.version>1.0.66</haystack-idl.version>
     <zipkin-proto.version>1.0.0</zipkin-proto.version>
@@ -358,7 +358,7 @@
           <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.1</version> <!-- Use newer version of ASM -->
+            <version>9.2</version> <!-- Use newer version of ASM -->
           </dependency>
         </dependencies>
       </plugin>
