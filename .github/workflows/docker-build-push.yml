@@ -13,11 +13,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - uses: AdoptOpenJDK/install-jdk@v1
         with:
-          version: '16'
-          architecture: x64
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Build with Maven
         run: ./mvnw clean package
