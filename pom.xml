@@ -14,12 +14,12 @@
 
     <aws-java-sdk.version>1.12.78</aws-java-sdk.version>
     <zipkin-reporter.version>2.16.3</zipkin-reporter.version>
-    <spring-boot.version>2.5.2</spring-boot.version>
-    <testcontainers.version>1.15.3</testcontainers.version>
+    <spring-boot.version>2.5.5</spring-boot.version>
+    <testcontainers.version>1.16.0</testcontainers.version>
     <jackson.version>2.13.0</jackson.version>
-    <amazon-kinesis-producer.version>0.14.7</amazon-kinesis-producer.version>
+    <amazon-kinesis-producer.version>0.14.9</amazon-kinesis-producer.version>
     <amazon-kinesis-client.version>1.14.4</amazon-kinesis-client.version>
-    <rabbitmq-client.version>5.12.0</rabbitmq-client.version>
+    <rabbitmq-client.version>5.13.1</rabbitmq-client.version>
     <haystack-idl.version>1.0.66</haystack-idl.version>
     <zipkin-proto.version>1.0.0</zipkin-proto.version>
     <kafka.version>3.0.0</kafka.version>
