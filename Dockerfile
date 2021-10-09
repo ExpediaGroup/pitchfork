@@ -10,7 +10,7 @@ RUN jlink \
      --output /opt/jdk-mini
 
 # Start a new image and copy just the minimal java distribution from the previous one
-FROM debian:stable-slim
+FROM debian:11.0-slim
 COPY --from=build /opt/jdk-mini /opt/jdk-mini
 
 # Create some dirs and copy pitchfork jar
