@@ -1,5 +1,5 @@
 # Builder image
-FROM adoptopenjdk/openjdk16:jdk-16.0.1_9-debian as build
+FROM eclipse-temurin:17_35-jdk@sha256:a576b23ab2bdcf3746b10ce9a83004798bf4d9bc9d62d926ffe2c987a7dd3c2b as build
 
 RUN jlink \
      --module-path /opt/java/jmods \
