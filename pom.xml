@@ -19,7 +19,7 @@
     <jackson.version>2.13.0</jackson.version>
     <amazon-kinesis-producer.version>0.14.9</amazon-kinesis-producer.version>
     <amazon-kinesis-client.version>1.14.4</amazon-kinesis-client.version>
-    <rabbitmq-client.version>5.13.1</rabbitmq-client.version>
+    <rabbitmq-client.version>5.14.1</rabbitmq-client.version>
     <haystack-idl.version>1.0.66</haystack-idl.version>
     <zipkin-proto.version>1.0.0</zipkin-proto.version>
     <kafka.version>3.0.0</kafka.version>
