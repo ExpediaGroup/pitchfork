@@ -16,7 +16,7 @@
     <zipkin-reporter.version>2.16.3</zipkin-reporter.version>
     <spring-boot.version>2.5.5</spring-boot.version>
     <testcontainers.version>1.16.0</testcontainers.version>
-    <jackson.version>2.13.0</jackson.version>
+    <jackson.version>2.14.2</jackson.version>
     <amazon-kinesis-producer.version>0.15.5</amazon-kinesis-producer.version>
     <amazon-kinesis-client.version>1.14.10</amazon-kinesis-client.version>
     <rabbitmq-client.version>5.17.0</rabbitmq-client.version>
@@ -25,7 +25,7 @@
     <kafka.version>3.0.0</kafka.version>
     <protobuf-java.version>3.18.0</protobuf-java.version>
     <javax-annotation.version>1.3.2</javax-annotation.version>
-    <awaitility.version>4.1.0</awaitility.version>
+    <awaitility.version>4.2.0</awaitility.version>
     <assertj-core.version>3.21.0</assertj-core.version>
     <messagepack.version>0.9.0</messagepack.version>
   </properties>
